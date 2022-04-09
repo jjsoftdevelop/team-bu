@@ -1,0 +1,39 @@
+name: Build and Deploy to Google Compute Engine
+
+on:
+  push:
+    branches: [ main ]
+  #pull_request:
+  #  branches: [ main ]
+
+env:
+  PROJECT_ID: '${{ secrets.GCE_PROJECT_ID }}'
+  GCE_INSTANCE: team-bu-vm  # TODO: update to instance name
+  GCE_INSTANCE_ZONE: asia-east1-b   # TODO: update to instance zone
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: executing remote ssh commands using password and deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+            cd ~/team-bu
+            git pull origin main
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            npm i
+            npm run deploy
+ 
