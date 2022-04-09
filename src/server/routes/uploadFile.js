@@ -13,7 +13,7 @@ const uploadHandler = multer({
         bucket: 'team-bu',
         projectId: 'team-bu',
         keyFilename: `${appDir}/src/config/key.json`,
-        // destination: "user_upload/",
+        destination: "users/",
         filename(req, file, cb) {
             const now = new Date();
             const format = moment(now).format('YYYYMMDDTHHmmss')
