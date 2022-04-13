@@ -59,8 +59,8 @@ router.post('/logout', (req, res) => {
             console.log('session && cookie destroyed')
             res.clearCookie('isLogin')
             res.clearCookie('user')
+            res.status(200).json({ 'message': '登出成功' })
         })
-        res.status(200).json({ 'message': '登出成功' })
     } catch (err) {
         next(err)
     }
