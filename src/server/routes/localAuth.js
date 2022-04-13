@@ -150,7 +150,7 @@ router.post('/signUp', async function (req, res, next) {
         const passwd = req.body.passwd
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const nickname = req.body.nickname
-        const insertId = await signUp(email, passwdEncode, nickname)
+        const insertId = await signUp(nickname, email, passwdEncode)
         if (insertId) {
             const returnObj = {
                 message: '待驗證帳號'
