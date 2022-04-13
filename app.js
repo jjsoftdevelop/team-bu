@@ -32,13 +32,13 @@ app.use(session({
         httpOnly: true,
     }
 }))
+
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 
 // example資料塞入session
 app.use('/', (req, res, next) => {
-    const user = 'Guest'
-    req.session.account = user
+    // console.log('session===>', req.session);
     next()
 })
 
