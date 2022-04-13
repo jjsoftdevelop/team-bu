@@ -150,20 +150,27 @@ router.post('/signUp', async function (req, res, next) {
         const passwd = req.body.passwd
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const nickname = req.body.nickname
-        const insertId = await signUp(nickname, email, passwdEncode)
-        if (insertId) {
-            const returnObj = {
-                message: '待驗證帳號'
+        const isExist = await isExistEmail(email, 'user')
+        if (!isExist) {
+            const insertId = await signUp(nickname, email, passwdEncode)
+            if (insertId) {
+                const returnObj = {
+                    message: '待驗證帳號'
+                }
+                const { status } = await axios.post(`${process.env.baseUrl}/auth/sendVerifycode?mailto=${email}&nickname=${Base64.encode(nickname)}`)
+                res.status(status).json(returnObj)
+            } else {
+                const returnObj = {
+                    message: '註冊失敗'
+                }
+                res.status(402).json(returnObj)
             }
-            const { status } = await axios.post(`${process.env.baseUrl}/auth/sendVerifycode?mailto=${email}&nickname=${Base64.encode(nickname)}`)
-            res.status(status).json(returnObj)
         } else {
             const returnObj = {
-                message: '註冊失敗'
+                message: '重複註冊'
             }
             res.status(402).json(returnObj)
         }
-
     } catch (err) {
         next(err)
     }
