@@ -1,6 +1,6 @@
 import { getStudents, addStudents } from '../api/CRUDAPI'
 import { sendEmail } from '../api/sendEmailApi'
-import { verifyEmail, verifyPasswd, signUp } from '../api/verify'
+import { verifyEmail, verifyPasswd, signUp, logout } from '../api/verify'
 
 export default (context, inject) => {
     const { $axios } = context
@@ -34,7 +34,8 @@ export default (context, inject) => {
         sendEmail: sendEmail(axios),
         verifyEmail: verifyEmail(axios),
         verifyPasswd: verifyPasswd(axios),
-        signUp: signUp(axios)
+        signUp: signUp(axios),
+        logout: logout(axios),
     }
     inject('api', api)
     inject('axios', axios)

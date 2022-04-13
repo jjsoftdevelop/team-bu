@@ -7,6 +7,7 @@ const CryptoJS = require("crypto-js");
 const qs = require('querystring');
 const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
+const authMiddleWare = require('../../server/middleware/authMiddleWare')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -50,6 +51,20 @@ async function updateVerifyCode(email, verifycode) {
     const data = JSON.parse(JSON.stringify(res))
     return data
 }
+
+// -------登出--------
+router.post('/logout', (req, res) => {
+    try {
+        req.session.destroy(() => {
+            console.log('session && cookie destroyed')
+            res.clearCookie('isLogin')
+            res.clearCookie('user')
+        })
+        res.status(200).json({ 'message': '登出成功' })
+    } catch (err) {
+        next(err)
+    }
+})
 
 // -------google註冊--------
 router.get('/verify/google', (req, res) => {
@@ -144,6 +159,11 @@ router.post('/verify/passwd', async function (req, res, next) {
                 picture
             }
             req.session.user = user
+            res.cookie('isLogin', true, {
+                secure: false,
+                maxAge: 1000 * 60 * 99999,
+                httpOnly: false,
+            })
             res.status(200).json(returnObj)
         }
     } catch (err) {

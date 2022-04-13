@@ -48,6 +48,7 @@ module.exports = {
     'bootstrap-vue/nuxt',
     '@nuxtjs/axios',
     '@nuxtjs/gtm',
+    'cookie-universal-nuxt',
   ],
 
   gtm: {

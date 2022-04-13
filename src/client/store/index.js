@@ -1,4 +1,3 @@
-import Cookie from "js-cookie"
 import jwtDecode from "jwt-decode";
 
 export const state = () => ({

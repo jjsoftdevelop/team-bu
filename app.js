@@ -7,6 +7,7 @@ const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSetting = require('./src/config/swagger')
 const serverLogMiddleWare = require('./src/server/middleware/serverLogMiddleWare')
+
 // 載入所有env環境變數
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 // 取得body
@@ -23,7 +24,8 @@ app.use(express.json())
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
 app.use(session({
-    secret: 'sessionSecret',
+    secret: 'mySecret',
+    name: 'user',
     resave: true,
     saveUninitialized: false,
     cookie: {
@@ -36,9 +38,8 @@ app.use(session({
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 
-// example資料塞入session
 app.use('/', (req, res, next) => {
-    // console.log('session===>', req.session);
+    console.log('session===>', req.session);
     next()
 })
 

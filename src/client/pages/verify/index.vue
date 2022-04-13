@@ -25,6 +25,7 @@
       <input type="text" v-model="loginInfo.nickname" />
       <div @click="signUp">signUp</div>
     </div>
+    <div @click="logout">登出</div>
   </div>
 </template>
 
@@ -60,6 +61,9 @@ export default {
           email,
           passwd,
         });
+        if (res.type === "2") {
+          this.$router.push("/");
+        }
       } catch (err) {
         console.log(err);
       }
@@ -72,6 +76,13 @@ export default {
           passwd,
           nickname,
         });
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async logout() {
+      try {
+        await this.$api.logout();
       } catch (err) {
         console.log(err);
       }

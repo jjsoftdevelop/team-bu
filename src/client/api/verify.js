@@ -44,3 +44,18 @@ export function signUp(api) {
         }
     }
 }
+
+export function logout(api) {
+    return async function () {
+        const path = `${API_MODULE}/logout`
+        try {
+            const { data, errors } = await api.post(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
