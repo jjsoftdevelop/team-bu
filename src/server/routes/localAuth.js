@@ -43,6 +43,14 @@ async function signUp(nickname, email, passwdEncode) {
     return data.insertId
 }
 
+async function updateVerifyCode(email, verifycode) {
+    let sql = "update member set verifycode = ? where email = ? and provider = ?"
+    let values = [verifycode, email, 'user']
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 // -------google註冊--------
 router.get('/verify/google', (req, res) => {
     const googleOauthUrl =
@@ -183,6 +191,7 @@ router.post('/sendVerifycode', async function (req, res, next) {
         const mailto = req.query.mailto
         const nickname = Base64.decode(req.query.nickname)
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
+        await updateVerifyCode(mailto, verifycode)
         const emailRes = await axios.post(`${process.env.baseUrl}/api/sendEmail`, {
             mailto,
             mailTitle: `team-bu驗證信`,
