@@ -1,7 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const sgMail = require("@sendgrid/mail");
-const dbConnect = require('../../config/db');
+const { query } = require('../../config/async-db')
+
+async function insertDB(statusCode, statusCode, responseContent, to, text, subject) {
+    let sql = "INSERT INTO email_log(createdate,statusCode,responseContent,emailTo,emailContent,emailTitle) VALUES(?,?,?,?,?,?)"
+    let values = [new Date(), statusCode, JSON.stringify(responseContent), to, text, subject]
+    await query(sql, values)
+}
 
 // R - Read
 router.post('/sendEmail', async (req, res, next) => {
@@ -20,25 +26,19 @@ router.post('/sendEmail', async (req, res, next) => {
         const response = await sgMail.send(msg)
         statusCode = response[0].statusCode
         responseContent = response[0].body
-    } catch (error) {
-        statusCode = error.code
-        responseContent = error.response.body.errors
+    } catch (err) {
+        statusCode = err.code
+        responseContent = err.response.body.errors
     }
-    dbConnect.query("INSERT INTO email_log(createdate,statusCode,responseContent,emailTo,emailContent,emailTitle) VALUES(?,?,?,?,?,?)", [new Date(), statusCode, JSON.stringify(responseContent), to
-        , text, subject
-    ], (error, result) => {
-        try {
-            if (error) {
-                throw new Error(error)
-            }
-            const returnObj = {
-                message: statusCode === 202 ? '信件寄出成功' : '信件寄出失敗'
-            }
-            res.status(statusCode).json(returnObj)
-        } catch (error) {
-            next(error)
+    try {
+        await insertDB(statusCode, statusCode, responseContent, to, text, subject)
+        const returnObj = {
+            message: statusCode === 202 ? '信件寄出成功' : '信件寄出失敗'
         }
-    })
+        res.status(statusCode).json(returnObj)
+    } catch (err) {
+        next(err)
+    }
 })
 // export module
 module.exports = router

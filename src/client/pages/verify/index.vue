@@ -83,6 +83,7 @@ export default {
     async logout() {
       try {
         await this.$api.logout();
+        this.$router.push("/verify");
       } catch (err) {
         console.log(err);
       }

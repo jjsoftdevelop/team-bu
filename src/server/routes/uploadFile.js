@@ -1,12 +1,18 @@
 const multer = require("multer");
 const multerGoogleStorage = require("multer-cloud-storage");
-const dbConnect = require('../../config/db');
+const { query } = require('../../config/async-db')
 const express = require('express')
 const router = express.Router()
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const appDir = path.dirname(require.main.filename);
 const moment = require('moment');
+
+async function insertDB(filename, createdate, contentType, size, path, linkUrl, destination) {
+    let sql = "INSERT INTO file_log(filename, createdate, contentType, size, path, linkUrl, destination) VALUES(?,?,?,?,?,?,?)"
+    let values = [filename, createdate, contentType, size, path, linkUrl, destination]
+    await query(sql, values)
+}
 
 const uploadHandler = multer({
     storage: multerGoogleStorage.storageEngine({
@@ -33,22 +39,16 @@ router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, n
     const path = file.path
     const linkUrl = file.linkUrl
     const destination = file.destination
-
-    dbConnect.query("INSERT INTO file_log(filename, createdate, contentType, size, path, linkUrl, destination) VALUES(?,?,?,?,?,?,?)", [filename, createdate, contentType, size
-        , path, linkUrl, destination
-    ], (error, result) => {
-        try {
-            if (error) {
-                throw new Error(error)
-            }
-            const returnObj = {
-                message: '上傳成功'
-            }
-            res.status(200).json(returnObj)
-        } catch (error) {
-            next(error)
+    try {
+        await insertDB(filename, createdate, contentType, size, path, linkUrl, destination)
+        const returnObj = {
+            message: '上傳成功'
         }
-    })
+        res.status(200).json(returnObj)
+    } catch (err) {
+        next(err)
+    }
+
 });
 
 // export module
