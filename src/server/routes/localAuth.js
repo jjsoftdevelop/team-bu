@@ -22,6 +22,23 @@ async function isExistEmail(email, provider) {
     }
     return isExist
 }
+async function isVerifyEmail(email) {
+    let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 1"
+    let values = [email]
+    let dataList = await query(sql, values)
+    let isExist = false
+    const format = JSON.parse(JSON.stringify(dataList))
+    if (format[0].Count !== 0) {
+        isExist = true
+    }
+    return isExist
+}
+async function insertVerifyCodeDB(email, verifycode, IP) {
+    let sql = "INSERT INTO email_verify(email, verifycode, IP, createdate) VALUES(?,?,?,?)"
+    let values = [email, verifycode, IP, new Date()]
+    await query(sql, values)
+}
+
 async function insertDB(nickname, email, picture) {
     let sql = "INSERT INTO member(nickname, email, picture,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?)"
     let values = [nickname, email, picture, new Date(), 'google', 2, 1]
@@ -44,12 +61,24 @@ async function signUp(nickname, email, passwdEncode) {
     return data.insertId
 }
 
-async function updateVerifyCode(email, verifycode) {
-    let sql = "update member set verifycode = ? where email = ? and provider = ?"
-    let values = [verifycode, email, 'user']
+async function updateEmailStatus(email) {
+    let sql = "update email_verify set isVerify = 1 where email = ? order by createdate desc limit 1"
+    let values = [email]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
+}
+
+async function isExistVerifyCode(email, verifycode) {
+    let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 0 AND verifycode = ?"
+    let values = [email, verifycode]
+    const dataList = await query(sql, values)
+    let isExist = false
+    const format = JSON.parse(JSON.stringify(dataList))
+    if (format[0].Count !== 0) {
+        isExist = true
+    }
+    return isExist
 }
 
 // -------登出--------
@@ -119,19 +148,30 @@ router.get('/redirect/google', async (req, res) => {
 // -------自行註冊--------
 // 驗證email
 router.post('/verify/email', async function (req, res, next) {
-    const email = req.body.email
     // 判斷是否存在DB 自行登入方式
     try {
+        const email = req.body.email
         const isExist = await isExistEmail(email, 'user')
         const returnObj = {}
         if (!isExist) {
-            returnObj.message = '無帳號'
-            returnObj.nextStep = 'signin'
+            // 判斷是否驗證過帳號
+            const isExistVerifyEmail = await isVerifyEmail(email)
+            // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
+            if (isExistVerifyEmail) {
+                returnObj.message = '已驗證通過'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '已發送驗證碼'
+                returnObj.type = '2'
+                const { status } = await axios.post(`${process.env.baseUrl}/auth/sendVerifycode?mailto=${email}`)
+                res.status(status).json(returnObj)
+            }
         } else {
             returnObj.message = '有帳號'
-            returnObj.nextStep = 'login'
+            returnObj.type = '3'
+            res.status(200).json(returnObj)
         }
-        res.status(200).json(returnObj)
     } catch (err) {
         next(err)
     }
@@ -145,6 +185,7 @@ router.post('/verify/passwd', async function (req, res, next) {
         const email = req.body.email
         let returnObj = {}
         let data = await verifyPasswd(email, passwdEncode)
+        // type: 1.密碼錯誤 2.登入成功 
         if (!data || data.length === 0) {
             returnObj.message = '密碼錯誤'
             returnObj.type = '1'
@@ -159,11 +200,6 @@ router.post('/verify/passwd', async function (req, res, next) {
                 picture
             }
             req.session.user = user
-            res.cookie('isLogin', true, {
-                secure: false,
-                maxAge: 1000 * 60 * 99999,
-                httpOnly: false,
-            })
             res.status(200).json(returnObj)
         }
     } catch (err) {
@@ -181,21 +217,24 @@ router.post('/signUp', async function (req, res, next) {
         const isExist = await isExistEmail(email, 'user')
         if (!isExist) {
             const insertId = await signUp(nickname, email, passwdEncode)
+            // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
                 const returnObj = {
-                    message: '待驗證帳號'
+                    message: '註冊成功',
+                    type: '1'
                 }
-                const { status } = await axios.post(`${process.env.baseUrl}/auth/sendVerifycode?mailto=${email}&nickname=${Base64.encode(nickname)}`)
-                res.status(status).json(returnObj)
+                res.status(200).json(returnObj)
             } else {
                 const returnObj = {
-                    message: '註冊失敗'
+                    message: '註冊失敗',
+                    type: '2'
                 }
                 res.status(402).json(returnObj)
             }
         } else {
             const returnObj = {
-                message: '重複註冊'
+                message: '重複註冊',
+                type: '3'
             }
             res.status(402).json(returnObj)
         }
@@ -209,15 +248,36 @@ router.post('/signUp', async function (req, res, next) {
 router.post('/sendVerifycode', async function (req, res, next) {
     try {
         const mailto = req.query.mailto
-        const nickname = Base64.decode(req.query.nickname)
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
-        await updateVerifyCode(mailto, verifycode)
+        await insertVerifyCodeDB(mailto, verifycode, req.ip)
         const emailRes = await axios.post(`${process.env.baseUrl}/api/sendEmail`, {
             mailto,
             mailTitle: `team-bu驗證信`,
-            mailContent: `Hello ${nickname} ~ 這是您的驗證碼${verifycode}`
+            mailContent: `您好 ~ 這是您的驗證碼${verifycode}`
         })
         res.json({ status: emailRes.status })
+    } catch (err) {
+        next(err)
+    }
+})
+
+// 確認驗證碼
+router.post('/enterVerifycode', async function (req, res, next) {
+    try {
+        let returnObj = {}
+        const email = req.body.email
+        const verifycode = req.body.verifycode.toString()
+        const isExist = await isExistVerifyCode(email, verifycode)
+        if (isExist) {
+            await updateEmailStatus(email)
+            returnObj.message = '已驗證通過'
+            returnObj.type = '1'
+            res.status(200).json(returnObj)
+        } else {
+            returnObj.message = '驗證失敗'
+            returnObj.type = '0'
+            res.status(402).json(returnObj)
+        }
     } catch (err) {
         next(err)
     }

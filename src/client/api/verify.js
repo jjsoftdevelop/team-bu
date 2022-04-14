@@ -45,6 +45,21 @@ export function signUp(api) {
     }
 }
 
+export function enterVerifycode(api) {
+    return async function ({ email, verifycode }) {
+        const path = `${API_MODULE}/enterVerifycode`
+        try {
+            const { data, errors } = await api.post(path, { email, verifycode })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
 export function logout(api) {
     return async function () {
         const path = `${API_MODULE}/logout`
