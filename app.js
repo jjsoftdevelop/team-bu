@@ -29,11 +29,11 @@ app.use(session({
     name: 'user',
     resave: true,
     saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV !== 'dev',
-        maxAge: 1000 * 60 * 99999,
-        httpOnly: true,
-    }
+    // cookie: {
+    //     secure: process.env.NODE_ENV !== 'dev',
+    //     maxAge: 1000 * 60 * 99999,
+    //     httpOnly: true,
+    // }
 }))
 
 // 加入swagger ui 路由
