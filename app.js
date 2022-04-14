@@ -26,7 +26,6 @@ app.use(serverLogMiddleWare)
 app.use(session({
     secret: 'mySecret',
     name: 'user',
-    proxy: true,
     resave: true,
     saveUninitialized: false,
     cookie: {
