@@ -19,6 +19,7 @@ export const mutations = {
 export const actions = {
     nuxtServerInit({ commit }, context) {
         const user = context.req.session.user
+        console.log('user===>', user);
         if (user) {
             commit('setUserInfo', user);
             commit('setIsLogin', true);

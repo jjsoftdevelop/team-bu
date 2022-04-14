@@ -62,8 +62,8 @@ async function signUp(nickname, email, passwdEncode) {
 }
 
 async function updateEmailStatus(email) {
-    let sql = "update email_verify set isVerify = 1 where email = ? order by createdate desc limit 1"
-    let values = [email]
+    let sql = "update email_verify set isVerify = 1 AND createdate = ? where email = ? order by createdate desc limit 1"
+    let values = [email, new Date()]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
@@ -223,6 +223,11 @@ router.post('/signUp', async function (req, res, next) {
                     message: '註冊成功',
                     type: '1'
                 }
+                const user = {
+                    email,
+                    nickname,
+                }
+                req.session.user = user
                 res.status(200).json(returnObj)
             } else {
                 const returnObj = {
