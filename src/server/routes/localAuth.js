@@ -179,6 +179,7 @@ router.post('/verify/email', async function (req, res, next) {
 
 router.get('/test', function (req, res, next) {
     req.session.haha = 'haha'
+    console.log('session===>', req.session);
     res.send(req.session.haha)
 })
 
