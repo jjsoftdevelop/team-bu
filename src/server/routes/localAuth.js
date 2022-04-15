@@ -178,7 +178,19 @@ router.post('/verify/email', async function (req, res, next) {
 });
 
 // 驗證密碼
-router.post('/verify/passwd', async function (req, res, next) {
+router.post('/verify/passwd', session({
+    name: 'user',
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        // secure: process.env.NODE_ENV !== 'dev',
+        domain: '.team-bu.com',
+        secure: false,
+        maxAge: 1000 * 60 * 99999,
+        httpOnly: true,
+    }
+}), async function (req, res, next) {
     try {
         const passwd = req.body.passwd
         const passwdEncode = CryptoJS.MD5(passwd).toString();
