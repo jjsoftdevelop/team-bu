@@ -38,6 +38,7 @@ app.use(session({
     cookie: {
         // secure: process.env.NODE_ENV !== 'dev',
         // domain:'.team-bu.com',
+        sameSite: 'none',
         secure: false,
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
