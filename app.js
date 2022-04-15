@@ -20,29 +20,21 @@ app.use(
 
 // This is where you put the URL of your frontend
 app.use(express.json())
-const corsOptions = {
-    origin: process.env.baseUrl,
-    credentials: true,
-};
-
-app.use(cors(corsOptions));
 
 // 加入middleware
 // 加入 serverLogmiddleware (輸出log)
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
-app.set('trust proxy', 1)
 app.use(session({
-    proxy: true,
-    secret: 'mySecret',
-    resave: false,
-    rolling: true,
-    saveUninitialized: true,
+    secret: process.env.COOKIE_SECRET,
+    resave: true,
+    saveUninitialized: false,
+    // store: new CookieStore({ mongooseConnection: mongoose.connection }),
     cookie: {
-        secure: false,
-        maxAge: 1000 * 60 * 99999,
         httpOnly: true,
-    }
+        secure: true,
+        sameSite: "none",
+    },
 }))
 
 // 加入swagger ui 路由
