@@ -8,8 +8,21 @@ const qs = require('querystring');
 const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
-const session = require('express-session')
 
+const session = express.session({
+    //session configuration
+    name: 'user',
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        // secure: process.env.NODE_ENV !== 'dev',
+        domain: '.team-bu.com',
+        secure: false,
+        maxAge: 1000 * 60 * 99999,
+        httpOnly: true,
+    }
+});
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -82,20 +95,6 @@ async function isExistVerifyCode(email, verifycode) {
     }
     return isExist
 }
-
-router.use(session({
-    name: 'user',
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        // secure: process.env.NODE_ENV !== 'dev',
-        domain:'.team-bu.com',
-        secure: false,
-        maxAge: 1000 * 60 * 99999,
-        httpOnly: true,
-    }
-}))
 
 // -------登出--------
 router.post('/logout', (req, res) => {
@@ -194,7 +193,7 @@ router.post('/verify/email', async function (req, res, next) {
 });
 
 // 驗證密碼
-router.post('/verify/passwd', async function (req, res, next) {
+router.post('/verify/passwd', session, async function (req, res, next) {
     try {
         const passwd = req.body.passwd
         const passwdEncode = CryptoJS.MD5(passwd).toString();
