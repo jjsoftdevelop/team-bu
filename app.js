@@ -33,12 +33,13 @@ app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
 app.set('trust proxy', 1)
 app.use(session({
+    proxy: true,
     secret: 'mySecret',
     resave: false,
-    saveUninitialized: false,
+    rolling: true,
+    saveUninitialized: true,
     cookie: {
-        // secure: process.env.NODE_ENV !== 'dev',
-        sameSite: 'none',
+        secure: false,
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
     }
