@@ -30,19 +30,19 @@ app.use(cors({
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
 app.set('trust proxy', true)
-app.use(session({
-    name: 'user',
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        // secure: process.env.NODE_ENV !== 'dev',
-        domain:'.team-bu.com',
-        secure: false,
-        maxAge: 1000 * 60 * 99999,
-        httpOnly: true,
-    }
-}))
+// app.use(session({
+//     name: 'user',
+//     secret: 'secret',
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//         // secure: process.env.NODE_ENV !== 'dev',
+//         domain:'.team-bu.com',
+//         secure: false,
+//         maxAge: 1000 * 60 * 99999,
+//         httpOnly: true,
+//     }
+// }))
 
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
