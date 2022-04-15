@@ -37,7 +37,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
         // secure: process.env.NODE_ENV !== 'dev',
-        sameSite: false,
+        domain:'.team-bu.com',
         secure: false,
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
