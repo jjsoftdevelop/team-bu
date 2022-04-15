@@ -53,6 +53,12 @@ app.use('/', (req, res, next) => {
     next()
 })
 
+app.use('/abc', (req, res, next) => {
+    req.session.text2 = 'test2'
+    console.log('session===>', req.session);
+    next()
+})
+
 async function start() {
     // Init Nuxt.js
     const nuxt = new Nuxt(nuxtConfig)
