@@ -38,6 +38,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         // secure: process.env.NODE_ENV !== 'dev',
+        sameSite: 'none',
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
     }
