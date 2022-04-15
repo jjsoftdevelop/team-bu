@@ -24,16 +24,17 @@ app.use(express.json())
 // 加入 serverLogmiddleware (輸出log)
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
+app.set('trust proxy', 1)
 app.use(session({
-    secret: process.env.COOKIE_SECRET,
-    resave: true,
-    saveUninitialized: false,
-    // store: new CookieStore({ mongooseConnection: mongoose.connection }),
+    secret: 'mySecret',
+    resave: false,
+    rolling: true,
+    saveUninitialized: true,
     cookie: {
+        secure: process.env.NODE_ENV !== 'dev',
+        maxAge: 1000 * 60 * 99999,
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
-    },
+    }
 }))
 
 // 加入swagger ui 路由
