@@ -26,14 +26,13 @@ app.use(serverLogMiddleWare)
 app.set('trust proxy', 1)
 app.use(session({
     secret: 'mySecret',
-    name: 'user',
-    resave: true,
+    resave: false,
     saveUninitialized: false,
-    // cookie: {
-    //     secure: process.env.NODE_ENV !== 'dev',
-    //     maxAge: 1000 * 60 * 99999,
-    //     httpOnly: true,
-    // }
+    cookie: {
+        secure: process.env.NODE_ENV !== 'dev',
+        maxAge: 1000 * 60 * 99999,
+        httpOnly: true,
+    }
 }))
 
 // 加入swagger ui 路由
