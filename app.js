@@ -7,6 +7,7 @@ const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSetting = require('./src/config/swagger')
 const serverLogMiddleWare = require('./src/server/middleware/serverLogMiddleWare')
+const cors = require('cors')
 
 // 載入所有env環境變數
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -17,7 +18,14 @@ app.use(
     })
 )
 
+// This is where you put the URL of your frontend
 app.use(express.json())
+const corsOptions = {
+    origin: process.env.baseUrl,
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // 加入middleware
 // 加入 serverLogmiddleware (輸出log)
@@ -29,7 +37,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV !== 'dev',
+        // secure: process.env.NODE_ENV !== 'dev',
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
     }
