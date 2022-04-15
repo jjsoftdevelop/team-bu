@@ -62,8 +62,8 @@ async function signUp(nickname, email, passwdEncode) {
 }
 
 async function updateEmailStatus(email) {
-    let sql = "update email_verify set isVerify = 1 AND createdate = ? where email = ? order by createdate desc limit 1"
-    let values = [email, new Date()]
+    let sql = "update email_verify set isVerify = 1 AND modifydate = ? where email = ? order by createdate desc limit 1"
+    let values = [new Date(), email]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
