@@ -21,7 +21,6 @@
     "@sendgrid/mail": "^7.6.2",
     "bootstrap": "^4.6.1",
     "bootstrap-vue": "^2.21.2",
-    "cookie-parser": "^1.4.6",
     "cookie-universal-nuxt": "^2.1.5",
     "core-js": "^3.19.3",
     "cross-env": "^7.0.3",

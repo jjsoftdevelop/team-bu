@@ -26,7 +26,8 @@ app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
 app.set('trust proxy', true)
 app.use(session({
-    secret: 'mySecret',
+    name: 'user',
+    secret: 'secret',
     resave: false,
     rolling: true,
     saveUninitialized: true,
