@@ -112,6 +112,7 @@ export default {
           passwd,
         });
         if (res.type === "2") {
+          console.log(res);
           window.location.href = "/";
         }
       } catch (err) {

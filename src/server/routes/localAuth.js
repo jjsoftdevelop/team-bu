@@ -199,6 +199,7 @@ router.post('/verify/passwd', async function (req, res, next) {
                 nickname,
                 picture
             }
+            console.log('登入成功');
             req.session.text2 = 'text2'
             req.session.user = user
             res.status(200).json(returnObj)
