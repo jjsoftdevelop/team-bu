@@ -179,7 +179,7 @@ router.post('/verify/email', async function (req, res, next) {
 
 router.get('/test', function (req, res, next) {
     req.session.haha = 'haha'
-    res.render(req.session.haha)
+    res.send(req.session.haha)
 })
 
 // 驗證密碼
