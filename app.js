@@ -24,7 +24,7 @@ app.use(express.json())
 // 加入 serverLogmiddleware (輸出log)
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
-app.set('trust proxy', 1)
+app.set('trust proxy', true)
 app.use(session({
     secret: 'mySecret',
     resave: false,
