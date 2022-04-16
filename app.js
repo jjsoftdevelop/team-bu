@@ -41,7 +41,8 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: process.env.NODE_ENV !== 'dev',
+        // secure: process.env.NODE_ENV !== 'dev',
+        secure: false,
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
     }
