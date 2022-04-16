@@ -7,7 +7,6 @@ const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSetting = require('./src/config/swagger')
 const serverLogMiddleWare = require('./src/server/middleware/serverLogMiddleWare')
-const cors = require("cors")
 const firebaseKey = require('./src/config/keyForFirebase.json')
 const FirebaseStore = require('connect-session-firebase')(session);
 const firebase = require('firebase-admin');
@@ -29,28 +28,20 @@ app.use(
 // This is where you put the URL of your frontend
 app.use(express.json())
 
-app.use(cors({
-    origin: "https://team-bu.com",
-    credentials: true
-}))
 // 加入middleware
 // 加入 serverLogmiddleware (輸出log)
 app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
-app.set('trust proxy', true)
 app.use(session({
-    store: new FirebaseStore({
+    store: process.env.NODE_ENV !== 'dev' ? new FirebaseStore({
         database: ref.database()
-    }),
+    }) : '',
     name: 'user',
     secret: 'secret',
     resave: false,
     saveUninitialized: true,
     cookie: {
-        // secure: process.env.NODE_ENV !== 'dev',
-        // domain:'.team-bu.com',
-        // sameSite: 'none',
-        secure: false,
+        secure: process.env.NODE_ENV !== 'dev',
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
     }
