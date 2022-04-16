@@ -8,6 +8,14 @@ const swaggerUi = require('swagger-ui-express')
 const swaggerSetting = require('./src/config/swagger')
 const serverLogMiddleWare = require('./src/server/middleware/serverLogMiddleWare')
 const cors = require("cors")
+const firebaseKey = require('./src/config/keyForFirebase.json')
+const FirebaseStore = require('connect-session-firebase')(session);
+const firebase = require('firebase-admin');
+const ref = firebase.initializeApp({
+    credential: firebase.credential.cert(firebaseKey),
+    databaseURL: process.env.FIREBASE_DATABASEURL
+});
+
 
 // 載入所有env環境變數
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -31,6 +39,9 @@ app.use(serverLogMiddleWare)
 // 加入 session middleware (session 初始化)
 app.set('trust proxy', true)
 app.use(session({
+    store: new FirebaseStore({
+        database: ref.database()
+    }),
     name: 'user',
     secret: 'secret',
     resave: false,
@@ -38,7 +49,7 @@ app.use(session({
     cookie: {
         // secure: process.env.NODE_ENV !== 'dev',
         // domain:'.team-bu.com',
-        sameSite: 'none',
+        // sameSite: 'none',
         secure: false,
         maxAge: 1000 * 60 * 99999,
         httpOnly: true,
@@ -49,13 +60,6 @@ app.use(session({
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 
 app.use('/', (req, res, next) => {
-    req.session.text = 'test'
-    console.log('session===>', req.session);
-    next()
-})
-
-app.use('/abc', (req, res, next) => {
-    req.session.text2 = 'test2'
     console.log('session===>', req.session);
     next()
 })

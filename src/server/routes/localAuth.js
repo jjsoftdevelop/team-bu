@@ -177,12 +177,6 @@ router.post('/verify/email', async function (req, res, next) {
     }
 });
 
-router.get('/test', function (req, res, next) {
-    req.session.haha = 'haha'
-    console.log('session===>', req.session);
-    res.send(req.session.haha)
-})
-
 // 驗證密碼
 router.post('/verify/passwd', async function (req, res, next) {
     try {
@@ -206,8 +200,6 @@ router.post('/verify/passwd', async function (req, res, next) {
                 picture
             }
             req.session.user = user
-            req.session.text2 = 'test2'
-            req.session.save();
             res.status(200).json(returnObj)
         }
     } catch (err) {

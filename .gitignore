@@ -94,3 +94,4 @@ sw.*
 # key
 key.json
 keyForOauth.json
+keyForFirebase.json
