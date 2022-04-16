@@ -37,6 +37,13 @@
       <hr />
     </div>
     <div v-if="step === 'setting'">
+      <div>headshot</div>
+      <input
+        type="file"
+        name="uploadBox"
+        @change="uploadFile"
+        accept="image/png, image/jpeg"
+      />
       <div>passwd</div>
       <input type="text" v-model="loginInfo.passwd" />
       <div>passwdCheck</div>
@@ -63,6 +70,7 @@ export default {
         passwdCheck: "jj04050406",
         nickname: "開發測試",
         verifycode: "",
+        headshot: "",
       },
       step: "start",
     };
@@ -119,13 +127,20 @@ export default {
         console.log(err);
       }
     },
+    uploadFile(event) {
+      this.loginInfo.headshot = event.target.files[0];
+    },
     async signUp() {
       try {
         const { email, passwd, nickname } = this.loginInfo;
+        const formData = new FormData();
+        formData.append("uploadBox", this.loginInfo.headshot);
+        const { url } = await this.$api.uploadFile(formData);
         const res = await this.$api.signUp({
           email,
           passwd,
           nickname,
+          url,
         });
         const { type } = res;
         if (type === "1") {

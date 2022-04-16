@@ -2,7 +2,6 @@ const { query } = require('../../config/async-db')
 const express = require('express')
 const router = express.Router()
 const axios = require('axios');
-const { Base64 } = require('js-base64');
 const CryptoJS = require("crypto-js");
 const qs = require('querystring');
 const jwtDecode = require("jwt-decode");
@@ -53,16 +52,16 @@ async function verifyPasswd(email, passwdEncode) {
     return data
 }
 
-async function signUp(nickname, email, passwdEncode) {
-    let sql = "INSERT INTO member(nickname, email, password , createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?)"
-    let values = [nickname, email, passwdEncode, new Date(), 'user', 1, 1]
+async function signUp(nickname, email, passwdEncode, url) {
+    let sql = "INSERT INTO member(nickname, email, password, picture ,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?,?)"
+    let values = [nickname, email, passwdEncode, url, new Date(), 'user', 1, 1]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data.insertId
 }
 
 async function updateEmailStatus(email) {
-    let sql = "update email_verify set isVerify = 1 AND modifydate = ? where email = ? order by createdate desc limit 1"
+    let sql = "update email_verify set isVerify = 1, modifydate = ? where email = ? order by createdate desc limit 1"
     let values = [new Date(), email]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
@@ -214,9 +213,10 @@ router.post('/signUp', async function (req, res, next) {
         const passwd = req.body.passwd
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const nickname = req.body.nickname
+        const url = req.body.url
         const isExist = await isExistEmail(email, 'user')
         if (!isExist) {
-            const insertId = await signUp(nickname, email, passwdEncode)
+            const insertId = await signUp(nickname, email, passwdEncode, url)
             // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
                 const returnObj = {
@@ -226,6 +226,7 @@ router.post('/signUp', async function (req, res, next) {
                 const user = {
                     email,
                     nickname,
+                    picture: url
                 }
                 req.session.user = user
                 res.status(200).json(returnObj)

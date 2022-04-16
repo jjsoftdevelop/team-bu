@@ -52,7 +52,6 @@ app.use(session({
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 
 app.use('/', (req, res, next) => {
-    console.log('session===>', req.session);
     next()
 })
 

@@ -31,10 +31,10 @@ export function verifyPasswd(api) {
 }
 
 export function signUp(api) {
-    return async function ({ email, passwd, nickname }) {
+    return async function ({ email, passwd, nickname, url }) {
         const path = `${API_MODULE}/signUp`
         try {
-            const { data, errors } = await api.post(path, { email, passwd, nickname })
+            const { data, errors } = await api.post(path, { email, passwd, nickname, url })
             if (errors) {
                 return Promise.reject(errors)
             }

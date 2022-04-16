@@ -12,10 +12,13 @@
               height="30"
               :src="user.picture"
               rounded
+              style="object-fit: contain"
               alt=""
             ></b-img>
             <div class="text-white mr-2">{{ user.nickname }}</div>
-            <div class="text-white" style="cursor:pointer" @click="logout">登出</div>
+            <div class="text-white" style="cursor: pointer" @click="logout">
+              登出
+            </div>
           </div>
         </div>
       </div>

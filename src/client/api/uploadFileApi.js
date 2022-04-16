@@ -1,10 +1,15 @@
 const API_MODULE = `/api`
 
-export function sendEmail(api) {
-    return async function ({ mailto, mailTitle, mailContent }) {
-        const path = `${API_MODULE}/sendEmail`
+export function uploadFile(api) {
+    return async function (formData) {
+        const path = `${API_MODULE}/uploadFile`
         try {
-            const { data, errors } = await api.post(path, { mailto, mailTitle, mailContent })
+            const { data, errors } = await api({
+                method: 'post',
+                url: path,
+                data: formData,
+                headers: { "Content-Type": "multipart/form-data" },
+            })
             if (errors) {
                 return Promise.reject(errors)
             }

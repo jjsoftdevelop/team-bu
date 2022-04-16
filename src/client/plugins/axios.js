@@ -1,5 +1,6 @@
 import { getStudents, addStudents } from '../api/CRUDAPI'
 import { sendEmail } from '../api/sendEmailApi'
+import { uploadFile } from '../api/uploadFileApi'
 import { verifyEmail, verifyPasswd, signUp, logout, enterVerifycode } from '../api/verify'
 
 export default (context, inject) => {
@@ -37,6 +38,7 @@ export default (context, inject) => {
         signUp: signUp(axios),
         logout: logout(axios),
         enterVerifycode: enterVerifycode(axios),
+        uploadFile: uploadFile(axios)
     }
     inject('api', api)
     inject('axios', axios)

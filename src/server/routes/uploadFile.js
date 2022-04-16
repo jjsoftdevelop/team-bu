@@ -42,7 +42,8 @@ router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, n
     try {
         await insertDB(filename, createdate, contentType, size, path, linkUrl, destination)
         const returnObj = {
-            message: '上傳成功'
+            message: '上傳成功',
+            url: linkUrl,
         }
         res.status(200).json(returnObj)
     } catch (err) {
