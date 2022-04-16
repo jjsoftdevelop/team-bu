@@ -1,4 +1,10 @@
 const serverLogMiddleWare = (req, res, next) => {
+    console.log((
+        'x-forwarded-for', req.headers["x-forwarded-for"] || "").split(",").pop(),
+        'connection.remoteAddress', req.connection.remoteAddress,
+        'req.socket.remoteAddress', req.socket.remoteAddress,
+        'req.connection.socket.remoteAddress', req.connection.socket.remoteAddress
+    )
     const info = {
         hostname: req.hostname,
         baseUrl: req.baseUrl,
