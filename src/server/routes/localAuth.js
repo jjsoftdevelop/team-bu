@@ -40,7 +40,7 @@ async function insertVerifyCodeDB(email, verifycode, IP) {
 
 async function insertDB(nickname, email, picture) {
     let sql = "INSERT INTO member(nickname, email, picture,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?)"
-    let values = [nickname, email, picture, new Date(), 'google', 2, 1]
+    let values = [nickname, email, picture, new Date(), 'google', 1, 1]
     await query(sql, values)
 }
 
