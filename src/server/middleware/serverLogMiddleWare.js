@@ -7,9 +7,7 @@ const serverLogMiddleWare = (req, res, next) => {
         params: req.params,
         body: req.body,
         fresh: req.fresh,
-        ip: req.headers['x-forwarded-for'] ||
-            req.socket.remoteAddress ||
-            null,
+        ip: req.headers['x-real-ip'] || req.connection.remoteAddress || null,
         ips: req.ips,
         cookie: req.cookies,
         date: new Date().toISOString()
