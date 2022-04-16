@@ -255,7 +255,8 @@ router.post('/sendVerifycode', async function (req, res, next) {
     try {
         const mailto = req.query.mailto
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
-        await insertVerifyCodeDB(mailto, verifycode, req.ip)
+        const ip = req.headers['x-real-ip'] || req.connection.remoteAddress || null
+            await insertVerifyCodeDB(mailto, verifycode, ip)
         const emailRes = await axios.post(`${process.env.baseUrl}/api/sendEmail`, {
             mailto,
             mailTitle: `team-bu驗證信`,
