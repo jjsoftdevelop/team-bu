@@ -47,7 +47,7 @@ async function verifyPasswd(email, passwdEncode) {
     let values = [email, passwdEncode, 'user']
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
-    return data
+    return data[0]
 }
 
 async function signUp(nickname, email, passwdEncode, url) {
@@ -122,7 +122,7 @@ router.get('/redirect/google', async (req, res) => {
         // 判斷是否存在DB google登入方式
         const data = await isExistEmail(email, 'google')
         // 寫入DB
-        if (!data && !data.pid) {
+        if (!data && !data.memberID) {
             const memberID = await insertDB(nickname, email, picture)
             const user = {
                 memberID,
@@ -134,7 +134,7 @@ router.get('/redirect/google', async (req, res) => {
             res.redirect('/');
         } else {
             const user = {
-                memberID: data.pid,
+                memberID: data.memberID,
                 email,
                 nickname,
                 picture
@@ -158,7 +158,7 @@ router.post('/verify/email', async function (req, res, next) {
         const email = req.body.email
         const data = await isExistEmail(email, 'user')
         const returnObj = {}
-        if (!data && !data.pid) {
+        if (!data && !data.memberID) {
             // 判斷是否驗證過帳號
             const isExistVerifyEmail = await isVerifyEmail(email)
             // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
@@ -198,9 +198,9 @@ router.post('/verify/passwd', async function (req, res, next) {
         } else {
             returnObj.message = '登入成功'
             returnObj.type = '2'
-            const { nickname, picture, pid } = data[0]
+            const { nickname, picture, memberID } = data
             const user = {
-                memberID: pid,
+                memberID,
                 email,
                 nickname,
                 picture
@@ -222,7 +222,7 @@ router.post('/signUp', async function (req, res, next) {
         const nickname = req.body.nickname
         const url = req.body.url
         const data = await isExistEmail(email, 'user')
-        if (!data && !data.pid) {
+        if (!data && !data.memberID) {
             const insertId = await signUp(nickname, email, passwdEncode, url)
             // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
