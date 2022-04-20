@@ -13,11 +13,12 @@ async function insertTeamDB(
     leagueTag,
     creatorID
 ) {
-    let sql = "INSERT INTO team(name, logoUrl, bannerUrl, categoryID, typeID, rankID, statusID, city, leagueTag, creatorID, createdate) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+    let sql = "INSERT INTO team(name, logoUrl, bannerUrl, description, categoryID, typeID, rankID, statusID, city, leagueTag, creatorID, createdate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)"
     let values = [
         name,
         logoUrl,
         bannerUrl,
+        description,
         categoryID,
         typeID,
         rankID,
@@ -53,6 +54,22 @@ async function insertTeamMemberDB(
     return data.insertId
 }
 
+async function isExistTeamMember(teamID, memberID) {
+    let sql = "SELECT * FROM team_member WHERE memberID = ? AND teamID = ? Limit 1"
+    let values = [memberID, teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0]
+}
+
+async function updateTeamMemberStatus(teamMemberStatusID, memberID, teamID) {
+    let sql = "UPDATE team_member set teamMemberStatusID = ? WHERE memberID = ? AND teamID = ? limit 1"
+    let values = [teamMemberStatusID, memberID, teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 // 創建球隊
 router.post('/teams/create', async function (req, res, next) {
     try {
@@ -64,7 +81,7 @@ router.post('/teams/create', async function (req, res, next) {
         const rankID = req.body.rankID
         const city = req.body.city
         const leagueTag = req.body.leagueTag
-        const creatorID = req.session.userID
+        const creatorID = req.session.pid
 
         let returnObj = {}
         let id = await insertTeamDB(
@@ -93,28 +110,35 @@ router.post('/teams/create', async function (req, res, next) {
     }
 });
 
-// 加入
-router.post('/teams/join', async function (req, res, next) {
+// 邀請加入 or 申請加入
+router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
     try {
-        const teamID = req.body.teamID
-        const memberID = req.session.userID
-        const picture = req.session.picture
+        const teamID = req.query.teamID
+        const memberID = req.query.pid
+        const picture = req.body.picture
         const teamMemberLevelID = req.body.teamMemberLevelID
-        const teamMemberStatusID = 2
+        const teamMemberStatusID = req.body.teamMemberStatusID
         let returnObj = {}
-        let id = await insertTeamMemberDB(
-            teamID,
-            memberID,
-            picture,
-            teamMemberLevelID,
-            teamMemberStatusID,
-        )
-        if (id) {
-            returnObj.message = '申請成功'
-            returnObj.type = '1'
-            res.status(200).json(returnObj)
+        const data = isExistTeamMember(teamID, memberID)
+        if (data) {
+            let id = await insertTeamMemberDB(
+                teamID,
+                memberID,
+                picture,
+                teamMemberLevelID,
+                teamMemberStatusID,
+            )
+            if (id) {
+                returnObj.message = '申請成功'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '申請失敗'
+                returnObj.type = '9'
+                res.status(500).json(returnObj)
+            }
         } else {
-            returnObj.message = '申請失敗'
+            returnObj.message = '已存在'
             returnObj.type = '9'
             res.status(500).json(returnObj)
         }
@@ -123,28 +147,24 @@ router.post('/teams/join', async function (req, res, next) {
     }
 });
 
-// 邀請加入球隊
-router.post('/teams/invite', async function (req, res, next) {
+// 修改申請狀態
+router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
-        const teamID = req.body.teamID
-        const memberID = req.session.userID
-        const picture = req.session.picture
-        const teamMemberLevelID = req.body.teamMemberLevelID
-        const teamMemberStatusID = 1
+        const teamID = req.query.teamID
+        const memberID = req.query.teamID
+        const teamMemberStatusID = req.body.teamMemberStatusID
         let returnObj = {}
-        let id = await insertTeamMemberDB(
-            teamID,
+        let data = await updateTeamMemberStatus(
+            teamMemberStatusID,
             memberID,
-            picture,
-            teamMemberLevelID,
-            teamMemberStatusID
+            teamID,
         )
-        if (id) {
-            returnObj.message = '申請成功'
+        if (data) {
+            returnObj.message = '修改成功'
             returnObj.type = '1'
             res.status(200).json(returnObj)
         } else {
-            returnObj.message = '申請失敗'
+            returnObj.message = '修改失敗'
             returnObj.type = '9'
             res.status(500).json(returnObj)
         }
