@@ -11,15 +11,11 @@ const authMiddleWare = require('../../server/middleware/authMiddleWare')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
 async function isExistEmail(email, provider) {
-    let sql = "SELECT COUNT(*) AS Count FROM member WHERE email = ? AND provider = ?"
+    let sql = "SELECT * FROM member WHERE email = ? AND provider = ? Limit 1"
     let values = [email, provider]
     let dataList = await query(sql, values)
-    let isExist = false
-    const format = JSON.parse(JSON.stringify(dataList))
-    if (format[0].Count !== 0) {
-        isExist = true
-    }
-    return isExist
+    const data = JSON.parse(JSON.stringify(dataList))
+    return data[0]
 }
 async function isVerifyEmail(email) {
     let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 1"
@@ -41,7 +37,9 @@ async function insertVerifyCodeDB(email, verifycode, IP) {
 async function insertDB(nickname, email, picture) {
     let sql = "INSERT INTO member(nickname, email, picture,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?)"
     let values = [nickname, email, picture, new Date(), 'google', 1, 1]
-    await query(sql, values)
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data.insertId
 }
 
 async function verifyPasswd(email, passwdEncode) {
@@ -121,19 +119,27 @@ router.get('/redirect/google', async (req, res) => {
         let result = await axios.post(api_url, qs.stringify(token_option), config);
         const id_token = result.data.id_token; //jwt token
         const { email, name: nickname, picture } = jwtDecode(id_token);
-        const user = {
-            email,
-            nickname,
-            picture
-        }
-        req.session.user = user
         // 判斷是否存在DB google登入方式
-        const isExist = await isExistEmail(email, 'google')
+        const data = await isExistEmail(email, 'google')
         // 寫入DB
-        if (!isExist) {
-            await insertDB(nickname, email, picture)
+        if (!data && !data.pid) {
+            const memberID = await insertDB(nickname, email, picture)
+            const user = {
+                memberID,
+                email,
+                nickname,
+                picture
+            }
+            req.session.user = user
             res.redirect('/');
         } else {
+            const user = {
+                memberID: data.pid,
+                email,
+                nickname,
+                picture
+            }
+            req.session.user = user
             res.redirect('/');
         }
     }
@@ -150,9 +156,9 @@ router.post('/verify/email', async function (req, res, next) {
     // 判斷是否存在DB 自行登入方式
     try {
         const email = req.body.email
-        const isExist = await isExistEmail(email, 'user')
+        const data = await isExistEmail(email, 'user')
         const returnObj = {}
-        if (!isExist) {
+        if (!data && !data.pid) {
             // 判斷是否驗證過帳號
             const isExistVerifyEmail = await isVerifyEmail(email)
             // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
@@ -192,8 +198,9 @@ router.post('/verify/passwd', async function (req, res, next) {
         } else {
             returnObj.message = '登入成功'
             returnObj.type = '2'
-            const { nickname, picture } = data[0]
+            const { nickname, picture, pid } = data[0]
             const user = {
+                memberID: pid,
                 email,
                 nickname,
                 picture
@@ -214,8 +221,8 @@ router.post('/signUp', async function (req, res, next) {
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const nickname = req.body.nickname
         const url = req.body.url
-        const isExist = await isExistEmail(email, 'user')
-        if (!isExist) {
+        const data = await isExistEmail(email, 'user')
+        if (!data && !data.pid) {
             const insertId = await signUp(nickname, email, passwdEncode, url)
             // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
@@ -224,6 +231,7 @@ router.post('/signUp', async function (req, res, next) {
                     type: '1'
                 }
                 const user = {
+                    memberID: insertId,
                     email,
                     nickname,
                     picture: url
@@ -256,7 +264,7 @@ router.post('/sendVerifycode', async function (req, res, next) {
         const mailto = req.query.mailto
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
         const ip = req.headers['x-real-ip'] || req.connection.remoteAddress || null
-            await insertVerifyCodeDB(mailto, verifycode, ip)
+        await insertVerifyCodeDB(mailto, verifycode, ip)
         const emailRes = await axios.post(`${process.env.baseUrl}/api/sendEmail`, {
             mailto,
             mailTitle: `team-bu驗證信`,
