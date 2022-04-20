@@ -122,10 +122,10 @@ router.get('/redirect/google', async (req, res) => {
         // 判斷是否存在DB google登入方式
         const data = await isExistEmail(email, 'google')
         // 寫入DB
-        if (!data && !data.memberID) {
-            const memberID = await insertDB(nickname, email, picture)
+        if (!data) {
+            const pid = await insertDB(nickname, email, picture)
             const user = {
-                memberID,
+                pid,
                 email,
                 nickname,
                 picture
@@ -134,7 +134,7 @@ router.get('/redirect/google', async (req, res) => {
             res.redirect('/');
         } else {
             const user = {
-                memberID: data.memberID,
+                pid: data.pid,
                 email,
                 nickname,
                 picture
@@ -158,7 +158,7 @@ router.post('/verify/email', async function (req, res, next) {
         const email = req.body.email
         const data = await isExistEmail(email, 'user')
         const returnObj = {}
-        if (!data && !data.memberID) {
+        if (!data) {
             // 判斷是否驗證過帳號
             const isExistVerifyEmail = await isVerifyEmail(email)
             // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
@@ -191,16 +191,16 @@ router.post('/verify/passwd', async function (req, res, next) {
         let returnObj = {}
         let data = await verifyPasswd(email, passwdEncode)
         // type: 1.密碼錯誤 2.登入成功 
-        if (!data || data.length === 0) {
+        if (!data) {
             returnObj.message = '密碼錯誤'
             returnObj.type = '1'
             res.status(402).json(returnObj)
         } else {
             returnObj.message = '登入成功'
             returnObj.type = '2'
-            const { nickname, picture, memberID } = data
+            const { nickname, picture, pid } = data
             const user = {
-                memberID,
+                pid,
                 email,
                 nickname,
                 picture
@@ -222,7 +222,7 @@ router.post('/signUp', async function (req, res, next) {
         const nickname = req.body.nickname
         const url = req.body.url
         const data = await isExistEmail(email, 'user')
-        if (!data && !data.memberID) {
+        if (!data) {
             const insertId = await signUp(nickname, email, passwdEncode, url)
             // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
@@ -231,7 +231,7 @@ router.post('/signUp', async function (req, res, next) {
                     type: '1'
                 }
                 const user = {
-                    memberID: insertId,
+                    pid: insertId,
                     email,
                     nickname,
                     picture: url
