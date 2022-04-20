@@ -6,7 +6,7 @@ const CryptoJS = require("crypto-js");
 const qs = require('querystring');
 const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
-const authMiddleWare = require('../../server/middleware/authMiddleWare')
+const base64Obj = require('../utils/base64')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
@@ -83,7 +83,6 @@ router.post('/logout', (req, res) => {
     try {
         req.session.destroy(() => {
             console.log('session && cookie destroyed')
-            res.clearCookie('isLogin')
             res.clearCookie('user')
             res.status(200).json({ 'message': '登出成功' })
         })
@@ -125,7 +124,7 @@ router.get('/redirect/google', async (req, res) => {
         if (!data) {
             const pid = await insertDB(nickname, email, picture)
             const user = {
-                pid,
+                pid: base64Obj.encode(pid),
                 email,
                 nickname,
                 picture
@@ -134,7 +133,7 @@ router.get('/redirect/google', async (req, res) => {
             res.redirect('/');
         } else {
             const user = {
-                pid: data.pid,
+                pid: base64Obj.encode(data.pid),
                 email,
                 nickname,
                 picture
@@ -200,7 +199,7 @@ router.post('/verify/passwd', async function (req, res, next) {
             returnObj.type = '2'
             const { nickname, picture, pid } = data
             const user = {
-                pid,
+                pid: base64Obj.encode(pid),
                 email,
                 nickname,
                 picture
@@ -231,7 +230,7 @@ router.post('/signUp', async function (req, res, next) {
                     type: '1'
                 }
                 const user = {
-                    pid: insertId,
+                    pid: base64Obj.encode(insertId),
                     email,
                     nickname,
                     picture: url

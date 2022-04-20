@@ -1,10 +1,10 @@
 const authMiddleWare = function (req, res, next) {
-    if (req.session.user) {
+    if (req.session.user && req.session.user.pid) {
         console.log('authenticated')
         next()
     } else {
         console.log('not authenticated')
-        return res.redirect('/verify')
+        res.status(402).json({ message: '無權限' })
     }
 }
 

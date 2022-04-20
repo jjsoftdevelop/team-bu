@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router()
 const { query } = require('../../config/async-db')
+const authMiddleWare = require('../../server/middleware/authMiddleWare')
+const base64Obj = require('../utils/base64')
 
 async function insertTeamDB(
     name,
     logoUrl,
     bannerUrl,
+    description,
     categoryID,
     typeID,
     rankID,
@@ -71,23 +74,25 @@ async function updateTeamMemberStatus(teamMemberStatusID, memberID, teamID) {
 }
 
 // 創建球隊
-router.post('/teams/create', async function (req, res, next) {
+router.post('/teams/create', authMiddleWare, async function (req, res, next) {
     try {
         const name = req.body.name
         const logoUrl = req.body.logoUrl
         const bannerUrl = req.body.bannerUrl
+        const description = req.body.description
         const categoryID = req.body.categoryID
         const typeID = req.body.categoryID
         const rankID = req.body.rankID
         const city = req.body.city
         const leagueTag = req.body.leagueTag
-        const creatorID = req.session.pid
+        const creatorID = base64Obj.decode(req.session.user.pid)
 
         let returnObj = {}
         let id = await insertTeamDB(
             name,
             logoUrl,
             bannerUrl,
+            description,
             categoryID,
             typeID,
             rankID,
@@ -114,7 +119,7 @@ router.post('/teams/create', async function (req, res, next) {
 router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.query.teamID
-        const memberID = req.query.pid
+        const memberID = base64Obj.decode(req.query.pid)
         const picture = req.body.picture
         const teamMemberLevelID = req.body.teamMemberLevelID
         const teamMemberStatusID = req.body.teamMemberStatusID
@@ -151,7 +156,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
 router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.query.teamID
-        const memberID = req.query.teamID
+        const memberID = base64Obj.decode(req.query.memberID)
         const teamMemberStatusID = req.body.teamMemberStatusID
         let returnObj = {}
         let data = await updateTeamMemberStatus(

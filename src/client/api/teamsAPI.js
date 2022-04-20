@@ -1,4 +1,4 @@
-const API_MODULE = `/auth`
+const API_MODULE = `/api`
 
 export function teamCreate(api) {
     return async function ({
