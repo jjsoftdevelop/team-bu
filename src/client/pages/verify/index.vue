@@ -132,10 +132,8 @@ export default {
     },
     async signUp() {
       try {
-        const { email, passwd, nickname } = this.loginInfo;
-        const formData = new FormData();
-        formData.append("uploadBox", this.loginInfo.headshot);
-        const { url } = await this.$api.uploadFile(formData);
+        const { email, passwd, nickname ,headshot} = this.loginInfo;
+        const { url } = await this.$api.uploadFile(headshot);
         const res = await this.$api.signUp({
           email,
           passwd,

@@ -1,9 +1,11 @@
 const API_MODULE = `/api`
 
 export function uploadFile(api) {
-    return async function (formData) {
+    return async function (file) {
         const path = `${API_MODULE}/uploadFile`
         try {
+            const formData = new FormData();
+            formData.append("uploadBox", file);
             const { data, errors } = await api({
                 method: 'post',
                 url: path,
