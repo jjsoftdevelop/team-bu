@@ -121,7 +121,7 @@ export default {
         });
         if (res.type === "2") {
           console.log(res);
-          window.location.href = "/";
+          window.location.href = "/create";
         }
       } catch (err) {
         console.log(err);

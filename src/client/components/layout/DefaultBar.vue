@@ -4,8 +4,7 @@
       <div class="d-flex justify-content-between w-100">
         <div class="text-white">Team-Bu</div>
         <div>
-          <router-link to="/verify" v-if="!isLogin">登入</router-link>
-          <div class="d-flex align-items-center" v-else>
+          <div class="d-flex align-items-center" v-if="user && user.pid">
             <b-img
               class="mr-2"
               width="30"
@@ -20,6 +19,7 @@
               登出
             </div>
           </div>
+          <router-link to="/verify" v-else>登入</router-link>
         </div>
       </div>
     </b-navbar-nav>
@@ -30,7 +30,7 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["isLogin", "user"]),
+    ...mapState(["user"]),
   },
   methods: {
     async logout() {

@@ -1,8 +1,12 @@
 const { Base64 } = require('js-base64');
 const base64Obj = {}
 
-base64Obj.decode = (codedStr) => {
+base64Obj.decodeNumber = (codedStr) => {
     return codedStr ? Number(Base64.decode(codedStr.replace('_', '/'))) : codedStr
+}
+
+base64Obj.decodeString = (codedStr) => {
+    return codedStr ? Base64.decode(codedStr.replace('_', '/')) : codedStr
 }
 
 base64Obj.encode = (originStr) => {

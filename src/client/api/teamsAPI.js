@@ -42,14 +42,14 @@ export function teamJoin(api) {
         memberID,
         picture,
         teamMemberLevelID,
-        teamMemberStatusID,
+        type,
     }) {
         const path = `${API_MODULE}/teams/join/${teamID}/${memberID}`
         try {
             const { data, errors } = await api.post(path, {
                 picture,
                 teamMemberLevelID,
-                teamMemberStatusID
+                type
             })
             if (errors) {
                 return Promise.reject(errors)
@@ -72,6 +72,28 @@ export function updateTeamMemberStatus(api) {
         try {
             const { data, errors } = await api.put(path, {
                 teamMemberStatusID,
+            })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 取得球隊列表
+export function getTeamList(api) {
+    return async function ({
+        teamID,
+        categoryID,
+        name,
+    }) {
+        const path = `${API_MODULE}/teams/${teamID}?categoryID=${categoryID}&name=${name}`
+        try {
+            const { data, errors } = await api.get(path, {
+                categoryID,
             })
             if (errors) {
                 return Promise.reject(errors)

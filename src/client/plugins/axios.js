@@ -2,7 +2,7 @@ import { getStudents, addStudents } from '../api/CRUDAPI'
 import { sendEmail } from '../api/sendEmailApi'
 import { uploadFile } from '../api/uploadFileApi'
 import { verifyEmail, verifyPasswd, signUp, logout, enterVerifycode } from '../api/verify'
-import { teamCreate, teamJoin, updateTeamMemberStatus } from '../api/teamsAPI'
+import { teamCreate, teamJoin, updateTeamMemberStatus, getTeamList } from '../api/teamsAPI'
 
 
 export default (context, inject) => {
@@ -44,6 +44,7 @@ export default (context, inject) => {
         teamCreate: teamCreate(axios),
         teamJoin: teamJoin(axios),
         updateTeamMemberStatus: updateTeamMemberStatus(axios),
+        getTeamList: getTeamList(axios),
     }
     inject('api', api)
     inject('axios', axios)
