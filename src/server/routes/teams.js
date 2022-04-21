@@ -3,6 +3,9 @@ const router = express.Router()
 const { query } = require('../../config/async-db')
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 const base64Obj = require('../utils/base64')
+const axios = require('axios');
+
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
 async function insertTeamDB(
     name,
@@ -86,8 +89,8 @@ async function selectTeamDB(teamID, categoryID, name) {
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
-                WHERE A.name = ? AND A.categoryID = ?`
-        values = [name, categoryID]
+                WHERE A.name like ? AND A.categoryID = ?`
+        values = ['%' + name + '%', categoryID]
     } else if (teamID && categoryID) {
         sql = `SELECT A.*,B.nickname AS nickname
                 FROM team AS A
@@ -114,6 +117,20 @@ async function selectTeamDB(teamID, categoryID, name) {
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
+}
+
+async function sendNotification(title, content, receiverID, typeID, extra) {
+    try {
+        await axios.post(`${process.env.baseUrl}/api/notification/send`, {
+            title,
+            content,
+            receiverID,
+            typeID,
+            extra
+        })
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 // 創建球隊
@@ -184,6 +201,11 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                 teamMemberLevelID,
                 teamMemberStatusID,
             )
+            if (type === 'join') {
+                await sendNotification('', '', teamID, 3, memberID)
+            } else if (type === 'invite') {
+                await sendNotification('', '', memberID, 4, teamID)
+            }
             if (id) {
                 returnObj.message = '申請成功'
                 returnObj.type = '1'
@@ -230,7 +252,22 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
 });
 
 // 找尋球隊
-router.get('/teams/:teamID', authMiddleWare, async function (req, res, next) {
+router.get('/teams', async function (req, res, next) {
+    try {
+        let data = await selectTeamDB()
+        if (data) {
+            res.status(200).json(data)
+        } else {
+            res.status(500).json(data)
+        }
+
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 找尋球隊
+router.get('/teams/:teamID', async function (req, res, next) {
     try {
         const teamID = req.params.teamID !== 'undefined' ? req.params.teamID : ''
         const categoryID = req.query.categoryID
