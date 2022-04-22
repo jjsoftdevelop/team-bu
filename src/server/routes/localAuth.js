@@ -1,4 +1,3 @@
-const { query } = require('../../config/async-db')
 const express = require('express')
 const router = express.Router()
 const axios = require('axios');
@@ -7,77 +6,18 @@ const qs = require('querystring');
 const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
 const base64Obj = require('../utils/base64')
+const {
+    isExistEmail,
+    isVerifyEmail,
+    insertVerifyCodeDB,
+    googleSignUp,
+    userSignUp,
+    verifyPasswd,
+    updateEmailStatus,
+    isExistVerifyCode,
+} = require('../sql/sqlAuthStr')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
-
-async function isExistEmail(email, provider) {
-    let sql = "SELECT * FROM member WHERE email = ? AND provider = ? Limit 1"
-    let values = [email, provider]
-    let dataList = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(dataList))
-    return data[0]
-}
-async function isVerifyEmail(email) {
-    let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 1"
-    let values = [email]
-    let dataList = await query(sql, values)
-    let isExist = false
-    const format = JSON.parse(JSON.stringify(dataList))
-    if (format[0].Count !== 0) {
-        isExist = true
-    }
-    return isExist
-}
-async function insertVerifyCodeDB(email, verifycode, IP) {
-    let sql = "INSERT INTO email_verify(email, verifycode, IP, createdate) VALUES(?,?,?,?)"
-    let values = [email, verifycode, IP, new Date()]
-    await query(sql, values)
-}
-
-async function insertDB(nickname, email, picture) {
-    let sql = "INSERT INTO member(nickname, email, picture,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?)"
-    let values = [nickname, email, picture, new Date(), 'google', 1, 1]
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data.insertId
-}
-
-async function verifyPasswd(email, passwdEncode) {
-    let sql = "SELECT * FROM member WHERE email = ? AND password = ? AND provider = ? Limit 1"
-    let values = [email, passwdEncode, 'user']
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data[0]
-}
-
-async function signUp(nickname, email, passwdEncode, url) {
-    let sql = "INSERT INTO member(nickname, email, password, picture ,createdate, provider, statusID, levelID) VALUES(?,?,?,?,?,?,?,?)"
-    let values = [nickname, email, passwdEncode, url, new Date(), 'user', 1, 1]
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data.insertId
-}
-
-async function updateEmailStatus(email) {
-    let sql = "update email_verify set isVerify = 1, modifydate = ? where email = ? order by createdate desc limit 1"
-    let values = [new Date(), email]
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data
-}
-
-async function isExistVerifyCode(email, verifycode) {
-    let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 0 AND verifycode = ?"
-    let values = [email, verifycode]
-    const dataList = await query(sql, values)
-    let isExist = false
-    const format = JSON.parse(JSON.stringify(dataList))
-    if (format[0].Count !== 0) {
-        isExist = true
-    }
-    return isExist
-}
-
 // -------登出--------
 router.post('/logout', (req, res) => {
     try {
@@ -122,7 +62,7 @@ router.get('/redirect/google', async (req, res) => {
         const data = await isExistEmail(email, 'google')
         // 寫入DB
         if (!data) {
-            const pid = await insertDB(nickname, email, picture)
+            const pid = await googleSignUp(nickname, email, picture)
             const user = {
                 pid: base64Obj.encode(pid),
                 email,
@@ -222,7 +162,7 @@ router.post('/signUp', async function (req, res, next) {
         const url = req.body.url
         const data = await isExistEmail(email, 'user')
         if (!data) {
-            const insertId = await signUp(nickname, email, passwdEncode, url)
+            const insertId = await userSignUp(nickname, email, passwdEncode, url)
             // type: 1.註冊成功 2.註冊失敗 3.重複註冊
             if (insertId) {
                 const returnObj = {

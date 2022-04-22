@@ -1,13 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const sgMail = require("@sendgrid/mail");
-const { query } = require('../../config/async-db')
-
-async function insertDB(statusCode, statusCode, responseContent, to, text, subject) {
-    let sql = "INSERT INTO email_log(createdate,statusCode,responseContent,emailTo,emailContent,emailTitle) VALUES(?,?,?,?,?,?)"
-    let values = [new Date(), statusCode, JSON.stringify(responseContent), to, text, subject]
-    await query(sql, values)
-}
+const { insertEmailDB } = require('../sql/sqlEmailStr')
 
 // R - Read
 router.post('/sendEmail', async (req, res, next) => {
@@ -31,7 +25,7 @@ router.post('/sendEmail', async (req, res, next) => {
         responseContent = err.response.body.errors
     }
     try {
-        await insertDB(statusCode, statusCode, responseContent, to, text, subject)
+        await insertEmailDB(statusCode, statusCode, responseContent, to, text, subject)
         const returnObj = {
             message: statusCode === 202 ? '信件寄出成功' : '信件寄出失敗'
         }

@@ -1,50 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const { query } = require('../../config/async-db')
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 const base64Obj = require('../utils/base64')
-
-async function insertNotificationDB(
-    title,
-    content,
-    receiverID,
-    typeID,
-    extra,
-    playerID,
-    teamID,
-) {
-    let sql = "INSERT INTO notification(title, content, receiverID, typeID ,extra, createdate, playerID, teamID) VALUES(?,?,?,?,?,?,?,?)"
-    let values = [
-        title,
-        content,
-        receiverID,
-        typeID,
-        extra,
-        new Date(),
-        playerID,
-        teamID,
-    ]
-    const res = await query(sql, values)
-
-    const data = JSON.parse(JSON.stringify(res))
-    return data.insertId
-}
-
-async function getJoinNotification(memberID) {
-    let sql = `SELECT DISTINCT notification.createdate,notification.teamID,notification.playerID, member.nickname, team.name, member.picture FROM notification
-				LEFT JOIN team_member
-				ON notification.playerID = team_member.memberID
-                LEFT JOIN member
-                ON notification.playerID = member.pid
-                LEFT JOIN team
-                ON notification.teamID = team.pid
-                WHERE notification.typeID = 3 AND team_member.teamMemberStatusID = 2 AND notification.receiverID = ?
-                ORDER BY createdate DESC`
-    let values = [memberID]
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data
-}
+const { insertNotificationDB, getJoinNotification } = require('../sql/sqlNotification')
 
 // 發送通知
 router.post('/notification/send', async function (req, res, next) {
