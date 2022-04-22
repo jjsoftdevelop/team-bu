@@ -71,7 +71,7 @@ async function isExistTeamMember(teamID, memberID) {
 }
 
 async function getTeamManagers(teamID) {
-    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberLevelID = 3"
+    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberLevelID = 3 AND teamMemberStatusID = 3"
     let values = [teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
@@ -142,6 +142,14 @@ async function sendNotification(title, content, receiverID, typeID, extra, playe
     } catch (err) {
         console.log(err)
     }
+}
+
+async function getTeamJoin(teamID) {
+    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberstatusID = 2"
+    let values = [teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
 }
 
 // 創建球隊
@@ -252,6 +260,14 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
             memberID,
             teamID,
         )
+        // 確認同意申請為管理員 時 須同步 球隊加入通知
+        if (teamMemberStatusID === 3) {
+            const teamMember = await getTeamJoin(teamID)
+            //title, content, receiverID, typeID, extra, playerID, teamID,
+            teamMember.forEach(async (item) => {
+                await sendNotification('', '', memberID, 3, '', item.memberID, item.teamID)
+            })
+        }
         if (data) {
             returnObj.message = '修改成功'
             returnObj.type = '1'
