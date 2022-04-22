@@ -70,9 +70,17 @@ async function isExistTeamMember(teamID, memberID) {
     return data[0]
 }
 
+async function getTeamManagers(teamID) {
+    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberLevelID = 3"
+    let values = [teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 async function updateTeamMemberStatus(teamMemberStatusID, memberID, teamID) {
-    let sql = "UPDATE team_member set teamMemberStatusID = ? WHERE memberID = ? AND teamID = ? limit 1"
-    let values = [teamMemberStatusID, memberID, teamID]
+    let sql = "UPDATE team_member set teamMemberStatusID = ?, modifydate = ? WHERE memberID = ? AND teamID = ? limit 1"
+    let values = [teamMemberStatusID, new Date(), memberID, teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
@@ -119,14 +127,17 @@ async function selectTeamDB(teamID, categoryID, name) {
     return data
 }
 
-async function sendNotification(title, content, receiverID, typeID, extra) {
+async function sendNotification(title, content, receiverID, typeID, extra, playerID,
+    teamID) {
     try {
         await axios.post(`${process.env.baseUrl}/api/notification/send`, {
             title,
             content,
             receiverID,
             typeID,
-            extra
+            extra,
+            playerID,
+            teamID,
         })
     } catch (err) {
         console.log(err)
@@ -194,6 +205,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
         let returnObj = {}
         const data = await isExistTeamMember(teamID, memberID)
         if (!data) {
+            const teamManagers = await getTeamManagers(teamID)
             let id = await insertTeamMemberDB(
                 teamID,
                 memberID,
@@ -202,9 +214,12 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                 teamMemberStatusID,
             )
             if (type === 'join') {
-                await sendNotification('', '', teamID, 3, memberID)
+                teamManagers.forEach(async manager => {
+                    //title, content, receiverID, typeID, extra, playerID, teamID,
+                    await sendNotification('', '', manager.memberID, 3, '', memberID, teamID)
+                })
             } else if (type === 'invite') {
-                await sendNotification('', '', memberID, 4, teamID)
+                await sendNotification('', '', memberID, 4, '', '', teamID)
             }
             if (id) {
                 returnObj.message = '申請成功'
@@ -229,7 +244,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
 router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.params.teamID
-        const memberID = base64Obj.decode(req.params.memberID)
+        const memberID = base64Obj.decodeNumber(req.params.memberID)
         const teamMemberStatusID = req.body.teamMemberStatusID
         let returnObj = {}
         let data = await updateTeamMemberStatus(

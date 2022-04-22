@@ -5,14 +5,14 @@ const authMiddleWare = require('../../server/middleware/authMiddleWare')
 const base64Obj = require('../utils/base64')
 
 async function getOwnTeam(pid) {
-    let sql = `SELECT * FROM team WHERE creatorID = ?`
+    let sql = `SELECT * FROM team_member WHERE memberID = ? AND teamMemberLevelID = 3`
     let values = [pid]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
 }
 
-// 取得邀請的通知
+// 取得我權限為管理員的球隊
 router.get('/user/own', authMiddleWare, async function (req, res, next) {
     try {
         let returnObj = {}

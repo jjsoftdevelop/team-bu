@@ -10,15 +10,19 @@ async function insertNotificationDB(
     receiverID,
     typeID,
     extra,
+    playerID,
+    teamID,
 ) {
-    let sql = "INSERT INTO notification(title, content, receiverID, typeID ,extra, createdate) VALUES(?,?,?,?,?,?)"
+    let sql = "INSERT INTO notification(title, content, receiverID, typeID ,extra, createdate, playerID, teamID) VALUES(?,?,?,?,?,?,?,?)"
     let values = [
         title,
         content,
         receiverID,
         typeID,
         extra,
-        new Date()
+        new Date(),
+        playerID,
+        teamID,
     ]
     const res = await query(sql, values)
 
@@ -26,18 +30,17 @@ async function insertNotificationDB(
     return data.insertId
 }
 
-async function getJoinNotification(teamID) {
-    let sqlString = teamID.replaceAll(',', ' OR team_member.teamID =')
-    let sql = `SELECT DISTINCT notification.*, member.nickname, team.name, member.picture FROM notification 
-                LEFT JOIN team_member 
-                ON notification.receiverID = team_member.teamID
+async function getJoinNotification(memberID) {
+    let sql = `SELECT DISTINCT notification.createdate,notification.teamID,notification.playerID, member.nickname, team.name, member.picture FROM notification
+				LEFT JOIN team_member
+				ON notification.playerID = team_member.memberID
                 LEFT JOIN member
-                ON notification.extra = member.pid
+                ON notification.playerID = member.pid
                 LEFT JOIN team
-                ON team_member.teamID = team.pid  
-                WHERE notification.typeID = 3 AND (team_member.teamMemberStatusID = 2 AND team_member.teamID = ${sqlString})
+                ON notification.teamID = team.pid
+                WHERE notification.typeID = 3 AND team_member.teamMemberStatusID = 2 AND notification.receiverID = ?
                 ORDER BY createdate DESC`
-    let values = [teamID]
+    let values = [memberID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
@@ -51,8 +54,10 @@ router.post('/notification/send', async function (req, res, next) {
         const receiverID = req.body.receiverID
         const typeID = req.body.typeID
         const extra = req.body.extra
+        const playerID = req.body.playerID
+        const teamID = req.body.teamID
         let returnObj = {}
-        const data = await insertNotificationDB(title, content, receiverID, typeID, extra)
+        const data = await insertNotificationDB(title, content, receiverID, typeID, extra, playerID, teamID)
         if (data) {
             returnObj.message = '發送成功'
             returnObj.type = '1'
@@ -72,12 +77,12 @@ router.post('/notification/send', async function (req, res, next) {
 router.get('/notification/join', async function (req, res, next) {
     try {
         let returnObj = {}
-        let teamID = req.query.teamID
-        const data = await getJoinNotification(teamID)
+        let memberID = base64Obj.decodeNumber(req.session.user.pid)
+        const data = await getJoinNotification(memberID)
         if (data) {
             res.status(200).json(data)
         } else {
-            returnObj.message = '發送失敗'
+            returnObj.message = '發生錯誤'
             returnObj.type = '2'
             res.status(500).json(returnObj)
         }
