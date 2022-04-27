@@ -167,8 +167,9 @@ export default {
         });
         const { type } = res;
         if (type === "1") {
-          this.step = "verifyPasswd";
-          this.forgetPasswd = false;
+          // this.step = "verifyPasswd";
+          // this.forgetPasswd = false;
+          window.location.href = "/create";
         }
       } catch (err) {
         console.log(err);

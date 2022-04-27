@@ -246,8 +246,15 @@ router.post('/settingPasswd', async function (req, res, next) {
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const data = await updatepasswd(passwdEncode, email)
         let returnObj = {}
-        console.log('reset', data);
         if (data) {
+            const { pid, picture, nickname } = await isExistEmail(email, 'user')
+            const user = {
+                pid: base64Obj.encode(pid),
+                email,
+                nickname,
+                picture
+            }
+            req.session.user = user
             returnObj.message = '已驗證通過'
             returnObj.type = '1'
             res.status(200).json(returnObj)

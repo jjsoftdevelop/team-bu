@@ -67,8 +67,16 @@ async function updateEmailStatus(email) {
 
 // 更新密碼
 async function updatepasswd(passwdEncode, email) {
-    let sql = `update member set password = ?, modifydate = ? where email = ? AND provider = 'user' order by createdate desc limit 1
-                SELECT nickname, picture, pid FROM member WHERE email = ? AND provider = 'user'`
+    let sql = `update member set password = ?, modifydate = ? where email = ? AND provider = 'user' order by createdate desc limit 1`
+    let values = [passwdEncode, new Date(), email]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
+// 更新密碼
+async function updatepasswd(passwdEncode, email) {
+    let sql = `update member set password = ?, modifydate = ? where email = ? AND provider = 'user' order by createdate desc limit 1`
     let values = [passwdEncode, new Date(), email]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
