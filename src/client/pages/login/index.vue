@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import Login from "~/components/login/login";
+import Login from "~/components/login/Login";
 import Verifycode from "~/components/login/Verifycode";
 import SettingInfo from "~/components/login/SettingInfo";
 import VerifyPasswd from "~/components/login/VerifyPasswd";
