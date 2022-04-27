@@ -23,6 +23,7 @@
         <div class="btn btn-secondary mr-1" @click="step = 'start'">上一步</div>
         <div class="btn btn-primary" @click="verifyPasswd">登入</div>
       </div>
+      <div @click="step = 'verifyForgetcode'">忘記密碼</div>
       <hr />
     </div>
     <div v-if="step === 'verifycode'">
@@ -33,6 +34,17 @@
       <div class="d-flex">
         <div class="btn btn-secondary mr-1" @click="step = 'start'">上一步</div>
         <div class="btn btn-primary" @click="enterVerifycode">下一步</div>
+      </div>
+      <hr />
+    </div>
+    <div v-if="step === 'verifyForgetcode'">
+      <div>verifyForgetcode</div>
+      <div class="mb-2">
+        <input type="text" v-model="loginInfo.verifycode" />
+      </div>
+      <div class="d-flex">
+        <div class="btn btn-secondary mr-1" @click="step = 'passwd'">上一步</div>
+        <div class="btn btn-primary" @click="enterForgetVerifycode">下一步</div>
       </div>
       <hr />
     </div>
@@ -57,6 +69,15 @@
         <div class="btn btn-primary" @click="signUp">註冊</div>
       </div>
     </div>
+    <div v-if="step === 'settingPasswd'">
+      <div>passwd</div>
+      <input type="text" v-model="loginInfo.passwd" />
+      <div>passwdCheck</div>
+      <input type="text" v-model="loginInfo.passwdCheck" />
+      <div class="d-flex">
+        <div class="btn btn-primary" @click="signUp">註冊</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -77,6 +98,23 @@ export default {
   },
   methods: {
     async enterVerifycode() {
+      try {
+        const { email, verifycode } = this.loginInfo;
+        const res = await this.$api.enterVerifycode({
+          email,
+          verifycode,
+        });
+        if (res.type === "1") {
+          this.step = "setting";
+        }
+        if (res.type === "2") {
+          this.step = "verifycode";
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+     async enterForgetVerifycode() {
       try {
         const { email, verifycode } = this.loginInfo;
         const res = await this.$api.enterVerifycode({

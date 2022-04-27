@@ -65,17 +65,23 @@ async function updateEmailStatus(email) {
     return data
 }
 
-// 檢查是否已存在驗證碼
-async function isExistVerifyCode(email, verifycode) {
-    let sql = "SELECT COUNT(*) AS Count FROM email_verify WHERE email = ? AND isVerify = 0 AND verifycode = ?"
-    let values = [email, verifycode]
+// 更新密碼
+async function updatepasswd(passwdEncode, email) {
+    let sql = `update member set password = ?, modifydate = ? where email = ? AND provider = 'user' order by createdate desc limit 1
+                SELECT nickname, picture, pid FROM member WHERE email = ? AND provider = 'user'`
+    let values = [passwdEncode, new Date(), email]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
+// 最新的驗證碼
+async function isExistVerifyCode(email) {
+    let sql = "SELECT verifycode FROM email_verify WHERE email = ? AND isVerify = 0 order by createdate desc Limit 1"
+    let values = [email]
     const dataList = await query(sql, values)
-    let isExist = false
-    const format = JSON.parse(JSON.stringify(dataList))
-    if (format[0].Count !== 0) {
-        isExist = true
-    }
-    return isExist
+    const data = JSON.parse(JSON.stringify(dataList))
+    return data[0]
 }
 
 module.exports = {
@@ -87,4 +93,5 @@ module.exports = {
     verifyPasswd,
     updateEmailStatus,
     isExistVerifyCode,
+    updatepasswd
 };

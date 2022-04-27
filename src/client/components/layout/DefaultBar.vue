@@ -30,7 +30,7 @@
               登出
             </div>
           </div>
-          <router-link to="/verify" v-else>登入</router-link>
+          <router-link to="/login" v-else>登入</router-link>
         </div>
       </div>
     </b-navbar-nav>
@@ -65,7 +65,7 @@ export default {
     async logout() {
       try {
         await this.$api.logout();
-        window.location.href = "/verify";
+        window.location.href = "/login";
       } catch (err) {
         console.log(err);
       }

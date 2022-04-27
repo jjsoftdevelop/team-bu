@@ -74,3 +74,18 @@ export function logout(api) {
         }
     }
 }
+
+export function settingPasswd(api) {
+    return async function ({ passwd, email }) {
+        const path = `${API_MODULE}/settingPasswd`
+        try {
+            const { data, errors } = await api.post(path, { passwd, email })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}

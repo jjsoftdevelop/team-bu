@@ -1,4 +1,5 @@
 const API_MODULE = `/api`
+const API_MODULE2 = `/auth`
 
 // 取得我創建的球隊
 export function getOwnTeam(api) {
@@ -15,3 +16,20 @@ export function getOwnTeam(api) {
         }
     }
 }
+
+// 取得我創建的球隊
+export function sendVerifycode(api) {
+    return async function ({ email }) {
+        const path = `${API_MODULE2}/sendVerifycode?mailto=${email}`
+        try {
+            const { data, errors } = await api.post(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+

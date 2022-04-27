@@ -15,6 +15,7 @@ const {
     verifyPasswd,
     updateEmailStatus,
     isExistVerifyCode,
+    updatepasswd,
 } = require('../sql/sqlAuthStr')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -221,9 +222,32 @@ router.post('/enterVerifycode', async function (req, res, next) {
         let returnObj = {}
         const email = req.body.email
         const verifycode = req.body.verifycode.toString()
-        const isExist = await isExistVerifyCode(email, verifycode)
-        if (isExist) {
+        const data = await isExistVerifyCode(email)
+        if (verifycode === data.verifycode) {
             await updateEmailStatus(email)
+            returnObj.message = '已驗證通過'
+            returnObj.type = '1'
+            res.status(200).json(returnObj)
+        } else {
+            returnObj.message = '驗證失敗'
+            returnObj.type = '0'
+            res.status(402).json(returnObj)
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+
+// 重設密碼
+router.post('/settingPasswd', async function (req, res, next) {
+    try {
+        const passwd = req.body.passwd
+        const email = req.body.email
+        const passwdEncode = CryptoJS.MD5(passwd).toString();
+        const data = await updatepasswd(passwdEncode, email)
+        let returnObj = {}
+        console.log('reset', data);
+        if (data) {
             returnObj.message = '已驗證通過'
             returnObj.type = '1'
             res.status(200).json(returnObj)
