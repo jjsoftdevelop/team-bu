@@ -132,7 +132,7 @@ async function selectTeamDB(teamID, categoryID, name) {
 async function sendNotification(title, content, receiverID, typeID, extra, playerID,
     teamID) {
     try {
-        await axios.post(`${process.env.baseUrl}/api/notification/send`, {
+        await axios.post(`${process.env.BASE_URL}/api/notification/send`, {
             title,
             content,
             receiverID,

@@ -109,7 +109,7 @@ router.post('/verify/email', async function (req, res, next) {
             } else {
                 returnObj.message = '已發送驗證碼'
                 returnObj.type = '2'
-                const { status } = await axios.post(`${process.env.baseUrl}/auth/sendVerifycode?mailto=${email}`)
+                const { status } = await axios.post(`${process.env.BASE_URL}/auth/sendVerifycode?mailto=${email}`)
                 res.status(status).json(returnObj)
             }
         } else {
@@ -205,7 +205,7 @@ router.post('/sendVerifycode', async function (req, res, next) {
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
         const ip = req.headers['x-real-ip'] || req.connection.remoteAddress || null
         await insertVerifyCodeDB(mailto, verifycode, ip)
-        const emailRes = await axios.post(`${process.env.baseUrl}/api/sendEmail`, {
+        const emailRes = await axios.post(`${process.env.BASE_URL}/api/sendEmail`, {
             mailto,
             mailTitle: `team-bu驗證信`,
             mailContent: `您好 ~ 這是您的驗證碼${verifycode}`
