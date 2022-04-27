@@ -15,7 +15,7 @@ router.post('/notification/send', async function (req, res, next) {
         const playerID = req.body.playerID
         const teamID = req.body.teamID
         let returnObj = {}
-        const data = await insertNotificationDB(title, content, receiverID, typeID, extra, playerID, teamID)
+        const data = await insertNotificationDB({ title, content, receiverID, typeID, extra, playerID, teamID })
         if (data) {
             returnObj.message = '發送成功'
             returnObj.type = '1'

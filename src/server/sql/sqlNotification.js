@@ -2,13 +2,15 @@ const { query } = require('../../config/async-db')
 
 // 寫入通知資料表
 async function insertNotificationDB(
-    title,
-    content,
-    receiverID,
-    typeID,
-    extra,
-    playerID,
-    teamID,
+    {
+        title,
+        content,
+        receiverID,
+        typeID,
+        extra,
+        playerID,
+        teamID,
+    }
 ) {
     let sql = "INSERT INTO notification(title, content, receiverID, typeID ,extra, createdate, playerID, teamID) VALUES(?,?,?,?,?,?,?,?)"
     let values = [

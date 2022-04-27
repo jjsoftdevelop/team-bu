@@ -10,7 +10,8 @@ const {
     updateTeamMemberStatus,
     selectTeamDB,
     sendNotification,
-    getTeamJoin,
+    getTeamJoinList,
+    getTeamManagerList,
 } = require('../sql/sqlTeamsStr')
 
 
@@ -86,10 +87,10 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
             if (type === 'join') {
                 teamManagers.forEach(async manager => {
                     //title, content, receiverID, typeID, extra, playerID, teamID,
-                    await sendNotification('', '', manager.memberID, 3, '', memberID, teamID)
+                    await sendNotification({ receiverID: manager.memberID, typeID: 3, playerID: memberID, teamID })
                 })
             } else if (type === 'invite') {
-                await sendNotification('', '', memberID, 4, '', '', teamID)
+                await sendNotification({ receiverID: memberID, typeID: 4, teamID })
             }
             if (id) {
                 returnObj.message = '申請成功'
@@ -115,21 +116,36 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.params.teamID
         const memberID = base64Obj.decodeNumber(req.params.memberID)
-        const teamMemberStatusID = req.body.teamMemberStatusID
+        const newStatusID = req.body.teamMemberStatusID
+        const { teamMemberStatusID: oldStatusID, teamMemberLevelID: levelID } = await isExistTeamMember(teamID, memberID)
         let returnObj = {}
-        let data = await updateTeamMemberStatus(
-            teamMemberStatusID,
+        const data = await updateTeamMemberStatus(
+            newStatusID,
             memberID,
             teamID,
         )
-        // 確認同意申請為管理員 時 須同步 球隊加入通知
-        if (teamMemberStatusID === 3) {
-            const teamMember = await getTeamJoin(teamID)
-            //title, content, receiverID, typeID, extra, playerID, teamID,
-            teamMember.forEach(async (item) => {
-                await sendNotification('', '', memberID, 3, '', item.memberID, item.teamID)
+
+        
+        // 球隊同意使用者加入 發通知給使用者
+        if (oldStatusID === 2 && newStatusID === 3) {
+            if (levelID === 3) {
+                // 如果同意使用者成為管理員 要將要求加入球隊的通知 同步給使用者
+                const teamMember = await getTeamJoinList(teamID)
+                teamMember.forEach(async (item) => {
+                    await sendNotification({ receiverID: memberID, typeID: 3, playerID: item.memberID, teamID })
+                })
+            } else {
+                await sendNotification({ receiverID: memberID, typeID: 5, teamID })
+            }
+        }
+        // 使用者同意加入球隊 發通知給球隊管理員
+        if (oldStatusID === 1 && newStatusID === 3) {
+            const teamManager = await getTeamManagerList(teamID)
+            teamManager.forEach(async (item) => {
+                await sendNotification({ receiverID: item.memberID, typeID: 3, playerID: memberID, teamID })
             })
         }
+
         if (data) {
             returnObj.message = '修改成功'
             returnObj.type = '1'
