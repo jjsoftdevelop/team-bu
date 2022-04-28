@@ -13,8 +13,8 @@
     </div>
     <div>
       <div class="d-flex flex-column">
-        <div>{{ item.nickname }}</div>
-        <div>發送了 {{ item.name }} 的加入申請</div>
+        <div>{{ item.title }}</div>
+        <div>{{ item.content }}</div>
       </div>
       <div v-if="!memberStatus.isFinish">
         <b-button-group size="sm">

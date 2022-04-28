@@ -9,6 +9,16 @@ async function getOwnTeam(pid) {
     return data
 }
 
+// 取得user姓名
+async function getMemberName(pid) {
+    let sql = `SELECT nickname FROM member WHERE pid = ?`
+    let values = [pid]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0]
+}
+
 module.exports = {
-    getOwnTeam
+    getOwnTeam,
+    getMemberName
 }

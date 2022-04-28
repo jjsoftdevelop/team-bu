@@ -60,21 +60,15 @@ async function insertTeamMemberDB(
 
 // 檢查是否已在球對
 async function isExistTeamMember(teamID, memberID) {
-    let sql = "SELECT * FROM team_member WHERE memberID = ? AND teamID = ? Limit 1"
+    let sql = `SELECT B.nickname AS memberName,B.picture AS memberPicture,C.name AS teamName,C.logoUrl AS teamLogo,A.* FROM team_member AS A
+                LEFT JOIN member AS B ON B.pid = A.memberID
+                LEFT JOIN team AS C ON C.pid = A.teamID
+                WHERE memberID = ? AND teamID = ? Limit 1`
     let values = [memberID, teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
 
     return data[0]
-}
-
-// 取得球隊管理員列表
-async function getTeamManagers(teamID) {
-    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberLevelID = 3 AND teamMemberStatusID = 3"
-    let values = [teamID]
-    const res = await query(sql, values)
-    const data = JSON.parse(JSON.stringify(res))
-    return data
 }
 
 // 更新球隊球員加入狀態
@@ -164,14 +158,23 @@ async function getTeamManagerList(teamID) {
     return data
 }
 
+// 取得球隊資料
+async function getTeamInfo(teamID) {
+    let sql = `SELECT name FROM team WHERE pid = ?`
+    let values = [teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0]
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
     isExistTeamMember,
-    getTeamManagers,
     updateTeamMemberStatus,
     selectTeamDB,
     sendNotification,
     getTeamJoinList,
     getTeamManagerList,
+    getTeamInfo,
 }
