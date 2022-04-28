@@ -2,7 +2,7 @@
   <b-navbar type="dark" variant="dark">
     <b-navbar-nav class="w-100">
       <div class="d-flex justify-content-between w-100">
-        <div class="text-white">Team-Bu {{CSRF_TOKEN}}</div>
+        <div class="text-white">Team-Bu</div>
         <div>
           <div class="d-flex align-items-center" v-if="user && user.pid">
             <b-img
