@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
+
 const base64Obj = require('../utils/base64')
 const { getOwnTeam} = require('../sql/sqlUserStr')
 

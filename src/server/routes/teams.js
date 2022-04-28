@@ -110,7 +110,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                     })
                 })
             } else if (type === 'invite') {
-                await sendNotification({ receiverID: memberID, typeID: 4, teamID })
+                await sendNotification({ title: teamName, content: `${teamName} 邀請您加入球隊`, receiverID: memberID, typeID: 4, teamID })
             }
             if (id) {
                 returnObj.message = '申請成功'
@@ -131,7 +131,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
     }
 });
 
-// 修改申請狀態
+// 修改申請狀態(決定要不要同意)
 router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.params.teamID
@@ -144,7 +144,6 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
             memberID,
             teamID,
         )
-
 
         // 球隊同意使用者加入 發通知給使用者
         if (oldStatusID === 2 && newStatusID === 3) {

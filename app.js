@@ -14,7 +14,8 @@ const ref = firebase.initializeApp({
     credential: firebase.credential.cert(firebaseKey),
     databaseURL: process.env.FIREBASE_DATABASEURL
 });
-
+const cookieParser = require('cookie-parser')
+const csrf = require('./src/server/middleware/csrf')
 
 // 載入所有env環境變數
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -31,6 +32,8 @@ app.use(express.json())
 // 加入middleware
 // 加入 serverLogmiddleware (輸出log)
 app.use(serverLogMiddleWare)
+// 加入cookieParser
+app.use(cookieParser())
 // 加入 session middleware (session 初始化)
 app.use(session({
     store: process.env.NODE_ENV !== 'dev' ? new FirebaseStore({
@@ -65,9 +68,10 @@ async function start() {
         const builder = new Builder(nuxt)
         await builder.build()
     }
+    // 加入 csrf
+    app.use(csrf)
     // 加入 api Router
     app.use(apiRouter)
-
     // handleErrorMiddle 統一處理錯誤
     app.use((error, req, res, next) => {
         console.log("Error Handling Middleware called")
