@@ -16,6 +16,7 @@ const {
     updateEmailStatus,
     isExistVerifyCode,
     updatepasswd,
+    isExistVerifyCodeLast,
 } = require('../sql/sqlAuthStr')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -244,20 +245,29 @@ router.post('/settingPasswd', async function (req, res, next) {
         const passwd = req.body.passwd
         const email = req.body.email
         const passwdEncode = CryptoJS.MD5(passwd).toString();
-        const data = await updatepasswd(passwdEncode, email)
+        const userVerifycode = req.body.verifycode.toString()
+        const { verifycode } = await isExistVerifyCodeLast(email)
         let returnObj = {}
-        if (data) {
-            const { pid, picture, nickname } = await isExistEmail(email, 'user')
-            const user = {
-                pid: base64Obj.encode(pid),
-                email,
-                nickname,
-                picture
+
+        if (userVerifycode === verifycode) {
+            const success = await updatepasswd(passwdEncode, email)
+            if (success) {
+                const { pid, picture, nickname } = await isExistEmail(email, 'user')
+                const user = {
+                    pid: base64Obj.encode(pid),
+                    email,
+                    nickname,
+                    picture
+                }
+                req.session.user = user
+                returnObj.message = '以修改成功'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '修改失敗'
+                returnObj.type = '0'
+                res.status(402).json(returnObj)
             }
-            req.session.user = user
-            returnObj.message = '已驗證通過'
-            returnObj.type = '1'
-            res.status(200).json(returnObj)
         } else {
             returnObj.message = '驗證失敗'
             returnObj.type = '0'

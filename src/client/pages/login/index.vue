@@ -160,10 +160,11 @@ export default {
     async settingPasswd(value) {
       try {
         this.loginInfo.passwd = value;
-        const { passwd, email } = this.loginInfo;
+        const { passwd, email,verifycode } = this.loginInfo;
         const res = await this.$api.settingPasswd({
           passwd,
           email,
+          verifycode,
         });
         const { type } = res;
         if (type === "1") {

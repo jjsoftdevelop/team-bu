@@ -92,6 +92,15 @@ async function isExistVerifyCode(email) {
     return data[0]
 }
 
+// 最新的已驗證通過的驗證碼
+async function isExistVerifyCodeLast(email) {
+    let sql = "SELECT verifycode FROM email_verify WHERE email = ? AND isVerify = 1 order by createdate desc Limit 1"
+    let values = [email]
+    const dataList = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(dataList))
+    return data[0]
+}
+
 module.exports = {
     isExistEmail,
     isVerifyEmail,
@@ -101,5 +110,6 @@ module.exports = {
     verifyPasswd,
     updateEmailStatus,
     isExistVerifyCode,
-    updatepasswd
+    updatepasswd,
+    isExistVerifyCodeLast
 };

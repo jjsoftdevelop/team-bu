@@ -76,10 +76,10 @@ export function logout(api) {
 }
 
 export function settingPasswd(api) {
-    return async function ({ passwd, email }) {
+    return async function ({ passwd, email, verifycode }) {
         const path = `${API_MODULE}/settingPasswd`
         try {
-            const { data, errors } = await api.post(path, { passwd, email })
+            const { data, errors } = await api.post(path, { passwd, email, verifycode })
             if (errors) {
                 return Promise.reject(errors)
             }
