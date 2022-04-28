@@ -125,17 +125,16 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
             teamID,
         )
 
-        
+
         // 球隊同意使用者加入 發通知給使用者
         if (oldStatusID === 2 && newStatusID === 3) {
+            await sendNotification({ receiverID: memberID, typeID: 5, teamID })
             if (levelID === 3) {
                 // 如果同意使用者成為管理員 要將要求加入球隊的通知 同步給使用者
                 const teamMember = await getTeamJoinList(teamID)
                 teamMember.forEach(async (item) => {
                     await sendNotification({ receiverID: memberID, typeID: 3, playerID: item.memberID, teamID })
                 })
-            } else {
-                await sendNotification({ receiverID: memberID, typeID: 5, teamID })
             }
         }
         // 使用者同意加入球隊 發通知給球隊管理員
