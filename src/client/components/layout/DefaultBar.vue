@@ -16,14 +16,41 @@
             ></b-img>
             <div class="text-white mr-2">{{ user.nickname }}</div>
             <b-nav-item-dropdown text="通知" right>
-              <div
-                v-for="(item, index) in joinNotificationInfo.data"
-                :key="item.pid"
-                class="pl-2 pr-2"
-                style="width: 280px"
-              >
-                <NotificationJoin :item="item" />
-                <hr v-show="joinNotificationInfo.data.length !== index + 1" />
+              <div style="width: 380px">
+                <div class="d-flex justify-content-around p-3">
+                  <span
+                    style="cursor: pointer; white-space: nowrap"
+                    :class="{
+                      'font-weight-bold': notificationTab.active === index,
+                    }"
+                    v-for="(item, index) in notificationTab.tabs"
+                    :key="index"
+                    @click="notificationTab.active = index"
+                    >{{ item }}</span
+                  >
+                </div>
+                <!-- 個人通知 -->
+                <div v-show="notificationTab.active === 0">
+                  <div
+                    v-for="(item, index) in notificationNotice"
+                    :key="item.pid"
+                    class="pl-2 pr-2"
+                  >
+                    <NotificationNotice :item="item" />
+                    <hr v-show="notificationNotice.length !== index + 1" />
+                  </div>
+                </div>
+                <!-- 申請通知 -->
+                <div v-show="notificationTab.active === 1">
+                  <div
+                    v-for="(item, index) in notificationApply"
+                    :key="item.pid"
+                    class="pl-2 pr-2"
+                  >
+                    <NotificationApply :item="item" />
+                    <hr v-show="notificationApply.length !== index + 1" />
+                  </div>
+                </div>
               </div>
             </b-nav-item-dropdown>
             <div class="text-white" style="cursor: pointer" @click="logout">
@@ -39,26 +66,43 @@
 
 <script>
 import { mapState } from "vuex";
-import NotificationJoin from "~/components/notification/NotificationJoin";
+import NotificationApply from "~/components/notification/NotificationApply";
+import NotificationNotice from "~/components/notification/NotificationNotice";
+
 export default {
   components: {
-    NotificationJoin,
+    NotificationApply,
+    NotificationNotice,
   },
   computed: {
-    ...mapState(["user","CSRF_TOKEN"]),
+    ...mapState(["user"]),
+    notificationNotice() {
+      return this.notificationInfo.data.filter(
+        (item) => item.typeID !== 3 && item.typeID !== 4
+      );
+    },
+    notificationApply() {
+      return this.notificationInfo.data.filter(
+        (item) => item.typeID === 3 || item.typeID === 4
+      );
+    },
   },
   data() {
     return {
-      joinNotificationInfo: {
+      notificationInfo: {
         isLoading: false,
         data: [],
+      },
+      notificationTab: {
+        active: 0,
+        tabs: ["個人通知", "申請通知"],
       },
     };
   },
   async mounted() {
     // 有登入才去撈通知
     if (this.user && this.user.pid) {
-      await this.getJoinNotification();
+      await this.getNotification();
     }
   },
   methods: {
@@ -70,15 +114,15 @@ export default {
         console.log(err);
       }
     },
-    async getJoinNotification() {
+    async getNotification() {
       try {
-        this.joinNotificationInfo.isLoading = true;
-        const res = await this.$api.getJoinNotification();
-        this.joinNotificationInfo.data = res;
+        this.notificationInfo.isLoading = true;
+        const res = await this.$api.getNotification();
+        this.notificationInfo.data = res;
       } catch (err) {
         console.log(err);
       } finally {
-        this.joinNotificationInfo.isLoading = false;
+        this.notificationInfo.isLoading = false;
       }
     },
   },

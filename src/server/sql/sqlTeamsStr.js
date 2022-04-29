@@ -72,9 +72,12 @@ async function isExistTeamMember(teamID, memberID) {
 }
 
 // 更新球隊球員加入狀態
-async function updateTeamMemberStatus(teamMemberStatusID, memberID, teamID) {
-    let sql = "UPDATE team_member set teamMemberStatusID = ?, modifydate = ? WHERE memberID = ? AND teamID = ? limit 1"
-    let values = [teamMemberStatusID, new Date(), memberID, teamID]
+async function updateTeamMemberStatus({ teamMemberLevelID, teamMemberStatusID, memberID, teamID }) {
+    let sql = `UPDATE team_member set 
+    ${teamMemberLevelID ? ` teamMemberLevelID = ${teamMemberLevelID},` : ''}
+    ${teamMemberStatusID ? ` teamMemberStatusID = ${teamMemberStatusID},` : ''}
+    modifydate = ? WHERE memberID = ? AND teamID = ? limit 1`
+    let values = [new Date(), memberID, teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data

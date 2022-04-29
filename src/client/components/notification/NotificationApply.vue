@@ -67,25 +67,33 @@ export default {
   methods: {
     async updateTeamMemberStatus(memberID, teamID, type) {
       try {
+        const pid = this.item.pid;
+        const isShow = "0";
         if (!this.memberStatus.isLoading) {
           this.memberStatus.isLoading = true;
           if (type === "agree") {
+            // 更新teamMember狀態
             const { type } = await this.$api.updateTeamMemberStatus({
               memberID,
               teamID,
               teamMemberStatusID: 3,
             });
+            // 成功後 更新通知狀態
             if (type === "1") {
+              this.updateNotification({ pid, isShow });
               this.memberStatus.isFinish = true;
             }
           }
           if (type === "reject") {
+            // 更新teamMember狀態
             const { type } = await this.$api.updateTeamMemberStatus({
               memberID,
               teamID,
               teamMemberStatusID: 4,
             });
+            // 成功後 更新通知狀態
             if (type === "1") {
+              this.updateNotification({ pid, isShow });
               this.memberStatus.isFinish = true;
             }
           }
@@ -94,6 +102,17 @@ export default {
         console.log(err);
       } finally {
         this.memberStatus.isLoading = false;
+      }
+    },
+    async updateNotification({ pid, isShow, isRead }) {
+      try {
+        await this.$api.updateNotification({
+          pid,
+          isShow,
+          isRead,
+        });
+      } catch (err) {
+        console.log(err);
       }
     },
   },

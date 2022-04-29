@@ -29,13 +29,33 @@ async function insertNotificationDB(
     return data.insertId
 }
 
-// 取得要求加入球隊的通知
-async function getJoinNotification(memberID) {
-    let sql = `SELECT DISTINCT notification.createdate,notification.teamID,notification.playerID,member.picture,notification.title, notification.content FROM notification
+// 取得通知
+// typeID 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
+// 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
+async function getNotification({ memberID, typeID }) {
+    const typeReplace = typeID && typeID.length > 0 ? typeID.replaceAll(',',' OR notification.typeID = ') : ''
+    let sql = `SELECT DISTINCT notification.pid, notification.typeID, notification.createdate, notification.teamID, 
+                notification.playerID, member.picture, notification.title, notification.content FROM notification
                 LEFT JOIN member ON member.pid = notification.playerID
-                WHERE notification.typeID = 3 AND notification.receiverID = ? AND notification.isShow = '1'
+                WHERE notification.receiverID = ${memberID} AND notification.isShow = '1' ${typeReplace ? `AND (${typeReplace})` : ''}
                 ORDER BY createdate DESC`
-    let values = [memberID]
+    const res = await query(sql)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+// 更新通知
+async function updateNotification({ pid, isShow, isRead }) {
+    let sql
+    if (isShow && isRead) {
+        sql = `UPDATE notification set isShow = ${isShow}, isRead = ${isRead} modifydate = ? where pid = ${pid}`
+    }
+    else if (isShow) {
+        sql = `UPDATE notification set isShow = ${isShow}, modifydate = ? where pid = ${pid}`
+
+    } else if (isRead) {
+        sql = `UPDATE notification set isRead = ${isRead}, modifydate = ? where pid = ${pid}`
+    }
+    let values = [new Date()]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
@@ -43,5 +63,6 @@ async function getJoinNotification(memberID) {
 
 module.exports = {
     insertNotificationDB,
-    getJoinNotification,
+    getNotification,
+    updateNotification,
 }

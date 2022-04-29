@@ -85,10 +85,11 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
         const { name: teamName } = await getTeamInfo(teamID)
         // 查詢是否已加入過球隊
         const data = await isExistTeamMember(teamID, memberID)
+        // 取得球隊管理員清單
+        const teamManager = await getTeamManagerList(teamID)
         let returnObj = {}
         if (!data) {
-            // 取得球隊管理員清單
-            const teamManager = await getTeamManagerList(teamID)
+
             let id = await insertTeamMemberDB(
                 teamID,
                 memberID,
@@ -122,9 +123,36 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                 res.status(500).json(returnObj)
             }
         } else {
-            returnObj.message = '已存在'
-            returnObj.type = '9'
-            res.status(500).json(returnObj)
+            // 1:邀請球員中 2:申請加入中 3:已加入 4:申請已拒絕 5:邀請已拒絕 9:已移除
+            const { teamMemberStatusID: oldStatusID } = data
+            if (oldStatusID === 4) {
+                await updateTeamMemberStatus({
+                    teamMemberLevelID,
+                    teamMemberStatusID,
+                    memberID,
+                    teamID
+                })
+                // 同步通知球隊管理員
+                teamManager.forEach(async item => {
+                    //title, content, receiverID, typeID, extra, playerID, teamID,
+                    await sendNotification({
+                        title: memberName,
+                        content: `${memberName} 要求加入 ${teamName}`,
+                        receiverID: item.memberID,
+                        typeID: 3,
+                        playerID: memberID,
+                        teamID
+                    })
+                })
+                returnObj.message = '申請成功'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '已存在'
+                returnObj.type = '9'
+                res.status(500).json(returnObj)
+            }
+
         }
     } catch (err) {
         next(err)
@@ -132,6 +160,8 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
 });
 
 // 修改申請狀態(決定要不要同意)
+// 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
+// 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
 router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
         const teamID = req.params.teamID
@@ -139,11 +169,11 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
         const newStatusID = req.body.teamMemberStatusID
         const { teamMemberStatusID: oldStatusID, teamMemberLevelID: levelID, memberName, teamName, } = await isExistTeamMember(teamID, memberID)
         let returnObj = {}
-        const data = await updateTeamMemberStatus(
-            newStatusID,
+        const data = await updateTeamMemberStatus({
+            teamMemberStatusID: newStatusID,
             memberID,
             teamID,
-        )
+        })
 
         // 球隊同意使用者加入 發通知給使用者
         if (oldStatusID === 2 && newStatusID === 3) {
@@ -181,6 +211,17 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
                     playerID: memberID,
                     teamID
                 })
+            })
+        }
+
+        // 球隊拒絕使用者加入 發通知給使用者
+        if (oldStatusID === 2 && newStatusID === 4) {
+            await sendNotification({
+                title: teamName,
+                content: `${teamName} 已拒絕您的加入`,
+                receiverID: memberID,
+                typeID: 8,
+                teamID
             })
         }
 

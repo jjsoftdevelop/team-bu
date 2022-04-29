@@ -67,11 +67,13 @@ export function updateTeamMemberStatus(api) {
         teamID,
         memberID,
         teamMemberStatusID,
+        teamMemberLevelID
     }) {
         const path = `${API_MODULE}/teams/status/${teamID}/${memberID}`
         try {
             const { data, errors } = await api.put(path, {
                 teamMemberStatusID,
+                teamMemberLevelID,
             })
             if (errors) {
                 return Promise.reject(errors)

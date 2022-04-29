@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 const base64Obj = require('../utils/base64')
-const { insertNotificationDB, getJoinNotification } = require('../sql/sqlNotification')
+const { insertNotificationDB, getNotification, updateNotification } = require('../sql/sqlNotification')
 
 // 發送通知
 router.post('/notification/send', async function (req, res, next) {
@@ -32,11 +32,14 @@ router.post('/notification/send', async function (req, res, next) {
 });
 
 // 取得邀請的通知
-router.get('/notification/join', async function (req, res, next) {
+router.get('/notification', async function (req, res, next) {
     try {
         let returnObj = {}
-        let memberID = base64Obj.decodeNumber(req.session.user.pid)
-        const data = await getJoinNotification(memberID)
+        const memberID = base64Obj.decodeNumber(req.session.user.pid)
+        // 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
+        // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
+        const typeID = req.query.typeID
+        const data = await getNotification({ memberID, typeID })
         if (data) {
             res.status(200).json(data)
         } else {
@@ -49,5 +52,27 @@ router.get('/notification/join', async function (req, res, next) {
         next(err)
     }
 });
+
+router.put('/notification/:id', async function (req, res, next) {
+    const pid = req.params.id
+    const isShow = req.body.isShow ? req.body.isShow : ''
+    const isRead = req.body.isRead ? req.body.isRead : ''
+    try {
+        let returnObj = {}
+        const data = await updateNotification({ pid, isShow, isRead })
+        if (data) {
+            returnObj.message = '修改成功'
+            returnObj.type = '1'
+            res.status(200).json(returnObj)
+        } else {
+            returnObj.message = '發生錯誤'
+            returnObj.type = '2'
+            res.status(500).json(returnObj)
+        }
+    } catch (err) {
+        next(err)
+    }
+
+})
 
 module.exports = router
