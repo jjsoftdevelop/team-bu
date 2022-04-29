@@ -125,24 +125,6 @@ async function selectTeamDB(teamID, categoryID, name) {
     return data
 }
 
-// 發送通知 api
-async function sendNotification({ title, content, receiverID, typeID, extra, playerID,
-    teamID }) {
-    try {
-        await axios.post(`${process.env.BASE_URL}/api/notification/send`, {
-            title,
-            content,
-            receiverID,
-            typeID,
-            extra,
-            playerID,
-            teamID,
-        })
-    } catch (err) {
-        console.log(err)
-    }
-}
-
 // 取得要求加入球隊的人
 async function getTeamJoinList(teamID) {
     let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberstatusID = 2"
@@ -176,7 +158,6 @@ module.exports = {
     isExistTeamMember,
     updateTeamMemberStatus,
     selectTeamDB,
-    sendNotification,
     getTeamJoinList,
     getTeamManagerList,
     getTeamInfo,

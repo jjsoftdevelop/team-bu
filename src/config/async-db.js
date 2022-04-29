@@ -8,6 +8,8 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
 })
 
+
+
 let query = function (sql, values) {
     return new Promise((resolve, reject) => {
         pool.getConnection(function (err, connection) {

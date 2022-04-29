@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const axios = require('axios');
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 const base64Obj = require('../utils/base64')
 const {
@@ -8,7 +9,6 @@ const {
     isExistTeamMember,
     updateTeamMemberStatus,
     selectTeamDB,
-    sendNotification,
     getTeamJoinList,
     getTeamManagerList,
     getTeamInfo,
@@ -16,7 +16,25 @@ const {
 const {
     getMemberName
 } = require('../sql/sqlUserStr')
+const { updateNotification, getNotificationCate } = require('../sql/sqlNotification')
 
+// 發送通知 api
+async function sendNotification({ title, content, receiverID, typeID, extra, playerID,
+    teamID }) {
+    try {
+        await axios.post(`${process.env.BASE_URL}/api/notification/send`, {
+            title,
+            content,
+            receiverID,
+            typeID,
+            extra,
+            playerID,
+            teamID,
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 // 創建球隊
 router.post('/teams/create', authMiddleWare, async function (req, res, next) {
@@ -89,7 +107,6 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
         const teamManager = await getTeamManagerList(teamID)
         let returnObj = {}
         if (!data) {
-
             let id = await insertTeamMemberDB(
                 teamID,
                 memberID,
@@ -125,6 +142,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
         } else {
             // 1:邀請球員中 2:申請加入中 3:已加入 4:申請已拒絕 5:邀請已拒絕 9:已移除
             const { teamMemberStatusID: oldStatusID } = data
+            // 情境：拒絕後又送邀請
             if (oldStatusID === 4) {
                 await updateTeamMemberStatus({
                     teamMemberLevelID,
@@ -174,9 +192,9 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
             memberID,
             teamID,
         })
-
-        // 球隊同意使用者加入 發通知給使用者
+        // 球隊同意使用者加入 發通知給使用者 並更新邀請函isShow 為 0 
         if (oldStatusID === 2 && newStatusID === 3) {
+            // 發送同意通知給使用者
             await sendNotification({
                 title: teamName,
                 content: `${teamName} 已同意您的加入`,
@@ -184,34 +202,49 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
                 typeID: 5,
                 teamID
             })
-            if (levelID === 3) {
-                // 如果同意使用者成為管理員 要將要求加入球隊的通知 同步給使用者
-                const teamMember = await getTeamJoinList(teamID)
-                teamMember.forEach(async (item) => {
-                    await sendNotification({
-                        title: memberName,
-                        content: `${memberName} 要求加入 ${teamName}`,
-                        receiverID: memberID,
-                        typeID: 3,
-                        playerID: item.memberID,
-                        teamID
+            // 同步更新 此邀請涵狀態 isShow 為 0 
+            const notiCateList = await getNotificationCate({ teamID, playerID: memberID, typeID: 3 })
+            if (notiCateList && notiCateList.length > 0) {
+                notiCateList.forEach(async item => {
+                    await updateNotification({
+                        isShow: '0',
+                        pid: item.pid
                     })
                 })
+            }
+
+            // 如果同意使用者成為管理員 要將要求加入球隊的通知 同步給使用者
+            if (levelID === 3) {
+                const teamMember = await getTeamJoinList(teamID)
+                if (teamMember && teamMember.length > 0) {
+                    teamMember.forEach(async (item) => {
+                        await sendNotification({
+                            title: memberName,
+                            content: `${memberName} 要求加入 ${teamName}`,
+                            receiverID: memberID,
+                            typeID: 3,
+                            playerID: item.memberID,
+                            teamID
+                        })
+                    })
+                }
             }
         }
         // 使用者同意加入球隊 發通知給球隊管理員
         if (oldStatusID === 1 && newStatusID === 3) {
             const teamManager = await getTeamManagerList(teamID)
-            teamManager.forEach(async (item) => {
-                await sendNotification({
-                    title: memberName,
-                    content: `${memberName} 已同意 ${teamName} 的邀請`,
-                    receiverID: item.memberID,
-                    typeID: 6,
-                    playerID: memberID,
-                    teamID
+            if (teamManager && teamManager.length > 0) {
+                teamManager.forEach(async (item) => {
+                    await sendNotification({
+                        title: memberName,
+                        content: `${memberName} 已同意 ${teamName} 的邀請`,
+                        receiverID: item.memberID,
+                        typeID: 6,
+                        playerID: memberID,
+                        teamID
+                    })
                 })
-            })
+            }
         }
 
         // 球隊拒絕使用者加入 發通知給使用者
@@ -220,9 +253,35 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
                 title: teamName,
                 content: `${teamName} 已拒絕您的加入`,
                 receiverID: memberID,
-                typeID: 8,
+                typeID: 7,
                 teamID
             })
+            // 同步更新 此邀請涵狀態 isShow 為 0 
+            const notiCateList = await getNotificationCate({ teamID, playerID: memberID, typeID: 3 })
+            if (notiCateList && notiCateList.length > 0) {
+                notiCateList.forEach(async item => {
+                    await updateNotification({
+                        isShow: '0',
+                        pid: item.pid
+                    })
+                })
+            }
+        }
+
+        // 使用者拒絕加入球隊 發通知給球隊管理員
+        if (oldStatusID === 1 && newStatusID === 5) {
+            if (teamManager && teamManager.length > 0) {
+                teamManager.forEach(async (item) => {
+                    await sendNotification({
+                        title: memberName,
+                        content: `${memberName} 已拒絕 ${teamName} 的邀請`,
+                        receiverID: item.memberID,
+                        typeID: 8,
+                        playerID: memberID,
+                        teamID
+                    })
+                })
+            }
         }
 
         if (data) {
@@ -248,7 +307,6 @@ router.get('/teams', async function (req, res, next) {
         } else {
             res.status(500).json(data)
         }
-
     } catch (err) {
         next(err)
     }

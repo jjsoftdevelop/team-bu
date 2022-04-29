@@ -53,6 +53,7 @@ router.get('/notification', async function (req, res, next) {
     }
 });
 
+// 更新邀請通知
 router.put('/notification/:id', async function (req, res, next) {
     const pid = req.params.id
     const isShow = req.body.isShow ? req.body.isShow : ''

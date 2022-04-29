@@ -80,7 +80,6 @@ export default {
             });
             // 成功後 更新通知狀態
             if (type === "1") {
-              this.updateNotification({ pid, isShow });
               this.memberStatus.isFinish = true;
             }
           }
@@ -93,7 +92,6 @@ export default {
             });
             // 成功後 更新通知狀態
             if (type === "1") {
-              this.updateNotification({ pid, isShow });
               this.memberStatus.isFinish = true;
             }
           }
@@ -102,17 +100,6 @@ export default {
         console.log(err);
       } finally {
         this.memberStatus.isLoading = false;
-      }
-    },
-    async updateNotification({ pid, isShow, isRead }) {
-      try {
-        await this.$api.updateNotification({
-          pid,
-          isShow,
-          isRead,
-        });
-      } catch (err) {
-        console.log(err);
       }
     },
   },
