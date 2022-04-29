@@ -18,7 +18,24 @@ async function getMemberName(pid) {
     return data[0]
 }
 
+// 取得我加入的球隊
+async function getMyteam(pid) {
+    let sql = `SELECT A.teamID, B.name, B.logoUrl, D.rankText, E.categoryText, B.city, F.typeText, A.teamMemberLevelID
+                FROM team_member AS A
+                LEFT JOIN team AS B ON B.pid = A.teamID
+                LEFT JOIN member AS C ON C.pid = A.memberID
+                LEFT JOIN team_rank AS D ON D.rankID = B.rankID
+                LEFT JOIN team_category AS E ON E.categoryID = B.categoryID
+                LEFT JOIN team_type AS F ON F.typeID = B.typeID
+                WHERE memberID = ?`
+    let values = [pid]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     getOwnTeam,
-    getMemberName
+    getMemberName,
+    getMyteam
 }

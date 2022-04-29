@@ -44,14 +44,14 @@ router.post('/teams/create', authMiddleWare, async function (req, res, next) {
         const bannerUrl = req.body.bannerUrl
         const description = req.body.description
         const categoryID = req.body.categoryID
-        const typeID = req.body.categoryID
+        const typeID = req.body.typeID
         const rankID = req.body.rankID
         const city = req.body.city
         const leagueTag = req.body.leagueTag
         const creatorID = base64Obj.decodeNumber(req.session.user.pid)
         const picture = req.session.user.picture
         let returnObj = {}
-        let id = await insertTeamDB(
+        let id = await insertTeamDB({
             name,
             logoUrl,
             bannerUrl,
@@ -62,7 +62,7 @@ router.post('/teams/create', authMiddleWare, async function (req, res, next) {
             city,
             leagueTag,
             creatorID
-        )
+        })
         if (id) {
             await insertTeamMemberDB(
                 id,

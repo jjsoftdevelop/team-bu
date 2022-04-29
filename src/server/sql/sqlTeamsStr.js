@@ -3,7 +3,7 @@ const axios = require('axios');
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
 // 新增球隊寫入DB
-async function insertTeamDB(
+async function insertTeamDB({
     name,
     logoUrl,
     bannerUrl,
@@ -14,7 +14,7 @@ async function insertTeamDB(
     city,
     leagueTag,
     creatorID
-) {
+}) {
     let sql = "INSERT INTO team(name, logoUrl, bannerUrl, description, categoryID, typeID, rankID, statusID, city, leagueTag, creatorID, createdate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)"
     let values = [
         name,
@@ -152,6 +152,17 @@ async function getTeamInfo(teamID) {
     return data[0]
 }
 
+// 取得球隊成員的頭貼
+async function getTeamMemberPic(teamID) {
+    let sql = `SELECT B.picture FROM team_member AS A
+                LEFT JOIN member AS B ON B.pid = A.memberID
+                WHERE A.teamID = ?`
+    let values = [teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
@@ -161,4 +172,5 @@ module.exports = {
     getTeamJoinList,
     getTeamManagerList,
     getTeamInfo,
+    getTeamMemberPic,
 }

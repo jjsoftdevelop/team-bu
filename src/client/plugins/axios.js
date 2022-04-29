@@ -4,7 +4,7 @@ import { uploadFile } from '../api/uploadFileApi'
 import { verifyEmail, verifyPasswd, signUp, logout, enterVerifycode, settingPasswd } from '../api/verify'
 import { teamCreate, teamJoin, updateTeamMemberStatus, getTeamList } from '../api/teamsAPI'
 import { getNotification, updateNotification } from '../api/notificationApi'
-import { getOwnTeam, sendVerifycode } from '../api/userApi'
+import { getOwnTeam, sendVerifycode, getMyTeam } from '../api/userApi'
 
 
 
@@ -63,7 +63,8 @@ export default (context, inject) => {
         getOwnTeam: getOwnTeam(axios),
         sendVerifycode: sendVerifycode(axios),
         settingPasswd: settingPasswd(axios),
-        updateNotification: updateNotification(axios)
+        updateNotification: updateNotification(axios),
+        getMyTeam: getMyTeam(axios)
     }
     inject('api', api)
     inject('axios', axios)

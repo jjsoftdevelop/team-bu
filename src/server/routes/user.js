@@ -3,7 +3,8 @@ const router = express.Router()
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 
 const base64Obj = require('../utils/base64')
-const { getOwnTeam} = require('../sql/sqlUserStr')
+const { getOwnTeam, getMyteam } = require('../sql/sqlUserStr')
+const { getTeamMemberPic } = require('../sql/sqlTeamsStr')
 
 // 取得我權限為管理員的球隊清單
 router.get('/user/own', authMiddleWare, async function (req, res, next) {
@@ -13,6 +14,33 @@ router.get('/user/own', authMiddleWare, async function (req, res, next) {
         const data = await getOwnTeam(pid)
         if (data) {
             res.status(200).json(data)
+        } else {
+            returnObj.message = '發生錯誤'
+            returnObj.type = '2'
+            res.status(500).json(returnObj)
+        }
+
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 取得我加入的球隊
+router.get('/user/myTeam', authMiddleWare, async function (req, res, next) {
+    try {
+        let returnObj = {}
+        let pid = base64Obj.decodeNumber(req.session.user.pid)
+        const result = await getMyteam(pid)
+        const myteam = await Promise.all(result.map(async team => {
+            const memberPic = await getTeamMemberPic(team.teamID)
+            team.memberPic = []
+            memberPic.forEach(pic => {
+                team.memberPic.push(pic.picture)
+            })
+            return team
+        }))
+        if (myteam) {
+            res.status(200).json(myteam)
         } else {
             returnObj.message = '發生錯誤'
             returnObj.type = '2'
