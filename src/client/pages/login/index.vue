@@ -134,7 +134,7 @@ export default {
           passwd,
         });
         if (res.type === "2") {
-          window.location.href = "/create";
+          window.location.href = "/home";
         }
       } catch (err) {
         console.log(err);
@@ -151,7 +151,7 @@ export default {
         });
         const { type } = res;
         if (type === "1") {
-          window.location.href = "/create";
+          window.location.href = "/home";
         }
       } catch (err) {
         console.log(err);
@@ -170,7 +170,7 @@ export default {
         if (type === "1") {
           // this.step = "verifyPasswd";
           // this.forgetPasswd = false;
-          window.location.href = "/create";
+          window.location.href = "/home";
         }
       } catch (err) {
         console.log(err);

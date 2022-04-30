@@ -73,7 +73,7 @@ router.get('/redirect/google', async (req, res) => {
                 picture
             }
             req.session.user = user
-            res.redirect('/');
+            res.redirect('/home');
         } else {
             const user = {
                 pid: base64Obj.encode(data.pid),
@@ -82,7 +82,7 @@ router.get('/redirect/google', async (req, res) => {
                 picture
             }
             req.session.user = user
-            res.redirect('/');
+            res.redirect('/home');
         }
     }
     catch (e) {
