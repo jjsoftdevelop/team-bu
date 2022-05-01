@@ -214,6 +214,7 @@ export default {
           newLogoUrl = url;
         } catch (err) {
           newLogoUrl = "";
+          alert(err);
         }
       }
       // 如果有上傳
@@ -223,6 +224,7 @@ export default {
           newBannerUrl = url;
         } catch (err) {
           newBannerUrl = "";
+          alert(err);
         }
       }
       try {
