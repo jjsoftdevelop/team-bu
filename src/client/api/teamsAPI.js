@@ -35,6 +35,43 @@ export function teamCreate(api) {
     }
 }
 
+// 修改球隊
+export function teamModify(api) {
+    return async function ({
+        name,
+        logoUrl,
+        bannerUrl,
+        description,
+        categoryID,
+        typeID,
+        rankID,
+        leagueTag,
+        city,
+        teamID,
+    }) {
+        const path = `${API_MODULE}/teams/${teamID}`
+        try {
+            const { data, errors } = await api.put(path, {
+                name,
+                logoUrl,
+                bannerUrl,
+                description,
+                categoryID,
+                typeID,
+                rankID,
+                leagueTag,
+                city,
+            })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
 // 主動/邀請 加入球隊
 export function teamJoin(api) {
     return async function ({
@@ -94,9 +131,7 @@ export function getTeamList(api) {
     }) {
         const path = `${API_MODULE}/teams/${teamID}?categoryID=${categoryID}&name=${name}`
         try {
-            const { data, errors } = await api.get(path, {
-                categoryID,
-            })
+            const { data, errors } = await api.get(path)
             if (errors) {
                 return Promise.reject(errors)
             }

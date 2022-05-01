@@ -12,6 +12,7 @@ const {
     getTeamJoinList,
     getTeamManagerList,
     getTeamInfo,
+    modifyTeamDB,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -85,6 +86,53 @@ router.post('/teams/create', authMiddleWare, async function (req, res, next) {
     }
 });
 
+// 修改球隊
+router.put('/teams/:teamID', authMiddleWare, async function (req, res, next) {
+    try {
+        const teamID = base64Obj.decodeNumber(req.params.teamID)
+        const name = req.body.name
+        const logoUrl = req.body.logoUrl
+        const bannerUrl = req.body.bannerUrl
+        const description = req.body.description
+        const categoryID = req.body.categoryID
+        const typeID = req.body.typeID
+        const rankID = req.body.rankID
+        const city = req.body.city
+        const leagueTag = req.body.leagueTag
+        const modifierID = base64Obj.decodeNumber(req.session.user.pid)
+        let returnObj = {}
+        await modifyTeamDB({
+            name,
+            logoUrl,
+            bannerUrl,
+            description,
+            categoryID,
+            typeID,
+            rankID,
+            city,
+            leagueTag,
+            modifierID,
+            teamID
+        })
+        const data = await selectTeamDB(
+            { teamID }
+        )
+        if (data[0] && data[0].pid) {
+            returnObj.message = '修改成功'
+            returnObj.type = '1'
+            returnObj.data = data
+            res.status(200).json(returnObj)
+        } else {
+            returnObj.message = '修改失敗'
+            returnObj.type = '9'
+            res.status(500).json(returnObj)
+        }
+
+    } catch (err) {
+        next(err)
+    }
+});
+
 // 邀請加入 or 申請加入
 router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
     try {
@@ -140,9 +188,10 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                 res.status(500).json(returnObj)
             }
         } else {
+            // 已經申請過了
             // 1:邀請球員中 2:申請加入中 3:已加入 4:申請已拒絕 5:邀請已拒絕 9:已移除
             const { teamMemberStatusID: oldStatusID } = data
-            // 情境：拒絕後又送邀請
+            // 情境：球隊拒絕後又送邀請
             if (oldStatusID === 4) {
                 await updateTeamMemberStatus({
                     teamMemberLevelID,
@@ -315,14 +364,37 @@ router.get('/teams', async function (req, res, next) {
 // 找尋球隊
 router.get('/teams/:teamID', async function (req, res, next) {
     try {
-        const teamID = req.params.teamID !== 'undefined' ? req.params.teamID : ''
-        const categoryID = req.query.categoryID
-        const name = base64Obj.decodeString(req.query.name)
+        const memberID = req.session.user && req.session.user.pid ? base64Obj.decodeNumber(req.session.user.pid) : ''
+        const teamID = req.params.teamID !== 'undefined' ? base64Obj.decodeNumber(req.params.teamID) : ''
+        const categoryID = req.query.categoryID !== 'undefined' ? req.query.categoryID : ''
+        const name = req.query.name !== 'undefined' ? base64Obj.decodeString(req.query.name) : ''
         let data = await selectTeamDB(
-            teamID, categoryID, name
+            { teamID, categoryID, name }
         )
         if (data) {
-            res.status(200).json(data)
+            // 查詢是否已加入過球隊
+            if (memberID) {
+                const addData = await Promise.all(
+                    data.map(async team => {
+                        const teamMember = await isExistTeamMember(team.pid, memberID)
+                        if (teamMember) {
+                            return {
+                                ...team,
+                                teamMemberLevelID: teamMember.teamMemberLevelID,
+                                teamMemberLevelText: teamMember.teamMemberLevelText,
+                                teamMemberStatusID: teamMember.teamMemberStatusID,
+                                teamMemberStatusText: teamMember.teamMemberStatusText
+                            }
+                        } else {
+                            return team
+                        }
+                    })
+                )
+                res.status(200).json(addData)
+            } else {
+                res.status(200).json(data)
+
+            }
         } else {
             res.status(500).json(data)
         }

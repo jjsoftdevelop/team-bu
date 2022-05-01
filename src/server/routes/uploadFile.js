@@ -24,16 +24,16 @@ const uploadHandler = multer({
 });
 
 router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, next) => {
-    const now = new Date();
-    const file = req.file
-    const filename = file.filename
-    const createdate = moment(now).format('YYYY/MM/DD HH:mm:ss')
-    const contentType = file.contentType
-    const size = file.size
-    const path = file.path
-    const linkUrl = file.linkUrl
-    const destination = file.destination
     try {
+        const now = new Date();
+        const file = req.file
+        const filename = file.filename
+        const createdate = moment(now).format('YYYY/MM/DD HH:mm:ss')
+        const contentType = file.contentType
+        const size = file.size
+        const path = file.path
+        const linkUrl = file.linkUrl
+        const destination = file.destination
         await insertUploadDB(filename, createdate, contentType, size, path, linkUrl, destination)
         const returnObj = {
             message: '上傳成功',

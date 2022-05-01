@@ -35,6 +35,53 @@ async function insertTeamDB({
     return data.insertId
 }
 
+async function modifyTeamDB({
+    name,
+    logoUrl,
+    bannerUrl,
+    description,
+    categoryID,
+    typeID,
+    rankID,
+    city,
+    leagueTag,
+    modifierID,
+    teamID
+}) {
+    let sql = `UPDATE team SET 
+                    name = ?, 
+                    logoUrl = ?, 
+                    bannerUrl = ?, 
+                    description = ?, 
+                    categoryID = ?, 
+                    typeID = ?, 
+                    rankID = ?, 
+                    statusID = ?, 
+                    city = ?, 
+                    leagueTag = ?, 
+                    modifierID = ?, 
+                    modifyDate = ? 
+                WHERE pid = ?`
+    let values = [
+        name,
+        logoUrl,
+        bannerUrl,
+        description,
+        categoryID,
+        typeID,
+        rankID,
+        1,
+        city,
+        leagueTag,
+        modifierID,
+        new Date(),
+        teamID
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 // 新增球員寫入DB
 async function insertTeamMemberDB(
     teamID,
@@ -60,9 +107,11 @@ async function insertTeamMemberDB(
 
 // 檢查是否已在球對
 async function isExistTeamMember(teamID, memberID) {
-    let sql = `SELECT B.nickname AS memberName,B.picture AS memberPicture,C.name AS teamName,C.logoUrl AS teamLogo,A.* FROM team_member AS A
+    let sql = `SELECT B.nickname AS memberName,B.picture AS memberPicture,C.name AS teamName,C.logoUrl AS teamLogo, A.*, D.statusText AS teamMemberStatusText, E.levelText AS teamMemberLevelText  FROM team_member AS A
                 LEFT JOIN member AS B ON B.pid = A.memberID
                 LEFT JOIN team AS C ON C.pid = A.teamID
+                LEFT JOIN team_member_status AS D ON D.statusID = A.teamMemberStatusID
+                LEFT JOIN team_member_level AS E ON E.levelID = A.teamMemberLevelID
                 WHERE memberID = ? AND teamID = ? Limit 1`
     let values = [memberID, teamID]
     const res = await query(sql, values)
@@ -84,17 +133,23 @@ async function updateTeamMemberStatus({ teamMemberLevelID, teamMemberStatusID, m
 }
 
 // 搜尋球隊列表
-async function selectTeamDB(teamID, categoryID, name) {
+async function selectTeamDB({ teamID, categoryID, name }) {
     let sql = `SELECT A.*,B.nickname AS nickname
                 FROM team AS A
                 LEFT JOIN member  AS B
-                ON A.creatorID = B.pid`
+                ON A.creatorID = B.pid
+                LEFT JOIN team_rank AS C ON C.rankID = A.rankID
+                LEFT JOIN team_category AS D ON D.categoryID = A.categoryID
+                LEFT JOIN team_type AS E ON E.typeID = A.typeID`
     let values = []
     if (name && categoryID) {
         sql = `SELECT A.*,B.nickname AS nickname
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
+                LEFT JOIN team_rank AS C ON C.rankID = A.rankID
+                LEFT JOIN team_category AS D ON D.categoryID = A.categoryID
+                LEFT JOIN team_type AS E ON E.typeID = A.typeID
                 WHERE A.name like ? AND A.categoryID = ?`
         values = ['%' + name + '%', categoryID]
     } else if (teamID && categoryID) {
@@ -102,6 +157,9 @@ async function selectTeamDB(teamID, categoryID, name) {
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
+                LEFT JOIN team_rank AS C ON C.rankID = A.rankID
+                LEFT JOIN team_category AS D ON D.categoryID = A.categoryID
+                LEFT JOIN team_type AS E ON E.typeID = A.typeID
                 WHERE A.pid = ? AND A.categoryID = ?`
         values = [teamID, categoryID]
     } else if (categoryID) {
@@ -109,13 +167,19 @@ async function selectTeamDB(teamID, categoryID, name) {
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
+                LEFT JOIN team_rank AS C ON C.rankID = A.rankID
+                LEFT JOIN team_category AS D ON D.categoryID = A.categoryID
+                LEFT JOIN team_type AS E ON E.typeID = A.typeID
                 WHERE A.categoryID = ?`
         values = [categoryID]
     } else if (teamID) {
-        sql = `SELECT A.*,B.nickname AS nickname
+        sql = `SELECT A.*, C.rankText, D.categoryText, E.typeText, B.nickname AS nickname
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
+                LEFT JOIN team_rank AS C ON C.rankID = A.rankID
+                LEFT JOIN team_category AS D ON D.categoryID = A.categoryID
+                LEFT JOIN team_type AS E ON E.typeID = A.typeID
                 WHERE A.pid = ?`
         values = [teamID]
     }
@@ -173,4 +237,5 @@ module.exports = {
     getTeamManagerList,
     getTeamInfo,
     getTeamMemberPic,
+    modifyTeamDB,
 }
