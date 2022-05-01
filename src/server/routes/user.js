@@ -33,6 +33,7 @@ router.get('/user/myTeam', authMiddleWare, async function (req, res, next) {
         const result = await getMyteam(pid)
         const myteam = await Promise.all(result.map(async team => {
             const memberPic = await getTeamMemberPic(team.teamID)
+            team.teamID = base64Obj.encode(team.teamID)
             team.memberPic = []
             memberPic.forEach(pic => {
                 team.memberPic.push(pic.picture)
