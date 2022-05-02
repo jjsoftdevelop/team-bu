@@ -19,7 +19,7 @@
             border-radius: 50%;
             background: black;
           "
-          for="uploadBannerFile"
+          @click="openCropperModal"
           ><svg
             width="14"
             height="12"
@@ -36,7 +36,7 @@
             />
           </svg>
         </label>
-        <div class="d-none">
+        <!-- <div class="d-none">
           <input
             id="uploadBannerFile"
             type="file"
@@ -44,7 +44,7 @@
             name="uploadBox"
             accept="image/png, image/jpeg"
           />
-        </div>
+        </div> -->
         <div
           class="position-absolute"
           style="left: 50%; top: 50%; transform: translate(-50%, -50%)"
@@ -134,11 +134,25 @@
         </div>
       </div>
     </div>
+    <ModalBase :footHidden="true" :headerHidden="true" ref="cropperModal">
+      <Cropper
+        :imgSrc="form.bannerUrl"
+        @getFileObj="getFileObj"
+        @closeCropperModal="closeCropperModal"
+      />
+    </ModalBase>
   </div>
 </template>
 
 <script>
+import ModalBase from "~/components/modal/ModalBase";
+import Cropper from "~/components/common/Cropper";
+
 export default {
+  components: {
+    ModalBase,
+    Cropper,
+  },
   props: {
     form: {
       type: Object,
@@ -187,6 +201,15 @@ export default {
     };
   },
   methods: {
+    getFileObj(file) {
+      this.uploadBannerFile(file);
+    },
+    openCropperModal() {
+      this.$refs.cropperModal.openModal();
+    },
+    closeCropperModal() {
+      this.$refs.cropperModal.hideModal();
+    },
     handleRank() {
       if (this.modifyInfo.typeID === 1) {
         this.rank = [
@@ -262,8 +285,8 @@ export default {
       this.logoFile.data = event.target.files[0];
       this.logoFile.preview = URL.createObjectURL(this.logoFile.data);
     },
-    uploadBannerFile(event) {
-      this.bannerFile.data = event.target.files[0];
+    uploadBannerFile(file) {
+      this.bannerFile.data = file;
       this.bannerFile.preview = URL.createObjectURL(this.bannerFile.data);
     },
   },
