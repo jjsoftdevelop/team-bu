@@ -20,7 +20,7 @@ const uploadHandler = multer({
             cb(null, customFilename)
         }
     }),
-    limits: { fileSize: 1048576 }
+    fileSize: 1048576
 });
 
 router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, next) => {
@@ -41,6 +41,7 @@ router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, n
         }
         res.status(200).json(returnObj)
     } catch (err) {
+        console.log(err);
         next(err)
     }
 
