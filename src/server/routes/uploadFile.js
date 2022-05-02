@@ -7,7 +7,6 @@ const path = require('path');
 const appDir = path.dirname(require.main.filename);
 const moment = require('moment');
 const { insertUploadDB } = require('../sql/sqlUploadStr')
-
 const uploadHandler = multer({
     storage: multerGoogleStorage.storageEngine({
         bucket: 'team-bu',
@@ -20,7 +19,8 @@ const uploadHandler = multer({
             const customFilename = `${format}_${uuidv4()}${path.extname(file.originalname)}`
             cb(null, customFilename)
         }
-    })
+    }),
+    limits: { fileSize: 1048576 }
 });
 
 router.post('/uploadFile', uploadHandler.single('uploadBox'), async (req, res, next) => {
