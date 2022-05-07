@@ -23,7 +23,7 @@
             @click="
               updateTeamMemberStatus(
                 $encodeBase64(item.playerID),
-                item.teamID,
+                $encodeBase64(item.teamID),
                 'agree'
               )
             "
@@ -35,7 +35,7 @@
             @click="
               updateTeamMemberStatus(
                 $encodeBase64(item.playerID),
-                item.teamID,
+                $encodeBase64(item.teamID),
                 'reject'
               )
             "
@@ -67,8 +67,6 @@ export default {
   methods: {
     async updateTeamMemberStatus(memberID, teamID, type) {
       try {
-        const pid = this.item.pid;
-        const isShow = "0";
         if (!this.memberStatus.isLoading) {
           this.memberStatus.isLoading = true;
           if (type === "agree") {
@@ -84,11 +82,15 @@ export default {
             }
           }
           if (type === "reject") {
+            // 此通知的 type
+            // 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
+            // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
+            const notificationType =  this.item.type
             // 更新teamMember狀態
             const { type } = await this.$api.updateTeamMemberStatus({
               memberID,
               teamID,
-              teamMemberStatusID: 4,
+              teamMemberStatusID: notificationType === 3 ? 4 : 5,
             });
             // 成功後 更新通知狀態
             if (type === "1") {

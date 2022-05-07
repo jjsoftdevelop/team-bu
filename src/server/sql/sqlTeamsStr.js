@@ -227,6 +227,17 @@ async function getTeamMemberPic(teamID) {
     return data
 }
 
+// 找尋球員
+async function getMemberByEmail({ email }) {
+    let sql = `SELECT A.pid, A.nickname, A.picture, A.email, A.provider, B.teamID, B.teamMemberStatusID, B.teamMemberLevelID FROM member AS A
+                LEFT JOIN team_member AS B ON B.memberID = A.pid
+                WHERE A.email = ?`
+    let values = [email]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
@@ -238,4 +249,5 @@ module.exports = {
     getTeamInfo,
     getTeamMemberPic,
     modifyTeamDB,
+    getMemberByEmail,
 }

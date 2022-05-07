@@ -141,3 +141,21 @@ export function getTeamList(api) {
         }
     }
 }
+
+// 用email取得球員
+export function getMemberByEmail(api) {
+    return async function ({
+        email
+    }) {
+        const path = `${API_MODULE}/teams/${email}`
+        try {
+            const { data, errors } = await api.post(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}

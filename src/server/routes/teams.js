@@ -13,6 +13,7 @@ const {
     getTeamManagerList,
     getTeamInfo,
     modifyTeamDB,
+    getMemberByEmail,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -136,7 +137,7 @@ router.put('/teams/:teamID', authMiddleWare, async function (req, res, next) {
 // 邀請加入 or 申請加入
 router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
     try {
-        const teamID = req.params.teamID
+        const teamID = base64Obj.decodeNumber(req.params.teamID)
         const memberID = base64Obj.decodeNumber(req.params.memberID)
         const picture = req.body.picture
         // 申請 OR 邀請 加入的權限 
@@ -176,7 +177,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                     })
                 })
             } else if (type === 'invite') {
-                await sendNotification({ title: teamName, content: `${teamName} 邀請您加入球隊`, receiverID: memberID, typeID: 4, teamID })
+                await sendNotification({ title: teamName, content: `${teamName} 邀請您加入球隊`, playerID: memberID, receiverID: memberID, typeID: 4, teamID })
             }
             if (id) {
                 returnObj.message = '申請成功'
@@ -214,6 +215,18 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
                 returnObj.message = '申請成功'
                 returnObj.type = '1'
                 res.status(200).json(returnObj)
+            } if (oldStatusID === 5) {
+                await updateTeamMemberStatus({
+                    teamMemberLevelID,
+                    teamMemberStatusID,
+                    memberID,
+                    teamID
+                })
+                // 發通知給球員
+                await sendNotification({ title: teamName, content: `${teamName} 邀請您加入球隊`, playerID: memberID, receiverID: memberID, typeID: 4, teamID })
+                returnObj.message = '申請成功'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
             } else {
                 returnObj.message = '已存在'
                 returnObj.type = '9'
@@ -231,7 +244,7 @@ router.post('/teams/join/:teamID/:memberID', async function (req, res, next) {
 // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
 router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     try {
-        const teamID = req.params.teamID
+        const teamID = base64Obj.decodeNumber(req.params.teamID)
         const memberID = base64Obj.decodeNumber(req.params.memberID)
         const newStatusID = req.body.teamMemberStatusID
         const { teamMemberStatusID: oldStatusID, teamMemberLevelID: levelID, memberName, teamName, } = await isExistTeamMember(teamID, memberID)
@@ -294,6 +307,16 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
                     })
                 })
             }
+            // 同步更新 此邀請涵狀態 isShow 為 0 
+            const notiCateList = await getNotificationCate({ teamID, playerID: memberID, typeID: 4 })
+            if (notiCateList && notiCateList.length > 0) {
+                notiCateList.forEach(async item => {
+                    await updateNotification({
+                        isShow: '0',
+                        pid: item.pid
+                    })
+                })
+            }
         }
 
         // 球隊拒絕使用者加入 發通知給使用者
@@ -319,6 +342,7 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
 
         // 使用者拒絕加入球隊 發通知給球隊管理員
         if (oldStatusID === 1 && newStatusID === 5) {
+            const teamManager = await getTeamManagerList(teamID)
             if (teamManager && teamManager.length > 0) {
                 teamManager.forEach(async (item) => {
                     await sendNotification({
@@ -328,6 +352,16 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
                         typeID: 8,
                         playerID: memberID,
                         teamID
+                    })
+                })
+            }
+            // 同步更新 此邀請涵狀態 isShow 為 0 
+            const notiCateList = await getNotificationCate({ teamID, playerID: memberID, typeID: 4 })
+            if (notiCateList && notiCateList.length > 0) {
+                notiCateList.forEach(async item => {
+                    await updateNotification({
+                        isShow: '0',
+                        pid: item.pid
                     })
                 })
             }
@@ -395,6 +429,29 @@ router.get('/teams/:teamID', async function (req, res, next) {
                 res.status(200).json(data)
 
             }
+        } else {
+            res.status(500).json(data)
+        }
+
+    } catch (err) {
+        next(err)
+    }
+});
+
+// email 找尋球員
+router.post('/teams/:email', async function (req, res, next) {
+    try {
+        const email = req.params.email
+        const result = await getMemberByEmail({ email })
+        const member = result.map(item => {
+            return {
+                ...item,
+                pid: base64Obj.encode(item.pid),
+                teamID: item.teamID ? base64Obj.encode(item.teamID) : ''
+            }
+        })
+        if (member) {
+            res.status(200).json(member)
         } else {
             res.status(500).json(data)
         }
