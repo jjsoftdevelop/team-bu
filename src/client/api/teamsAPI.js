@@ -147,9 +147,27 @@ export function getMemberByEmail(api) {
     return async function ({
         email
     }) {
-        const path = `${API_MODULE}/teams/${email}`
+        const path = `${API_MODULE}/teamMember/${email}`
         try {
             const { data, errors } = await api.post(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 球隊隊員
+export function getTeamMemberList(api) {
+    return async function ({
+        teamID
+    }) {
+        const path = `${API_MODULE}/teamMember/member`
+        try {
+            const { data, errors } = await api.post(path, { teamID })
             if (errors) {
                 return Promise.reject(errors)
             }

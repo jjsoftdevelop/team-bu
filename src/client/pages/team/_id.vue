@@ -63,6 +63,20 @@
           </div>
         </div>
       </div>
+      <div>
+        <ul class="d-flex">
+          <li @click="handleTab('member')" class="mr-2 pointer">球隊成員</li>
+          <li @click="handleTab('stat')" class="mr-2 pointer">數據</li>
+          <li @click="handleTab('season')" class="mr-2 pointer">賽季</li>
+          <li @click="handleTab('post')" class="mr-2 pointer">動態牆</li>
+          <li @click="handleTab('accounting')" class="mr-2 pointer">
+            帳務管理
+          </li>
+        </ul>
+      </div>
+      <div>
+        <TeamMember :teamID="teamID" />
+      </div>
       <ModalBase :footHidden="true" :headerHidden="true" ref="teamModifyForm">
         <TeamModifyForm
           :form="teamInfo.data"
@@ -82,6 +96,7 @@
 <script>
 import TeamModifyForm from "~/components/team/TeamModifyForm";
 import TeamFindMember from "~/components/team/TeamFindMember";
+import TeamMember from "~/components/team/TeamMember";
 import ModalBase from "~/components/modal/ModalBase";
 
 export default {
@@ -89,12 +104,14 @@ export default {
     TeamModifyForm,
     ModalBase,
     TeamFindMember,
+    TeamMember,
   },
   data() {
     return {
       teamInfo: {
         data: "",
         isLoading: false,
+        tab: "",
       },
       teamID: "",
     };
@@ -121,6 +138,11 @@ export default {
     closeTeamModifyModal(newTeamInfo) {
       this.teamInfo.data = { ...this.teamInfo.data, ...newTeamInfo };
       this.$refs.teamModifyForm.hideModal();
+    },
+    handleTab(tab) {
+      this.$router.push({
+        query: { ...this.$router.query, tab },
+      });
     },
   },
 };

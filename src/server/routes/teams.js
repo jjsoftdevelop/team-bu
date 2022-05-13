@@ -14,6 +14,7 @@ const {
     getTeamInfo,
     modifyTeamDB,
     getMemberByEmail,
+    getTeamMemberList,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -37,6 +38,9 @@ async function sendNotification({ title, content, receiverID, typeID, extra, pla
         console.log(err)
     }
 }
+
+
+
 
 // 創建球隊
 router.post('/teams/create', authMiddleWare, async function (req, res, next) {
@@ -381,19 +385,7 @@ router.put('/teams/status/:teamID/:memberID', async function (req, res, next) {
     }
 });
 
-// 找尋球隊
-router.get('/teams', async function (req, res, next) {
-    try {
-        let data = await selectTeamDB()
-        if (data) {
-            res.status(200).json(data)
-        } else {
-            res.status(500).json(data)
-        }
-    } catch (err) {
-        next(err)
-    }
-});
+
 
 // 找尋球隊
 router.get('/teams/:teamID', async function (req, res, next) {
@@ -438,8 +430,30 @@ router.get('/teams/:teamID', async function (req, res, next) {
     }
 });
 
+// 球隊隊員
+router.post('/teamMember/member', async function (req, res, next) {
+    try {
+        const teamID = base64Obj.decodeNumber(req.body.teamID)
+        const result = await getTeamMemberList({ teamID })
+        const member = result.map(item => {
+            return {
+                ...item,
+                pid: base64Obj.encode(item.pid),
+            }
+        })
+        if (member) {
+            res.status(200).json(member)
+        } else {
+            res.status(500).json(data)
+        }
+
+    } catch (err) {
+        next(err)
+    }
+});
+
 // email 找尋球員
-router.post('/teams/:email', async function (req, res, next) {
+router.post('/teamMember/:email', async function (req, res, next) {
     try {
         const email = req.params.email
         const result = await getMemberByEmail({ email })
@@ -460,6 +474,23 @@ router.post('/teams/:email', async function (req, res, next) {
         next(err)
     }
 });
+
+
+
+// 找尋球隊
+router.get('/teams', async function (req, res, next) {
+    try {
+        let data = await selectTeamDB()
+        if (data) {
+            res.status(200).json(data)
+        } else {
+            res.status(500).json(data)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
 
 // export module
 module.exports = router
