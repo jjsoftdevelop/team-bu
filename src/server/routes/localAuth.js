@@ -98,6 +98,10 @@ router.post('/verify/email', async function (req, res, next) {
     // 判斷是否存在DB 自行登入方式
     try {
         const email = req.body.email
+        const regex = /^([\w\.\-]){1,64}\@([\w\.\-]){1,64}$/;
+        if (!regex.test(email)) {
+            throw new Error('email格式錯誤')
+        }
         const data = await isExistEmail(email, 'user')
         const returnObj = {}
         if (!data) {
@@ -117,6 +121,7 @@ router.post('/verify/email', async function (req, res, next) {
         } else {
             returnObj.message = '有帳號'
             returnObj.type = '3'
+            returnObj.pic = data.picture
             res.status(200).json(returnObj)
         }
     } catch (err) {
@@ -128,6 +133,10 @@ router.post('/verify/email', async function (req, res, next) {
 router.post('/verify/passwd', async function (req, res, next) {
     try {
         const passwd = req.body.passwd
+        const regex = /^(?=.*[a-zA-Z])(?=.*\d).{6,20}$/;
+        if (!regex.test(passwd)) {
+            throw new Error('密碼格式錯誤')
+        }
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const email = req.body.email
         let returnObj = {}

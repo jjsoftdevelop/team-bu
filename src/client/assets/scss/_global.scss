@@ -1,10 +1,126 @@
+html,
+body {
+  color: $Light-100;
+  letter-spacing: 0.04em;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.img-contain {
+  object-fit: contain;
+}
+.img-cover {
+  object-fit: cover;
+}
 .pointer {
   cursor: pointer;
 }
+.white-space-nowrap {
+  white-space: nowrap;
+}
+
 ul {
   padding: 0;
 }
+
 li {
   padding: 0;
   list-style: none;
+}
+
+hr {
+  margin: 0;
+}
+
+h1,
+.h1 {
+  font-size: 56px;
+  line-height: 62px;
+  font-weight: 700;
+}
+h2,
+.h2 {
+  font-size: 40px;
+  line-height: 56px;
+  font-weight: 700;
+}
+h3,
+.h3 {
+  font-size: 32px;
+  line-height: 48px;
+  font-weight: 700;
+}
+h4,
+.h4 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+}
+h5,
+.h5 {
+  font-size: 20px;
+  line-height: 30px;
+  font-weight: 700;
+}
+.text-l {
+  font-size: 18px;
+  line-height: 24px;
+}
+.text-m {
+  font-size: 16px;
+  line-height: 20px;
+}
+.text-s {
+  font-size: 14px;
+  line-height: 18px;
+}
+.text-xs {
+  font-size: 12px;
+  line-height: 16px;
+}
+.text-grey {
+  color: $Dark-500;
+}
+.text-grey-300 {
+  color: $Dark-300;
+}
+.text-grey-700 {
+  color: $Dark-700;
+}
+.text-success {
+  color: $Success-500;
+}
+.normal-border-radius {
+  border-radius: 8px;
+}
+.form-control {
+  padding: 16px 10px;
+}
+.btn {
+  font-size: 14px;
+  line-height: 18px;
+}
+.btn-m {
+  min-width: 92px;
+  padding: 7px 24px;
+}
+.btn-light {
+  border: 1px solid $Dark-200;
+  color: $Dark-300;
+}
+.btn-disabled {
+  background-color: $Light-100;
+}
+.custom-control-label::before {
+  top: 0;
+  left: -1.5rem;
+  width: 20px;
+  height: 20px;
+}
+.custom-control-label::after {
+  top: 0;
+  left: -1.5rem;
+  width: 20px;
+  height: 20px;
 }

@@ -1,40 +1,63 @@
 <template>
-  <div class="d-flex justify-content-center align-items-center">
-    <div class="col-4 p-4" style="background-color: #eee">
-      <Login
-        v-if="step === 'start'"
-        @enterEmail="enterEmail"
-        @verifyEmail="verifyEmail"
-      />
-      <Verifycode
-        v-if="step === 'verifycode'"
-        :email="loginInfo.email"
-        @enterVerifycode="enterVerifycode"
-        @sendVerifycode="sendVerifycode"
-        @verifycode="verifycode"
-      />
-      <SettingInfo
-        v-if="step === 'setting'"
-        @enterPasswd="enterPasswd"
-        @enterNickname="enterNickname"
-        @signUp="signUp"
-      />
-      <VerifyPasswd
-        v-if="step === 'verifyPasswd'"
-        @enterVerifycode="enterVerifycode"
-        @enterPasswd="enterPasswd"
-        @verifyPasswd="verifyPasswd"
-        @sendVerifycode="sendVerifycode"
-        @verifycode="verifycode"
-        @handleForgetPasswd="handleForgetPasswd"
-        :email="loginInfo.email"
-        :forgetPasswd="forgetPasswd"
-      />
-      <SettingPasswd
-        v-if="step === 'settingPasswd'"
-        @enterPasswd="enterPasswd"
-        @settingPasswd="settingPasswd"
-      />
+  <div
+    class="loginBlock position-relative d-flex justify-content-center align-items-center"
+  >
+    <div class="loginBlock--mask"></div>
+    <div class="loginBlock--wrap">
+      <div>
+        <img class="mb-8" src="~/assets/img/logo-medium.png" alt="" />
+        <div>最新潮的運動社群數據記錄軟體</div>
+      </div>
+      <div
+        class="panel normal-border-radius"
+        style="width: 440px; height: 542px"
+      >
+        <!-- 登入表單 -->
+        <Login
+          v-if="step === 'start'"
+          @enterEmail="enterEmail"
+          @verifyEmail="verifyEmail"
+        />
+        <!-- 確認驗證碼 -->
+        <Verifycode
+          v-if="step === 'verifycode'"
+          :email="loginInfo.email"
+          :isCodeSuccess="isCodeSuccess"
+          @enterVerifycode="enterVerifycode"
+          @sendVerifycode="sendVerifycode"
+          @verifycode="verifycode"
+          @handleStep="handleStep"
+        />
+        <!-- 設定帳密&暱稱 -->
+        <SettingInfo
+          v-if="step === 'setting'"
+          @enterPasswd="enterPasswd"
+          @enterNickname="enterNickname"
+          @signUp="signUp"
+        />
+        <!-- 確認密碼 -->
+        <VerifyPasswd
+          v-if="step === 'verifyPasswd'"
+          @enterVerifycode="enterVerifycode"
+          @enterPasswd="enterPasswd"
+          @verifyPasswd="verifyPasswd"
+          @sendVerifycode="sendVerifycode"
+          @verifycode="verifycode"
+          @handleForgetPasswd="handleForgetPasswd"
+          @handleStep="handleStep"
+          :email="loginInfo.email"
+          :forgetPasswd="forgetPasswd"
+          :isPasswdSuccess="isPasswdSuccess"
+          :pic="loginInfo.pic"
+          :isCodeSuccess="isCodeSuccess"
+        />
+        <!-- 忘記密碼設定密碼-->
+        <SettingPasswd
+          v-if="step === 'settingPasswd'"
+          @enterPasswd="enterPasswd"
+          @settingPasswd="settingPasswd"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +70,7 @@ import VerifyPasswd from "~/components/login/VerifyPasswd";
 import SettingPasswd from "~/components/login/SettingPasswd";
 
 export default {
+  layout: "empty",
   components: {
     Login,
     Verifycode,
@@ -62,10 +86,18 @@ export default {
         email: "",
         verifycode: "",
         passwd: "",
+        pic: "",
       },
+      isPasswdSuccess: true,
+      isCodeSuccess: true,
     };
   },
   methods: {
+    handleStep(step) {
+      this.isPasswdSuccess = true;
+      this.isCodeSuccess = true;
+      this.step = step;
+    },
     enterEmail(email) {
       this.loginInfo.email = email;
     },
@@ -95,6 +127,7 @@ export default {
         }
         if (res.type === "3") {
           this.step = "verifyPasswd";
+          this.loginInfo.pic = res.pic;
         }
       } catch (err) {
         console.log(err);
@@ -117,12 +150,16 @@ export default {
         });
         if (type === "1" && !this.forgetPasswd) {
           this.step = "setting";
+          this.isCodeSuccess = true;
         } else if (type === "2" && !this.forgetPasswd) {
           this.step = "verifycode";
+          this.isCodeSuccess = false;
         } else if (type === "1" && this.forgetPasswd) {
           this.step = "settingPasswd";
+          this.isCodeSuccess = true;
         }
       } catch (err) {
+        this.isCodeSuccess = false;
         console.log(err);
       }
     },
@@ -134,9 +171,13 @@ export default {
           passwd,
         });
         if (res.type === "2") {
+          this.isPasswdSuccess = true;
           window.location.href = "/home";
+        } else {
+          this.isPasswdSuccess = false;
         }
       } catch (err) {
+        this.isPasswdSuccess = false;
         console.log(err);
       }
     },
@@ -160,7 +201,7 @@ export default {
     async settingPasswd(value) {
       try {
         this.loginInfo.passwd = value;
-        const { passwd, email,verifycode } = this.loginInfo;
+        const { passwd, email, verifycode } = this.loginInfo;
         const res = await this.$api.settingPasswd({
           passwd,
           email,
@@ -168,8 +209,6 @@ export default {
         });
         const { type } = res;
         if (type === "1") {
-          // this.step = "verifyPasswd";
-          // this.forgetPasswd = false;
           window.location.href = "/home";
         }
       } catch (err) {
@@ -180,4 +219,29 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.loginBlock {
+  background-image: url("~/assets/img/login_main.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  &--mask {
+    background: rgba(35, 35, 35, 0.481);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+  &--wrap {
+    width: 50%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+  }
+}
+</style>
