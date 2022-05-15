@@ -5,7 +5,11 @@
     <div class="loginBlock--mask"></div>
     <div class="loginBlock--wrap flex-column flex-md-row">
       <div class="loginBlock--logo">
-        <img class="mb-md-8 py-2 p-md-0" src="~/assets/img/logo-medium.png" alt="" />
+        <img
+          class="mb-md-8 py-2 p-md-0"
+          src="~/assets/img/logo-medium.png"
+          alt=""
+        />
         <div class="d-none d-md-block">最新潮的運動社群數據記錄軟體</div>
       </div>
       <div class="panel normal-border-radius loginBlock--panel" style="">
@@ -137,7 +141,11 @@ export default {
           this.step = "verifyPasswd";
           this.loginInfo.pic = res.pic;
         }
+        this.codePassInfo.alertMsg = "";
+        this.codePassInfo.isCodeSuccess = true;
       } catch (err) {
+        this.codePassInfo.alertMsg = "短時間內多次發出驗證碼，請稍後在試！";
+        this.codePassInfo.isCodeSuccess = false;
         console.log(err);
       }
     },

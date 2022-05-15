@@ -54,7 +54,7 @@
         ><span class="text-grey pr-1">沒收到信請點擊</span
         ><a
           href="#"
-          class="text-grey-300"
+          class="text-success"
           @click="
             () => {
               $emit('sendVerifycode');
