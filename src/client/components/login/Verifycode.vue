@@ -45,8 +45,8 @@
           {{ code.substr(5, 1) }}
         </div>
       </div>
-      <div v-if="!isCodeSuccess" class="mt-2 text-xs text-danger">
-        驗證碼有誤!
+      <div v-if="!codePassInfo.isCodeSuccess" class="mt-2 text-xs text-danger">
+        {{ codePassInfo.alertMsg }}
       </div>
     </div>
     <div class="d-flex justify-content-between mb-6">
@@ -58,12 +58,13 @@
           @click="
             () => {
               $emit('sendVerifycode');
+              startCountDown();
             }
           "
           >再寄一次</a
         ></span
       >
-      <span class="text-info">還有2:00可點擊</span>
+      <span class="text-info">還有{{ timeVal }}秒可驗證</span>
     </div>
     <div class="d-flex justify-content-end">
       <div
@@ -95,22 +96,39 @@ export default {
       type: String,
       default: "",
     },
-    isCodeSuccess: {
-      type: Boolean,
-      default: true,
+    codePassInfo: {
+      type: Object,
+      default: () => {},
     },
   },
   data() {
     return {
       code: "",
+      timeVal: null,
+      timer: null,
     };
   },
   mounted() {
     this.focusVerifycode();
+    this.startCountDown();
   },
   methods: {
     focusVerifycode() {
       this.$refs.verifycode.focus();
+    },
+    startCountDown() {
+      this.stopCountDown();
+      this.timeVal = 120;
+      this.timer = setInterval(this.countDown, 1000);
+    },
+    countDown() {
+      this.timeVal = this.timeVal - 1;
+      if (this.timeVal === 0) {
+        this.stopCountDown();
+      }
+    },
+    stopCountDown() {
+      clearInterval(this.timer);
     },
   },
 };

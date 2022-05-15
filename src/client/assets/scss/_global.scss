@@ -124,3 +124,8 @@ h5,
   width: 20px;
   height: 20px;
 }
+
+.was-validated .form-control:valid,
+.form-control.is-valid {
+  border: 1px solid $Dark-200;
+}

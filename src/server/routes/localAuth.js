@@ -7,6 +7,7 @@ const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
 const base64Obj = require('../utils/base64')
 
+
 const {
     isExistEmail,
     isVerifyEmail,
@@ -18,6 +19,7 @@ const {
     isExistVerifyCode,
     updatepasswd,
     isExistVerifyCodeLast,
+    sendCodeCount,
 } = require('../sql/sqlAuthStr')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -212,16 +214,29 @@ router.post('/signUp', async function (req, res, next) {
 // 發送驗證碼
 router.post('/sendVerifycode', async function (req, res, next) {
     try {
+        // 驗證碼發送時間
+        const CODE_NOW_TIME = Number((new Date().getTime() / 1000))
+        // 驗證碼有效時間
+        const CODE_VALID_TIME = 120
+        req.session.validSeconds = CODE_NOW_TIME + CODE_VALID_TIME
         const mailto = req.query.mailto
         const verifycode = Math.random().toFixed(6).slice(-6).toString()
         const ip = req.headers['x-real-ip'] || req.connection.remoteAddress || null
-        await insertVerifyCodeDB(mailto, verifycode, ip)
-        const emailRes = await axios.post(`${process.env.BASE_URL}/api/sendEmail`, {
-            mailto,
-            mailTitle: `team-bu驗證信`,
-            mailContent: `您好 ~ 這是您的驗證碼${verifycode}`
-        })
-        res.json({ status: emailRes.status })
+        const sendCount = await sendCodeCount(mailto)
+        if (sendCount.count < 5) {
+            await insertVerifyCodeDB(mailto, verifycode, ip)
+            const emailRes = await axios.post(`${process.env.BASE_URL}/api/sendEmail`, {
+                mailto,
+                mailTitle: `team-bu驗證信`,
+                mailContent: `您好 ~ 這是您的驗證碼${verifycode}`
+            })
+            res.json({ status: emailRes.status })
+        } else {
+            const returnObj = {}
+            returnObj.message = '驗證超過次數'
+            returnObj.type = '0'
+            res.status(402).json(returnObj)
+        }
     } catch (err) {
         next(err)
     }
@@ -231,18 +246,28 @@ router.post('/sendVerifycode', async function (req, res, next) {
 router.post('/enterVerifycode', async function (req, res, next) {
     try {
         let returnObj = {}
-        const email = req.body.email
-        const verifycode = req.body.verifycode.toString()
-        const data = await isExistVerifyCode(email)
-        if (verifycode === data.verifycode) {
-            await updateEmailStatus(email)
-            returnObj.message = '已驗證通過'
-            returnObj.type = '1'
+        const NOW_DATE = new Date().getTime() / 1000
+        const VALID_DATE = req.session.validSeconds
+        console.log(NOW_DATE, VALID_DATE);
+        if (NOW_DATE > VALID_DATE) {
+            returnObj.message = '超過驗證時間'
+            returnObj.type = '2'
             res.status(200).json(returnObj)
         } else {
-            returnObj.message = '驗證失敗'
-            returnObj.type = '0'
-            res.status(402).json(returnObj)
+            const email = req.body.email
+            const verifycode = req.body.verifycode.toString()
+            const data = await isExistVerifyCode(email)
+            if (verifycode === data.verifycode) {
+                await updateEmailStatus(email)
+                returnObj.message = '已驗證通過'
+                returnObj.type = '1'
+                delete req.session.validSeconds
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '驗證失敗'
+                returnObj.type = '0'
+                res.status(200).json(returnObj)
+            }
         }
     } catch (err) {
         next(err)

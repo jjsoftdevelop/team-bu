@@ -135,7 +135,7 @@
     <Verifycode
       v-if="forgetPasswd"
       :email="email"
-      :isCodeSuccess="isCodeSuccess"
+      :codePassInfo="codePassInfo"
       @enterVerifycode="
         (code) => {
           $emit('enterVerifycode', code);
@@ -186,9 +186,9 @@ export default {
       type: Boolean,
       default: true,
     },
-    isCodeSuccess: {
-      type: Boolean,
-      default: true,
+    codePassInfo: {
+      type: Object,
+      default: () => {},
     },
   },
   data() {

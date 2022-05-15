@@ -4,25 +4,22 @@
   >
     <div class="loginBlock--mask"></div>
     <div class="loginBlock--wrap">
-      <div>
+      <div class="loginBlock--logo">
         <img class="mb-8" src="~/assets/img/logo-medium.png" alt="" />
         <div>最新潮的運動社群數據記錄軟體</div>
       </div>
-      <div
-        class="panel normal-border-radius"
-        style="width: 440px; height: 542px"
-      >
+      <div class="panel normal-border-radius loginBlock--panel" style="">
         <!-- 登入表單 -->
         <Login
-          v-if="step === 'start'"
+          v-if="step === STEP_INFO.START"
           @enterEmail="enterEmail"
           @verifyEmail="verifyEmail"
         />
         <!-- 確認驗證碼 -->
         <Verifycode
-          v-if="step === 'verifycode'"
+          v-if="step === STEP_INFO.VERIFYCODE"
           :email="loginInfo.email"
-          :isCodeSuccess="isCodeSuccess"
+          :codePassInfo="codePassInfo"
           @enterVerifycode="enterVerifycode"
           @sendVerifycode="sendVerifycode"
           @verifycode="verifycode"
@@ -30,14 +27,14 @@
         />
         <!-- 設定帳密&暱稱 -->
         <SettingInfo
-          v-if="step === 'setting'"
+          v-if="step === STEP_INFO.SETTING"
           @enterPasswd="enterPasswd"
           @enterNickname="enterNickname"
           @signUp="signUp"
         />
         <!-- 確認密碼 -->
         <VerifyPasswd
-          v-if="step === 'verifyPasswd'"
+          v-if="step === STEP_INFO.VERIFYPASSWD"
           @enterVerifycode="enterVerifycode"
           @enterPasswd="enterPasswd"
           @verifyPasswd="verifyPasswd"
@@ -49,11 +46,11 @@
           :forgetPasswd="forgetPasswd"
           :isPasswdSuccess="isPasswdSuccess"
           :pic="loginInfo.pic"
-          :isCodeSuccess="isCodeSuccess"
+          :codePassInfo="codePassInfo"
         />
         <!-- 忘記密碼設定密碼-->
         <SettingPasswd
-          v-if="step === 'settingPasswd'"
+          v-if="step === STEP_INFO.SETTINGPASSWD"
           @enterPasswd="enterPasswd"
           @settingPasswd="settingPasswd"
         />
@@ -89,13 +86,24 @@ export default {
         pic: "",
       },
       isPasswdSuccess: true,
-      isCodeSuccess: true,
+      codePassInfo: {
+        isCodeSuccess: true,
+        alertMsg: "",
+      },
+      STEP_INFO: {
+        START: "start",
+        VERIFYCODE: "verifycode",
+        SETTING: "setting",
+        VERIFYPASSWD: "verifyPasswd",
+        SETTINGPASSWD: "settingPasswd",
+      },
     };
   },
   methods: {
     handleStep(step) {
       this.isPasswdSuccess = true;
-      this.isCodeSuccess = true;
+      this.codePassInfo.isCodeSuccess = true;
+      this.codePassInfo.alertMsg = "";
       this.step = step;
     },
     enterEmail(email) {
@@ -137,7 +145,11 @@ export default {
       try {
         const { email } = this.loginInfo;
         await this.$api.sendVerifycode({ email });
+        this.codePassInfo.alertMsg = "";
+        this.codePassInfo.isCodeSuccess = true;
       } catch (err) {
+        this.codePassInfo.alertMsg = "短時間內多次發出驗證碼，請稍後在試！";
+        this.codePassInfo.isCodeSuccess = false;
         console.log(err);
       }
     },
@@ -150,16 +162,28 @@ export default {
         });
         if (type === "1" && !this.forgetPasswd) {
           this.step = "setting";
-          this.isCodeSuccess = true;
-        } else if (type === "2" && !this.forgetPasswd) {
-          this.step = "verifycode";
-          this.isCodeSuccess = false;
+          this.codePassInfo.isCodeSuccess = true;
         } else if (type === "1" && this.forgetPasswd) {
           this.step = "settingPasswd";
-          this.isCodeSuccess = true;
+          this.codePassInfo.isCodeSuccess = true;
+        } else if (
+          (type === "0" && !this.forgetPasswd) ||
+          (type === "0" && this.forgetPasswd)
+        ) {
+          this.step = "verifycode";
+          this.codePassInfo.alertMsg = "驗證碼錯誤!";
+          this.codePassInfo.isCodeSuccess = false;
+        } else if (
+          (type === "2" && !this.forgetPasswd) ||
+          (type === "2" && this.forgetPasswd)
+        ) {
+          this.step = "verifycode";
+          this.codePassInfo.alertMsg = "超過驗證時間!";
+          this.codePassInfo.isCodeSuccess = false;
         }
       } catch (err) {
-        this.isCodeSuccess = false;
+        this.codePassInfo.isCodeSuccess = false;
+        this.codePassInfo.alertMsg = "驗證失敗!";
         console.log(err);
       }
     },
@@ -184,7 +208,6 @@ export default {
     async signUp() {
       try {
         const { email, passwd, nickname } = this.loginInfo;
-        // const { url } = await this.$api.uploadFile(headshot);
         const res = await this.$api.signUp({
           email,
           passwd,
@@ -237,11 +260,19 @@ export default {
     z-index: 10;
   }
   &--wrap {
-    width: 50%;
+    width: 65%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 20;
+  }
+  &--logo {
+    margin-right: 80px;
+  }
+  &--panel {
+    width: 440px;
+    min-width: 440px;
+    height: 542px;
   }
 }
 </style>
