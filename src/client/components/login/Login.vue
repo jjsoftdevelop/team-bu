@@ -12,6 +12,7 @@
           <b-form-input
             v-model="email"
             placeholder="XXXX@mail.com"
+            autocomplete="off"
             class="text-success"
             :state="isSuccess"
             @change="enterEmail"

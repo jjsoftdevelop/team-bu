@@ -248,7 +248,6 @@ router.post('/enterVerifycode', async function (req, res, next) {
         let returnObj = {}
         const NOW_DATE = new Date().getTime() / 1000
         const VALID_DATE = req.session.validSeconds
-        console.log(NOW_DATE, VALID_DATE);
         if (NOW_DATE > VALID_DATE) {
             returnObj.message = '超過驗證時間'
             returnObj.type = '2'

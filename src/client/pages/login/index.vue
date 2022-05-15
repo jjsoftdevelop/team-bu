@@ -1,12 +1,12 @@
 <template>
   <div
-    class="loginBlock position-relative d-flex justify-content-center align-items-center"
+    class="loginBlock position-relative d-flex justify-content-center align-items-start align-items-md-center"
   >
     <div class="loginBlock--mask"></div>
-    <div class="loginBlock--wrap">
+    <div class="loginBlock--wrap flex-column flex-md-row">
       <div class="loginBlock--logo">
-        <img class="mb-8" src="~/assets/img/logo-medium.png" alt="" />
-        <div>最新潮的運動社群數據記錄軟體</div>
+        <img class="mb-md-8 py-2 p-md-0" src="~/assets/img/logo-medium.png" alt="" />
+        <div class="d-none d-md-block">最新潮的運動社群數據記錄軟體</div>
       </div>
       <div class="panel normal-border-radius loginBlock--panel" style="">
         <!-- 登入表單 -->
@@ -241,38 +241,3 @@ export default {
   },
 };
 </script>
-
-<style scoped lang="scss">
-.loginBlock {
-  background-image: url("~/assets/img/login_main.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  &--mask {
-    background: rgba(35, 35, 35, 0.481);
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-  }
-  &--wrap {
-    width: 65%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 20;
-  }
-  &--logo {
-    margin-right: 80px;
-  }
-  &--panel {
-    width: 440px;
-    min-width: 440px;
-    height: 542px;
-  }
-}
-</style>

@@ -122,15 +122,19 @@
         </div>
       </form>
       <LineBlock class="my-6" />
-      <a
-        href="#"
-        class="d-block text-success mb-6 pointer"
-        @click="getPasswdCode"
-      >
+      <a href="#" class="d-block text-success mb-6" @click="getPasswdCode">
         忘記密碼？
       </a>
-      <a href="#" class="d-block text-success pointer">登入其他帳號</a>
-      <div @click="getPasswdCode">忘記密碼請點我</div>
+      <a
+        href="#"
+        class="d-block text-success"
+        @click="
+          () => {
+            $emit('handleStep', 'start');
+          }
+        "
+        >登入其他帳號</a
+      >
     </div>
     <Verifycode
       v-if="forgetPasswd"
