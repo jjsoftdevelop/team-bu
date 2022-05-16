@@ -113,6 +113,27 @@ h5,
 .btn-disabled {
   background-color: $Light-100;
 }
+// btn-switch
+.btn-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: $Dark-500;
+  border: 1px solid $Light;
+  &-m {
+    min-width: 70px;
+    height: 40px;
+  }
+  &-sm {
+    min-width: 66px;
+    height: 24px;
+  }
+  &.active {
+    color: $Success-500;
+    border: 1px solid $Light;
+    background: $Light-100;
+  }
+}
 .custom-control-label::before {
   top: 0;
   left: -1.5rem;

@@ -1,20 +1,20 @@
 <template>
-  <div class="d-flex align-items-start">
+  <div class="d-flex align-items-center  py-2">
     <div>
       <b-img
-        class="mr-2"
+        class="mr-4"
         width="30"
         height="30"
         :src="item.picture"
-        rounded
+        rounded="circle"
         style="object-fit: contain"
         alt=""
       ></b-img>
     </div>
     <div>
       <div class="d-flex flex-column">
-        <div>{{ item.title }}</div>
-        <div>{{ item.content }}</div>
+        <div class="font-weight-bold text-info text-s mb-1">{{ item.title }}</div>
+        <div class="text-grey text-xs">{{ item.content }}</div>
       </div>
     </div>
   </div>
@@ -52,5 +52,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

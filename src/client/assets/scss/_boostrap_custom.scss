@@ -69,7 +69,7 @@ $spacers: map-merge(
       (
         $spacer * 10,
       )
-      //150px,,,,,,,,,,,,,
+      //150px,,,,,,,,,,,,,,
   ),
   $spacers
 );
@@ -114,6 +114,8 @@ $custom-control-indicator-checked-bg: $Success-500;
 //   $form-validation-states
 // );
 // Then include the following
+// btn
+$btn-focus-box-shadow: none;
 @import "~/node_modules/bootstrap/scss/bootstrap.scss";
 @import "~/node_modules/bootstrap-vue/src/index.scss";
 @import "~/node_modules/bootstrap-vue/src/icons.scss";
