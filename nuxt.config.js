@@ -13,7 +13,7 @@ module.exports = {
     },
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1' },
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' }
     ],
@@ -27,6 +27,8 @@ module.exports = {
     '~/assets/scss/_main.scss'
   ],
 
+
+
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/axios',
@@ -38,10 +40,15 @@ module.exports = {
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
+    '@nuxtjs/style-resources',
     // https://go.nuxtjs.dev/eslint
     // ['@nuxtjs/eslint-module', { ignoreDuringBuilds: true }],
     ['@nuxtjs/dotenv', { path: './', filename: `.env.${process.env.NODE_ENV}` }],
   ],
+  styleResources: {
+    scss: ["~/assets/scss/_mixin.scss", "~/assets/scss/_variables.scss"],
+    hoistUseStatements: true
+  },
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [

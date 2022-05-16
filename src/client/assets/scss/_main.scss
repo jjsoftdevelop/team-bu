@@ -1,6 +1,7 @@
-@import "variables.scss";
+@import "variables";
 @import "boostrap_custom";
-@import "global.scss";
-@import "utility_components.scss";
-@import "common.scss";
-@import "login_block.scss";
+@import "mixin";
+@import "global";
+@import "utility_components";
+@import "common";
+@import "login_block";

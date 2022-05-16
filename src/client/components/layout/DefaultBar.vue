@@ -1,5 +1,76 @@
 <template>
-  <b-navbar type="dark" variant="dark">
+  <div class="navBlock">
+    <div class="container">
+      <div
+        class="d-flex justify-content-between align-items-center py-1 py-md-3"
+      >
+        <div class="navBlock--logo pointer">
+          <img src="~/assets/img/svg/logo.svg" alt="" />
+        </div>
+        <div class="d-flex align-items-center">
+          <div
+            v-show="!isOpenTool"
+            class="mr-6 navBlock--searchInput d-sm-block"
+          >
+            <SearchInput />
+          </div>
+          <div class="navBlock--tools">
+            <div
+              :class="[
+                'navBlock--tool',
+                { 'd-flex align-items-center': isOpenTool },
+              ]"
+            >
+              <b-img
+                class="img-contain"
+                width="32"
+                height="32"
+                :src="
+                  user && user.picture
+                    ? user.picture
+                    : 'https://icon-library.com/images/anonymous-person-icon/anonymous-person-icon-18.jpg'
+                "
+                rounded="circle"
+                alt=""
+              ></b-img>
+            </div>
+            <div
+              :class="[
+                'navBlock--tool',
+                { 'd-flex align-items-center': isOpenTool },
+              ]"
+            >
+              <img src="~/assets/img/svg/notification_icon.svg" alt="" />
+            </div>
+            <div
+              :class="[
+                'navBlock--tool',
+                { 'd-flex align-items-center': isOpenTool },
+              ]"
+            >
+              <img src="~/assets/img/svg/calender_icon.svg" alt="" />
+            </div>
+            <div
+              class="navBlock--toolCollect"
+              @click="isOpenTool = !isOpenTool"
+            >
+              <img
+                v-show="!isOpenTool"
+                src="~/assets/img/svg/tools_collect.svg"
+                alt=""
+              />
+              <img
+                v-show="isOpenTool"
+                src="~/assets/img/svg/tools_collect_close.svg"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- <b-navbar type="dark" variant="dark">
     <b-navbar-nav class="w-100">
       <div class="d-flex justify-content-between w-100">
         <div class="text-white">Team-Bu</div>
@@ -29,7 +100,6 @@
                     >{{ item }}</span
                   >
                 </div>
-                <!-- 個人通知 -->
                 <div v-show="notificationTab.active === 0">
                   <div
                     v-for="(item, index) in notificationNotice"
@@ -40,7 +110,6 @@
                     <hr v-show="notificationNotice.length !== index + 1" />
                   </div>
                 </div>
-                <!-- 申請通知 -->
                 <div v-show="notificationTab.active === 1">
                   <div
                     v-for="(item, index) in notificationApply"
@@ -61,18 +130,19 @@
         </div>
       </div>
     </b-navbar-nav>
-  </b-navbar>
+  </b-navbar> -->
 </template>
 
 <script>
 import { mapState } from "vuex";
 import NotificationApply from "~/components/notification/NotificationApply";
 import NotificationNotice from "~/components/notification/NotificationNotice";
-
+import SearchInput from "~/components/common/SearchInput";
 export default {
   components: {
     NotificationApply,
     NotificationNotice,
+    SearchInput,
   },
   computed: {
     ...mapState(["user"]),
@@ -89,6 +159,7 @@ export default {
   },
   data() {
     return {
+      isOpenTool: false,
       notificationInfo: {
         isLoading: false,
         data: [],
@@ -129,4 +200,43 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.navBlock {
+  background: $Light;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+  &--tools {
+    display: flex;
+  }
+
+  &--toolCollect {
+    display: none;
+    @include md {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  &--tool {
+    padding-right: 24px;
+    cursor: pointer;
+    &:last-of-type {
+      padding-right: 0px;
+    }
+    @include md {
+      display: none;
+    }
+  }
+  &--searchInput {
+    width: 229px;
+    max-width: 229px;
+  }
+  &--logo {
+    img {
+      @include md {
+        height: 24px;
+      }
+    }
+  }
+}
+</style>

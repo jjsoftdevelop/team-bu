@@ -54,6 +54,9 @@ app.use(session({
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 
+// 可直接存取公開資源
+app.use('/', express.static('public'))
+app.use('/build', express.static('build'))
 app.use('/', (req, res, next) => {
     next()
 })
