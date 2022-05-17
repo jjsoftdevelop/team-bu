@@ -28,7 +28,7 @@
                 variant="link"
                 toggle-class="text-decoration-none"
                 no-caret
-                offset="-144px"
+                offset="-168px"
               >
                 <template #button-content>
                   <b-img
@@ -66,7 +66,7 @@
                 variant="link"
                 toggle-class="text-decoration-none"
                 no-caret
-                offset="-200px"
+                offset="-224px"
               >
                 <template #button-content>
                   <img
@@ -92,25 +92,29 @@
                         >{{ item }}</span
                       >
                     </div>
-                    <LineBlock class="mb-3" />
-                    <div v-show="notificationTab.active === 0">
-                      <div
-                        v-for="(item, index) in notificationNotice"
-                        :key="item.pid"
-                        class="pl-2 pr-2"
-                      >
-                        <NotificationNotice :item="item" />
-                        <hr v-show="notificationNotice.length !== index + 1" />
+                    <LineBlock />
+                    <div class="py-3">
+                      <div v-show="notificationTab.active === 0">
+                        <div
+                          v-for="(item, index) in notificationNotice"
+                          :key="item.pid"
+                          class="pl-2 pr-2"
+                        >
+                          <NotificationNotice :item="item" />
+                          <hr
+                            v-show="notificationNotice.length !== index + 1"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div v-show="notificationTab.active === 1">
-                      <div
-                        v-for="(item, index) in notificationApply"
-                        :key="item.pid"
-                        class="pl-2 pr-2"
-                      >
-                        <NotificationApply :item="item" />
-                        <hr v-show="notificationApply.length !== index + 1" />
+                      <div v-show="notificationTab.active === 1">
+                        <div
+                          v-for="(item, index) in notificationApply"
+                          :key="item.pid"
+                          class="pl-2 pr-2"
+                        >
+                          <NotificationApply :item="item" />
+                          <hr v-show="notificationApply.length !== index + 1" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -128,7 +132,7 @@
                 variant="link"
                 toggle-class="text-decoration-none"
                 no-caret
-                offset="-256px"
+                offset="-280px"
               >
                 <template #button-content>
                   <img
@@ -308,12 +312,15 @@ export default {
       padding: 0px;
     }
     ::v-deep .dropdown-menu {
-      width: 290px;
+      width: 315px;
       top: 13px !important;
       padding: 0px;
       @include md {
         top: 1px !important;
       }
+    }
+    ::v-deep .b-dropdown-text {
+      padding: 4px 16px;
     }
   }
   &--searchInput {

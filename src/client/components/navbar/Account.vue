@@ -1,8 +1,8 @@
 <template>
-  <div class="py-6 text-m">
+  <div class="py-3 text-m">
     <div class="d-flex flex-column">
       <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex mb-2">
+        <div class="d-flex mb-2" style="max-width: 170px">
           <div class="mr-4">
             <b-img
               width="56"
@@ -12,7 +12,7 @@
             ></b-img>
           </div>
           <div>
-            <div class="mb-2 font-weight-bold">
+            <div class="mb-2 font-weight-bold break-any">
               {{ user.nickname }}
             </div>
             <div>
