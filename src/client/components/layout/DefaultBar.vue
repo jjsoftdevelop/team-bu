@@ -1,5 +1,5 @@
 <template>
-  <div id="navBlock" class="navBlock">
+  <div v-if="user && user.pid" id="navBlock" class="navBlock">
     <div class="container">
       <div
         class="d-flex justify-content-between align-items-center py-1 py-md-3"
@@ -49,6 +49,7 @@
                     <Account
                       :user="user"
                       :myJoinSport="myJoinSport"
+                      :myRoleOnTeams="myRoleOnTeams"
                       @logout="logout"
                     />
                   </div>
@@ -209,6 +210,7 @@ export default {
         tabs: ["個人通知", "申請通知"],
       },
       myJoinSport: [],
+      myRoleOnTeams: {},
     };
   },
   async mounted() {
@@ -216,6 +218,7 @@ export default {
     if (this.user && this.user.pid) {
       await this.getNotification();
       await this.getMyJoinSport();
+      await this.getMyRoleOnTeams();
     }
   },
   beforeMount() {
@@ -268,6 +271,14 @@ export default {
       try {
         const res = await this.$api.getMyJoinSport();
         this.myJoinSport = res;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async getMyRoleOnTeams() {
+      try {
+        const res = await this.$api.getMyRoleOnTeams();
+        this.myRoleOnTeams = res;
       } catch (err) {
         console.log(err);
       }

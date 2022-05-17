@@ -3,9 +3,8 @@ const router = express.Router()
 const authMiddleWare = require('../../server/middleware/authMiddleWare')
 
 const base64Obj = require('../utils/base64')
-const { getOwnTeam, getMyteam, getMyJoinSport } = require('../sql/sqlUserStr')
+const { getOwnTeam, getMyteam, getMyJoinSport, getMyRoleOnTeams } = require('../sql/sqlUserStr')
 const { getTeamMemberPic } = require('../sql/sqlTeamsStr')
-
 // 取得我權限為管理員的球隊清單
 router.get('/user/own', authMiddleWare, async function (req, res, next) {
     try {
@@ -63,6 +62,30 @@ router.get('/user/getMyJoinSport', async (req, res, next) => {
         next(err)
     }
 })
-
+// -------取得帳號相關資訊--------
+router.get('/user/getMyRoleOnTeams', async (req, res, next) => {
+    try {
+        const email = req.session.user.email
+        const provider = req.session.user.provider
+        const data = await getMyRoleOnTeams(email, provider)
+        const role = {
+            manager: [],
+            fans: [],
+            player: []
+        }
+        data.forEach(item => {
+            if (item.teamMemberLevelID === 1) {
+                role.player.push(item)
+            } else if (item.teamMemberLevelID === 2) {
+                role.fans.push(item)
+            } else if (item.teamMemberLevelID === 3) {
+                role.manager.push(item)
+            }
+        })
+        res.status(200).json(role)
+    } catch (err) {
+        next(err)
+    }
+})
 
 module.exports = router

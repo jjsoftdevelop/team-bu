@@ -50,7 +50,11 @@
             src="~/assets/img/svg/account_manager_icon.svg"
           />
           <span>管理員</span>
-          <span>1</span>
+          <span>{{
+            myRoleOnTeams &&
+            myRoleOnTeams.manager &&
+            myRoleOnTeams.manager.length
+          }}</span>
         </span>
         <span class="pr-4">
           <img
@@ -58,7 +62,9 @@
             src="~/assets/img/svg/account_player_icon.svg"
           />
           <span>球員</span>
-          <span>1</span>
+          <span>{{
+            myRoleOnTeams && myRoleOnTeams.player && myRoleOnTeams.player.length
+          }}</span>
         </span>
         <span>
           <img
@@ -66,7 +72,9 @@
             src="~/assets/img/svg/account_fans_icon.svg"
           />
           <span>粉絲</span>
-          <span>1</span>
+          <span>{{
+            myRoleOnTeams && myRoleOnTeams.fans && myRoleOnTeams.fans.length
+          }}</span>
         </span>
       </div>
     </div>
@@ -162,9 +170,10 @@ export default {
       type: Array,
       default: () => [],
     },
-  },
-  mounted() {
-    console.log(sportCate);
+    myRoleOnTeams: {
+      type: Object,
+      default: () => {},
+    },
   },
   methods: {
     formatSportIcon(cateID) {

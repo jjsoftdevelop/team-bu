@@ -45,10 +45,21 @@ async function getMyJoinSport(email, provider) {
     const data = JSON.parse(JSON.stringify(dataList))
     return data
 }
+// 取得我所有的腳色數量
+async function getMyRoleOnTeams(email, provider) {
+    let sql = `SELECT C.teamMemberLevelID FROM member AS A 
+    LEFT JOIN team_member AS C ON A.pid = C.memberID
+    WHERE email = ? AND provider = ?`
+    let values = [email, provider]
+    let dataList = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(dataList))
+    return data
+}
 
 module.exports = {
     getOwnTeam,
     getMemberName,
     getMyteam,
-    getMyJoinSport
+    getMyJoinSport,
+    getMyRoleOnTeams
 }
