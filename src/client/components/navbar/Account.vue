@@ -1,5 +1,5 @@
 <template>
-  <div class="py-6">
+  <div class="py-6 text-m">
     <div class="d-flex flex-column">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex mb-2">
@@ -22,6 +22,7 @@
                 :key="index"
               >
                 <b-img
+                  v-if="item.categoryID"
                   :src="
                     require(`~/assets/img/svg/${formatSportIcon(
                       item.categoryID
@@ -35,24 +36,35 @@
             </div>
           </div>
         </div>
-        <a class="btn btn-sm d-block btn-outline-success rounded-pill" href="#"
+        <a
+          class="btn btn-sm d-block btn-outline-success rounded-pill font-weight-bold"
+          href="#"
           >個人檔案</a
         >
       </div>
 
       <div class="text-s text-grey-700 font-weight-bold text-nowrap">
         <span class="pr-4">
-          <img src="~/assets/img/svg/account_manager_icon.svg" />
+          <img
+            style="vertical-align: text-bottom"
+            src="~/assets/img/svg/account_manager_icon.svg"
+          />
           <span>管理員</span>
           <span>1</span>
         </span>
         <span class="pr-4">
-          <img src="~/assets/img/svg/account_player_icon.svg" />
+          <img
+            style="vertical-align: baseline"
+            src="~/assets/img/svg/account_player_icon.svg"
+          />
           <span>球員</span>
           <span>1</span>
         </span>
         <span>
-          <img src="~/assets/img/svg/account_fans_icon.svg" />
+          <img
+            style="vertical-align: text-top"
+            src="~/assets/img/svg/account_fans_icon.svg"
+          />
           <span>粉絲</span>
           <span>1</span>
         </span>
@@ -110,7 +122,14 @@
           <span class="font-weight-bold text-info">隱私權政策</span>
         </div>
       </div>
-      <div class="d-flex align-items-center justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-between"
+        @click="
+          () => {
+            $emit('logout');
+          }
+        "
+      >
         <div class="d-flex align-items-center">
           <img
             class="mr-4"
@@ -119,15 +138,7 @@
             height="24"
             alt=""
           />
-          <span
-            class="font-weight-bold text-info"
-            @click="
-              () => {
-                $emit('logout');
-              }
-            "
-            >登出</span
-          >
+          <span class="font-weight-bold text-info">登出</span>
         </div>
       </div>
     </div>

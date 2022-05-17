@@ -1,49 +1,58 @@
 <template>
-  <div class="d-flex align-items-start">
-    <div>
-      <b-img
-        class="mr-2"
-        width="30"
-        height="30"
-        :src="item.picture"
-        rounded
-        style="object-fit: contain"
-        alt=""
-      ></b-img>
-    </div>
-    <div>
-      <div class="d-flex flex-column">
-        <div>{{ item.title }}</div>
-        <div>{{ item.content }}</div>
+  <div>
+    <div class="d-flex align-items-center py-2">
+      <div>
+        <b-img
+          class="mr-4"
+          width="30"
+          height="30"
+          :src="
+            item.picture
+              ? item.picture
+              : 'https://icon-library.com/images/anonymous-person-icon/anonymous-person-icon-18.jpg'
+          "
+          rounded="circle"
+          style="object-fit: contain"
+          alt=""
+        ></b-img>
       </div>
-      <div v-if="!memberStatus.isFinish">
-        <b-button-group size="sm">
-          <b-button
-            variant="success"
-            @click="
-              updateTeamMemberStatus(
-                $encodeBase64(item.playerID),
-                $encodeBase64(item.teamID),
-                'agree'
-              )
-            "
-            class="mr-2"
-            >同意</b-button
-          >
-          <b-button
-            variant="info"
-            @click="
-              updateTeamMemberStatus(
-                $encodeBase64(item.playerID),
-                $encodeBase64(item.teamID),
-                'reject'
-              )
-            "
-            >拒絕</b-button
-          >
-        </b-button-group>
+      <div>
+        <div class="d-flex flex-column text-info mb-1">
+          <div class="mb-1 font-weight-bold text-s">{{ item.title }}</div>
+          <div class="text-xs">{{ item.content }}</div>
+        </div>
+        <div v-if="!memberStatus.isFinish">
+          <b-button-group>
+            <b-button
+              pill
+              class="mr-2 btn-xs"
+              variant="light"
+              @click="
+                updateTeamMemberStatus(
+                  $encodeBase64(item.playerID),
+                  $encodeBase64(item.teamID),
+                  'reject'
+                )
+              "
+              >拒絕</b-button
+            >
+            <b-button
+              pill
+              class="btn-xs"
+              variant="outline-success"
+              @click="
+                updateTeamMemberStatus(
+                  $encodeBase64(item.playerID),
+                  $encodeBase64(item.teamID),
+                  'agree'
+                )
+              "
+              >同意</b-button
+            >
+          </b-button-group>
+        </div>
+        <div v-else class="text-xs">已完成回覆</div>
       </div>
-      <div v-else>已完成回覆</div>
     </div>
   </div>
 </template>
@@ -85,7 +94,7 @@ export default {
             // 此通知的 type
             // 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
             // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
-            const notificationType =  this.item.type
+            const notificationType = this.item.type;
             // 更新teamMember狀態
             const { type } = await this.$api.updateTeamMemberStatus({
               memberID,
@@ -108,5 +117,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

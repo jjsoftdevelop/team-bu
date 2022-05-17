@@ -98,10 +98,6 @@ h5,
 .form-control {
   padding: 16px 10px;
 }
-.btn {
-  font-size: 14px;
-  line-height: 18px;
-}
 .btn-m {
   min-width: 92px;
   padding: 7px 24px;
@@ -109,6 +105,12 @@ h5,
 .btn-sm {
   min-width: 76px;
   padding: 3px 16px;
+}
+.btn-xs {
+  min-width: 56px;
+  padding: 3px 16px;
+  font-size: 12px;
+  line-height: 16px;
 }
 .btn-light {
   border: 1px solid $Dark-200;

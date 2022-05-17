@@ -406,13 +406,19 @@ router.get('/teams/:teamID', async function (req, res, next) {
                         if (teamMember) {
                             return {
                                 ...team,
+                                pid: base64Obj.encode(team.pid),
+                                creatorID: base64Obj.encode(team.creatorID),
                                 teamMemberLevelID: teamMember.teamMemberLevelID,
                                 teamMemberLevelText: teamMember.teamMemberLevelText,
                                 teamMemberStatusID: teamMember.teamMemberStatusID,
                                 teamMemberStatusText: teamMember.teamMemberStatusText
                             }
                         } else {
-                            return team
+                            return {
+                                ...team,
+                                pid: base64Obj.encode(team.pid),
+                                creatorID: base64Obj.encode(team.creatorID),
+                            }
                         }
                     })
                 )
