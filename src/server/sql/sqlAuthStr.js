@@ -1,4 +1,5 @@
 const { query } = require('../../config/async-db')
+
 // 過去半小時發送次數
 async function sendCodeCount(email) {
     let sql = `SELECT COUNT(*) AS count FROM email_verify WHERE email = ? AND isVerify = 0 AND createdate > DATE_SUB(NOW(), INTERVAL 30 MINUTE)`
@@ -119,5 +120,5 @@ module.exports = {
     isExistVerifyCode,
     updatepasswd,
     isExistVerifyCodeLast,
-    sendCodeCount
+    sendCodeCount,
 };

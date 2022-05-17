@@ -9,8 +9,10 @@
         </router-link>
         <div class="d-flex align-items-center">
           <div
-            v-show="!isOpenTool"
-            class="mr-6 navBlock--searchInput d-sm-block"
+            :class="[
+              'mr-6 navBlock--searchInput d-md-block',
+              { 'd-none': isOpenTool },
+            ]"
           >
             <SearchInput />
           </div>
@@ -43,7 +45,13 @@
                   ></b-img>
                 </template>
                 <b-dropdown-text>
-                  <div>test</div>
+                  <div>
+                    <Account
+                      :user="user"
+                      :myJoinSport="myJoinSport"
+                      @logout="logout"
+                    />
+                  </div>
                 </b-dropdown-text>
               </b-dropdown>
             </div>
@@ -221,11 +229,14 @@ import { mapState } from "vuex";
 import NotificationApply from "~/components/notification/NotificationApply";
 import NotificationNotice from "~/components/notification/NotificationNotice";
 import SearchInput from "~/components/common/SearchInput";
+import Account from "~/components/navbar/Account";
+
 export default {
   components: {
     NotificationApply,
     NotificationNotice,
     SearchInput,
+    Account,
   },
   computed: {
     ...mapState(["user"]),
@@ -251,12 +262,14 @@ export default {
         active: 0,
         tabs: ["個人通知", "申請通知"],
       },
+      myJoinSport: [],
     };
   },
   async mounted() {
     // 有登入才去撈通知
     if (this.user && this.user.pid) {
       await this.getNotification();
+      await this.getMyJoinSport();
     }
   },
   beforeMount() {
@@ -305,6 +318,14 @@ export default {
         this.notificationInfo.isLoading = false;
       }
     },
+    async getMyJoinSport() {
+      try {
+        const res = await this.$api.getMyJoinSport();
+        this.myJoinSport = res;
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
 };
 </script>
@@ -347,6 +368,7 @@ export default {
     ::v-deep .dropdown-menu {
       width: 290px;
       top: 13px !important;
+      padding: 0px;
     }
   }
   &--searchInput {

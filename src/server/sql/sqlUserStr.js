@@ -33,9 +33,22 @@ async function getMyteam(pid) {
     const data = JSON.parse(JSON.stringify(res))
     return data
 }
+// 帳號相關資訊
+async function getMyJoinSport(email, provider) {
+    let sql = ` SELECT DISTINCT D.categoryID,B.categoryText FROM member AS A 
+                LEFT JOIN team_member AS C ON A.pid = C.memberID
+                LEFT JOIN team AS D ON D.pid = C.teamID
+                LEFT JOIN team_category AS B ON B.categoryID = D.categoryID
+                WHERE email = ? AND provider = ?`
+    let values = [email, provider]
+    let dataList = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(dataList))
+    return data
+}
 
 module.exports = {
     getOwnTeam,
     getMemberName,
-    getMyteam
+    getMyteam,
+    getMyJoinSport
 }

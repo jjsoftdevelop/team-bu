@@ -48,4 +48,19 @@ export function getMyTeam(api) {
         }
     }
 }
+// 取得我餐宇的運動
+export function getMyJoinSport(api) {
+    return async function () {
+        const path = `${API_MODULE}/user/getMyJoinSport`
+        try {
+            const { data, errors } = await api.get(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
 

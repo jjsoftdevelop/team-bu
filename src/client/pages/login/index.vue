@@ -6,7 +6,7 @@
     <div class="loginBlock--wrap flex-column flex-md-row">
       <div class="loginBlock--logo">
         <img
-          class="mb-md-8 py-2 p-md-0"
+          class="mb-md-8 py-2 p-md-0 img-contain"
           src="~/assets/img/logo-medium.png"
           alt=""
         />

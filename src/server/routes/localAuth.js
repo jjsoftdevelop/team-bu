@@ -7,7 +7,6 @@ const jwtDecode = require("jwt-decode");
 const { web: keys } = require('../../config/keyForOauth.json')
 const base64Obj = require('../utils/base64')
 
-
 const {
     isExistEmail,
     isVerifyEmail,
@@ -23,8 +22,9 @@ const {
 } = require('../sql/sqlAuthStr')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
+
 // -------登出--------
-router.post('/logout', (req, res) => {
+router.post('/logout', (req, res, next) => {
     try {
         req.session.destroy(() => {
             console.log('session && cookie destroyed')
@@ -72,7 +72,8 @@ router.get('/redirect/google', async (req, res) => {
                 pid: base64Obj.encode(pid),
                 email,
                 nickname,
-                picture
+                picture,
+                provider: 'google'
             }
             req.session.user = user
             res.redirect('/home');
@@ -81,7 +82,8 @@ router.get('/redirect/google', async (req, res) => {
                 pid: base64Obj.encode(data.pid),
                 email,
                 nickname,
-                picture
+                picture,
+                provider: 'google'
             }
             req.session.user = user
             res.redirect('/home');
@@ -156,7 +158,8 @@ router.post('/verify/passwd', async function (req, res, next) {
                 pid: base64Obj.encode(pid),
                 email,
                 nickname,
-                picture
+                picture,
+                provider: 'user'
             }
             req.session.user = user
             res.status(200).json(returnObj)
@@ -187,7 +190,8 @@ router.post('/signUp', async function (req, res, next) {
                     pid: base64Obj.encode(insertId),
                     email,
                     nickname,
-                    picture: url
+                    picture: url,
+                    provider: 'user'
                 }
                 req.session.user = user
                 res.status(200).json(returnObj)
