@@ -203,7 +203,7 @@
           <div
             v-for="(team, index) in teamList.data"
             :key="index"
-            class="col-6 mb-3"
+            class="col-12 col-md-6 mb-3"
           >
             <TeamCard
               @clickAction="
