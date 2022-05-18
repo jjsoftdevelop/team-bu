@@ -51,7 +51,7 @@
           >邀請加入中</b-badge
         >
       </div>
-      <div class="text-xs text-grey" v-if="team.nickname">
+      <div class="text-xs text-grey" v-else-if="team.nickname">
         建立者
         <span class="text-success font-weight-bold">{{ team.nickname }}</span>
       </div>
