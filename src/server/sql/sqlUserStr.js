@@ -20,7 +20,7 @@ async function getMemberName(pid) {
 
 // 取得我加入的球隊
 async function getMyteam(pid) {
-    let sql = `SELECT A.teamID, B.name, B.logoUrl, D.rankText, E.categoryText, B.city, F.typeText, A.teamMemberLevelID, A.teamMemberStatusID
+    let sql = `SELECT A.teamID, B.name, B.logoUrl, D.rankText, E.categoryText, E.categoryID, B.city, F.typeText, A.teamMemberLevelID, A.teamMemberStatusID
                 FROM team_member AS A
                 LEFT JOIN team AS B ON B.pid = A.teamID
                 LEFT JOIN member AS C ON C.pid = A.memberID

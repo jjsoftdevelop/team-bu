@@ -38,7 +38,7 @@
                     :src="
                       user && user.picture
                         ? user.picture
-                        : 'https://icon-library.com/images/anonymous-person-icon/anonymous-person-icon-18.jpg'
+                        : require('~/assets/img/anonymous-person-icon-18.jpg')
                     "
                     rounded="circle"
                     alt=""
@@ -339,6 +339,10 @@ export default {
   &--searchInput {
     width: 229px;
     max-width: 229px;
+    @include md {
+      width: 130px;
+      max-width: 130px;
+    }
   }
   &--logo {
     img {

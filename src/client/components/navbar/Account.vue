@@ -24,7 +24,7 @@
                 <b-img
                   v-if="item.categoryID"
                   :src="
-                    require(`~/assets/img/svg/${formatSportIcon(
+                    require(`~/assets/img/svg/${$transforSportIcon(
                       item.categoryID
                     )}.svg`)
                   "
@@ -154,7 +154,6 @@
 </template>
 
 <script>
-import { sportCate } from "~/constants/sportCate";
 import LineBlock from "~/components/common/LineBlock";
 
 export default {
@@ -173,12 +172,6 @@ export default {
     myRoleOnTeams: {
       type: Object,
       default: () => {},
-    },
-  },
-  methods: {
-    formatSportIcon(cateID) {
-      const src = sportCate[cateID].iconSrc;
-      return src;
     },
   },
 };

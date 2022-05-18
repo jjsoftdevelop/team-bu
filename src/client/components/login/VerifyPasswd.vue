@@ -5,7 +5,9 @@
       <div class="d-flex align-items-center mb-6">
         <b-img
           class="mr-2 img-cover"
-          :src="pic"
+          :src="
+            pic ? pic : require('~/assets/img/anonymous-person-icon-18.jpg')
+          "
           width="55"
           height="55"
           rounded="circle"

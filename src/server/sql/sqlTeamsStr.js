@@ -134,7 +134,7 @@ async function updateTeamMemberStatus({ teamMemberLevelID, teamMemberStatusID, m
 
 // 搜尋球隊列表
 async function selectTeamDB({ teamID, categoryID, name }) {
-    let sql = `SELECT A.*,B.nickname AS nickname
+    let sql = `SELECT A.*,B.nickname AS nickname,C.rankText, D.categoryText,E.typeText
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
@@ -143,7 +143,7 @@ async function selectTeamDB({ teamID, categoryID, name }) {
                 LEFT JOIN team_type AS E ON E.typeID = A.typeID`
     let values = []
     if (name && categoryID) {
-        sql = `SELECT A.*,B.nickname AS nickname
+        sql = `SELECT A.*,B.nickname AS nickname,C.rankText, D.categoryText,E.typeText
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
@@ -153,7 +153,7 @@ async function selectTeamDB({ teamID, categoryID, name }) {
                 WHERE A.name like ? AND A.categoryID = ?`
         values = ['%' + name + '%', categoryID]
     } else if (teamID && categoryID) {
-        sql = `SELECT A.*,B.nickname AS nickname
+        sql = `SELECT A.*,B.nickname AS nickname,C.rankText, D.categoryText,E.typeText
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid
@@ -163,7 +163,7 @@ async function selectTeamDB({ teamID, categoryID, name }) {
                 WHERE A.pid = ? AND A.categoryID = ?`
         values = [teamID, categoryID]
     } else if (categoryID) {
-        sql = `SELECT A.*,B.nickname AS nickname
+        sql = `SELECT A.*,B.nickname AS nickname,C.rankText, D.categoryText,E.typeText
                 FROM team AS A
                 LEFT JOIN member  AS B
                 ON A.creatorID = B.pid

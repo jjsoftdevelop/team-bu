@@ -69,7 +69,7 @@ $spacers: map-merge(
       (
         $spacer * 10,
       )
-      //150px,,,,,,,,,,,,,,
+      //150px,,,,,,,,,,,,,,,,,,,,,,,,
   ),
   $spacers
 );
@@ -79,15 +79,21 @@ $success: $Success-500 !default;
 $danger: $Error-500 !default;
 $light: $Light !default;
 $dark: $Dark !default;
+$secondary: $Dark-200 !default;
 // input
 $input-placeholder-color: $Dark-300;
 $input-font-size: 14px;
 $input-focus-border-color: $Success-500;
 $input-focus-box-shadow: 0px 0px 0px 2px $Success-300;
+$custom-select-focus-box-shadow: 0px 0px 0px 2px $Success-300;
 $enable-validation-icons: true !default;
 $form-feedback-icon-valid: none !default;
 $form-feedback-icon-invalid: none !default;
 $custom-control-indicator-checked-bg: $Success-500;
+// img
+$thumbnail-padding: 1px;
+// model
+$modal-md: 600px;
 // $primary:       $blue !default;
 // $secondary:     $gray-600 !default;
 // $warning:       $yellow !default;
