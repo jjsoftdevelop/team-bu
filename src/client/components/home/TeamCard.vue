@@ -34,7 +34,7 @@
         }}
       </div>
       <div
-        v-if="team.teamMemberStatusID === 2 || team.teamMemberStatusID === 3"
+        v-if="team.teamMemberStatusID === 2 || team.teamMemberStatusID === 1"
       >
         <b-badge
           disabled

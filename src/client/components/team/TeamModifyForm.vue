@@ -271,7 +271,7 @@ export default {
           rankID,
           city,
           leagueTag,
-          teamID: this.$encodeBase64(pid),
+          teamID: pid,
         });
         if (res.type === "1") {
           // 更新後的資料向外傳

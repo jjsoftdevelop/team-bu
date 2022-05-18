@@ -4,7 +4,7 @@
       <div
         class="d-flex justify-content-between align-items-center py-1 py-md-3"
       >
-        <router-link to="/" class="navBlock--logo pointer">
+        <router-link to="/home" class="navBlock--logo pointer">
           <img src="~/assets/img/svg/logo.svg" alt="" />
         </router-link>
         <div class="d-flex align-items-center">
