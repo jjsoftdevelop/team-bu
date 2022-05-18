@@ -325,7 +325,7 @@ export default {
       padding: 0px;
     }
     ::v-deep .dropdown-menu {
-      width: 315px;
+      width: 320px;
       top: 13px !important;
       padding: 0px;
       @include md {
@@ -333,7 +333,7 @@ export default {
       }
     }
     ::v-deep .b-dropdown-text {
-      padding: 4px 16px;
+      padding: 0px 16px;
     }
   }
   &--searchInput {

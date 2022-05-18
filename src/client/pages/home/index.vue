@@ -2,7 +2,7 @@
   <div class="panel container add-shadow normal-border-radius">
     <div class="d-flex justify-content-between">
       <div class="d-flex align-items-center">
-        <span class="text-info h4 pr-2">我的球隊</span>
+        <span class="text-info h5 pr-2">我的球隊</span>
         <span class="text-success text-s"
           >共{{ myTeamData.list.length }}支</span
         >
