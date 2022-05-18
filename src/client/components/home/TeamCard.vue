@@ -67,6 +67,7 @@
           :key="index"
         >
           <b-img
+            v-if="index < 3"
             :src="
               item ? item : require('~/assets/img/anonymous-person-icon-18.jpg')
             "
@@ -78,7 +79,11 @@
           ></b-img>
         </div>
         <div class="text-xs text-success">
-          {{ team.memberPic.length }}位成員
+          {{
+            team.memberPic.length > 3
+              ? `+${team.memberPic.length - 3}`
+              : team.memberPic.length
+          }}位成員
         </div>
       </div>
     </div>
