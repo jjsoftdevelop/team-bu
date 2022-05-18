@@ -143,7 +143,7 @@
                     alt=""
                   />
                 </template>
-                <b-dropdown-text>Action</b-dropdown-text>
+                <b-dropdown-text><EventCalendar /></b-dropdown-text>
               </b-dropdown>
             </div>
             <div
@@ -176,6 +176,7 @@ import NotificationNotice from "~/components/notification/NotificationNotice";
 import SearchInput from "~/components/common/SearchInput";
 import Account from "~/components/navbar/Account";
 import LineBlock from "~/components/common/LineBlock";
+import EventCalendar from "~/components/navbar/EventCalendar";
 
 export default {
   components: {
@@ -184,6 +185,7 @@ export default {
     SearchInput,
     Account,
     LineBlock,
+    EventCalendar,
   },
   computed: {
     ...mapState(["user"]),
