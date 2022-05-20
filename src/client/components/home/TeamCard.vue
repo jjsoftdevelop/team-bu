@@ -19,7 +19,7 @@
           {{ team.name }}
         </div>
         <img
-          v-if="team.teamMemberLevelID"
+          v-if="team.teamMemberLevelID && (team.teamMemberStatusID !== 4 && team.teamMemberStatusID !== 9)"
           :src="
             require(`~/assets/img/svg/${$transforRoleIcon(
               team.teamMemberLevelID

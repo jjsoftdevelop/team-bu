@@ -103,30 +103,31 @@ router.post('/verify/email', async function (req, res, next) {
     try {
         const email = req.body.email
         const regex = /^([\w\.\-]){1,64}\@([\w\.\-]){1,64}$/;
-        if (!regex.test(email)) {
-            throw new Error('email格式錯誤')
-        }
         const data = await isExistEmail(email, 'user')
         const returnObj = {}
-        if (!data) {
-            // 判斷是否驗證過帳號
-            const isExistVerifyEmail = await isVerifyEmail(email)
-            // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
-            if (isExistVerifyEmail) {
-                returnObj.message = '已驗證通過'
-                returnObj.type = '1'
-                res.status(200).json(returnObj)
-            } else {
-                returnObj.message = '已發送驗證碼'
-                returnObj.type = '2'
-                const { status } = await axios.post(`${process.env.BASE_URL}/auth/sendVerifycode?mailto=${email}`)
-                res.status(status).json(returnObj)
-            }
+        if (!regex.test(email)) {
+            throw new Error('email格式錯誤')
         } else {
-            returnObj.message = '有帳號'
-            returnObj.type = '3'
-            returnObj.pic = data.picture
-            res.status(200).json(returnObj)
+            if (!data) {
+                // 判斷是否驗證過帳號
+                const isExistVerifyEmail = await isVerifyEmail(email)
+                // type: 1.已驗證通過 2.email未驗證過 發送驗證信 3.已有帳號
+                if (isExistVerifyEmail) {
+                    returnObj.message = '已驗證通過'
+                    returnObj.type = '1'
+                    res.status(200).json(returnObj)
+                } else {
+                    returnObj.message = '已發送驗證碼'
+                    returnObj.type = '2'
+                    const { status } = await axios.post(`${process.env.BASE_URL}/auth/sendVerifycode?mailto=${email}`)
+                    res.status(status).json(returnObj)
+                }
+            } else {
+                returnObj.message = '有帳號'
+                returnObj.type = '3'
+                returnObj.pic = data.picture
+                res.status(200).json(returnObj)
+            }
         }
     } catch (err) {
         next(err)
@@ -137,10 +138,6 @@ router.post('/verify/email', async function (req, res, next) {
 router.post('/verify/passwd', async function (req, res, next) {
     try {
         const passwd = req.body.passwd
-        const regex = /^(?=.*[a-zA-Z])(?=.*\d).{6,20}$/;
-        if (!regex.test(passwd)) {
-            throw new Error('密碼格式錯誤')
-        }
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const email = req.body.email
         let returnObj = {}
@@ -149,7 +146,7 @@ router.post('/verify/passwd', async function (req, res, next) {
         if (!data) {
             returnObj.message = '密碼錯誤'
             returnObj.type = '1'
-            res.status(402).json(returnObj)
+            res.status(200).json(returnObj)
         } else {
             returnObj.message = '登入成功'
             returnObj.type = '2'
@@ -178,36 +175,41 @@ router.post('/signUp', async function (req, res, next) {
         const nickname = req.body.nickname
         const url = req.body.url
         const data = await isExistEmail(email, 'user')
-        if (!data) {
-            const insertId = await userSignUp(nickname, email, passwdEncode, url)
-            // type: 1.註冊成功 2.註冊失敗 3.重複註冊
-            if (insertId) {
-                const returnObj = {
-                    message: '註冊成功',
-                    type: '1'
+        const regex = /^(?=.*[a-zA-Z])(?=.*\d).{6,20}$/;
+        if (!regex.test(passwd)) {
+            throw new Error('密碼格式錯誤')
+        } else {
+            if (!data) {
+                const insertId = await userSignUp(nickname, email, passwdEncode, url)
+                // type: 1.註冊成功 2.註冊失敗 3.重複註冊
+                if (insertId) {
+                    const returnObj = {
+                        message: '註冊成功',
+                        type: '1'
+                    }
+                    const user = {
+                        pid: base64Obj.encode(insertId),
+                        email,
+                        nickname,
+                        picture: url,
+                        provider: 'user'
+                    }
+                    req.session.user = user
+                    res.status(200).json(returnObj)
+                } else {
+                    const returnObj = {
+                        message: '註冊失敗',
+                        type: '2'
+                    }
+                    res.status(200).json(returnObj)
                 }
-                const user = {
-                    pid: base64Obj.encode(insertId),
-                    email,
-                    nickname,
-                    picture: url,
-                    provider: 'user'
-                }
-                req.session.user = user
-                res.status(200).json(returnObj)
             } else {
                 const returnObj = {
-                    message: '註冊失敗',
-                    type: '2'
+                    message: '重複註冊',
+                    type: '3'
                 }
-                res.status(402).json(returnObj)
+                res.status(200).json(returnObj)
             }
-        } else {
-            const returnObj = {
-                message: '重複註冊',
-                type: '3'
-            }
-            res.status(402).json(returnObj)
         }
     } catch (err) {
         next(err)
@@ -239,7 +241,7 @@ router.post('/sendVerifycode', async function (req, res, next) {
             const returnObj = {}
             returnObj.message = '驗證超過次數'
             returnObj.type = '0'
-            res.status(402).json(returnObj)
+            res.status(200).json(returnObj)
         }
     } catch (err) {
         next(err)
@@ -285,31 +287,35 @@ router.post('/settingPasswd', async function (req, res, next) {
         const passwdEncode = CryptoJS.MD5(passwd).toString();
         const userVerifycode = req.body.verifycode.toString()
         const { verifycode } = await isExistVerifyCodeLast(email)
+        const regex = /^(?=.*[a-zA-Z])(?=.*\d).{6,20}$/;
         let returnObj = {}
-
-        if (userVerifycode === verifycode) {
-            const success = await updatepasswd(passwdEncode, email)
-            if (success) {
-                const { pid, picture, nickname } = await isExistEmail(email, 'user')
-                const user = {
-                    pid: base64Obj.encode(pid),
-                    email,
-                    nickname,
-                    picture
-                }
-                req.session.user = user
-                returnObj.message = '以修改成功'
-                returnObj.type = '1'
-                res.status(200).json(returnObj)
-            } else {
-                returnObj.message = '修改失敗'
-                returnObj.type = '0'
-                res.status(402).json(returnObj)
-            }
+        if (!regex.test(passwd)) {
+            throw new Error('密碼格式錯誤')
         } else {
-            returnObj.message = '驗證失敗'
-            returnObj.type = '0'
-            res.status(402).json(returnObj)
+            if (userVerifycode === verifycode) {
+                const success = await updatepasswd(passwdEncode, email)
+                if (success) {
+                    const { pid, picture, nickname } = await isExistEmail(email, 'user')
+                    const user = {
+                        pid: base64Obj.encode(pid),
+                        email,
+                        nickname,
+                        picture
+                    }
+                    req.session.user = user
+                    returnObj.message = '以修改成功'
+                    returnObj.type = '1'
+                    res.status(200).json(returnObj)
+                } else {
+                    returnObj.message = '修改失敗'
+                    returnObj.type = '0'
+                    res.status(200).json(returnObj)
+                }
+            } else {
+                returnObj.message = '驗證失敗'
+                returnObj.type = '0'
+                res.status(200).json(returnObj)
+            }
         }
     } catch (err) {
         next(err)

@@ -59,36 +59,37 @@ router.post('/teams/create', authMiddleWare, async function (req, res, next) {
         let returnObj = {}
         if (!name || !creatorID || !typeID || !rankID || !city) {
             res.status(400).json({ message: '缺少必要參數' })
-        }
-        let id = await insertTeamDB({
-            name,
-            logoUrl,
-            bannerUrl,
-            description,
-            categoryID,
-            typeID,
-            rankID,
-            city,
-            leagueTag,
-            creatorID
-        })
-        if (id) {
-            await insertTeamMemberDB(
-                id,
-                creatorID,
-                picture,
-                3,
-                3,
-            )
-            returnObj.message = '創建成功'
-            returnObj.type = '1'
-            res.status(200).json(returnObj)
-        } else {
-            returnObj.message = '創建失敗'
-            returnObj.type = '9'
-            res.status(500).json(returnObj)
-        }
 
+        } else {
+            let id = await insertTeamDB({
+                name,
+                logoUrl,
+                bannerUrl,
+                description,
+                categoryID,
+                typeID,
+                rankID,
+                city,
+                leagueTag,
+                creatorID
+            })
+            if (id) {
+                await insertTeamMemberDB(
+                    id,
+                    creatorID,
+                    picture,
+                    3,
+                    3,
+                )
+                returnObj.message = '創建成功'
+                returnObj.type = '1'
+                res.status(200).json(returnObj)
+            } else {
+                returnObj.message = '創建失敗'
+                returnObj.type = '9'
+                res.status(500).json(returnObj)
+            }
+        }
     } catch (err) {
         next(err)
     }

@@ -7,6 +7,7 @@ const session = require('express-session')
 const swaggerUi = require('swagger-ui-express')
 const swaggerSetting = require('./src/config/swagger')
 const serverLogMiddleWare = require('./src/server/middleware/serverLogMiddleWare')
+const checkLoginMiddleWare = require('./src/server/middleware/checkLoginMiddleWare')
 const firebaseKey = require('./src/config/keyForFirebase.json')
 const FirebaseStore = require('connect-session-firebase')(session);
 const firebase = require('firebase-admin');
@@ -58,6 +59,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 app.use('/', express.static('public'))
 app.use('/build', express.static('build'))
 app.use('/', (req, res, next) => {
+    next()
+})
+app.use('/login', (req, res, next) => {
+    next()
+})
+app.use('/home', checkLoginMiddleWare, (req, res, next) => {
+    next()
+})
+app.use('/team', checkLoginMiddleWare, (req, res, next) => {
     next()
 })
 

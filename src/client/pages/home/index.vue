@@ -65,6 +65,7 @@
     >
       <TeamFind
         :sportCate="sportCate"
+        :roleCate="roleCate"
         @closeModal="
           () => {
             $refs.teamFind.hideModal();
@@ -82,6 +83,8 @@ import TeamFind from "~/components/home/TeamFind";
 import ModalBase from "~/components/modal/ModalBase";
 import LineBlock from "~/components/common/LineBlock";
 import { sportCate } from "~/constants/sportCate";
+import { roleCate } from "~/constants/roleCate";
+
 export default {
   components: {
     TeamCard,
@@ -93,6 +96,7 @@ export default {
     this.getMyTeam();
     Object.assign(this.sportCate, sportCate);
     Object.assign(this.sportCateForTab, sportCate);
+    Object.assign(this.roleCate, roleCate);
   },
   data() {
     return {
@@ -102,6 +106,7 @@ export default {
       },
       sportCate: {},
       sportCateForTab: {},
+      roleCate: {},
       activeSport: "1",
     };
   },

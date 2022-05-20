@@ -200,7 +200,13 @@
             class="col-12 col-md-6 mb-3"
           >
             <TeamCard
-              @clickAction="handleSelectTeam(team.pid, team.teamMemberLevelID)"
+              @clickAction="
+                handleSelectTeam(
+                  team.pid,
+                  team.teamMemberLevelID,
+                  team.teamMemberStatusID
+                )
+              "
               :team="team"
             />
           </div>
@@ -220,40 +226,21 @@
       <h5 class="text-info text-center mb-4">申請成為球隊</h5>
       <div class="d-flex justify-content-center py-6">
         <div
-          @click="teamJoinInfo.teamMemberLevelID = 1"
+          v-for="(item, key) in roleCate"
+          :key="key"
+          @click="teamJoinInfo.teamMemberLevelID = key"
           :class="[
             'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-            { active: teamJoinInfo.teamMemberLevelID === 1 },
+            { active: teamJoinInfo.teamMemberLevelID === key },
           ]"
         >
           <div class="mb-2">
-            <img src="~/assets/img/svg/role_manager.svg" alt="" />
+            <img
+              :src="require(`~/assets/img/svg/${item.iconBigSrc}.svg`)"
+              alt=""
+            />
           </div>
-          <div class="text-info text-s font-weight-bold">管理員</div>
-        </div>
-        <div
-          @click="teamJoinInfo.teamMemberLevelID = 2"
-          :class="[
-            'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-            { active: teamJoinInfo.teamMemberLevelID === 2 },
-          ]"
-        >
-          <div class="mb-2">
-            <img src="~/assets/img/svg/role_player.svg" alt="" />
-          </div>
-          <div class="text-info text-s font-weight-bold">球員</div>
-        </div>
-        <div
-          @click="teamJoinInfo.teamMemberLevelID = 3"
-          :class="[
-            'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-            { active: teamJoinInfo.teamMemberLevelID === 3 },
-          ]"
-        >
-          <div class="mb-2">
-            <img src="~/assets/img/svg/role_fans.svg" alt="" />
-          </div>
-          <div class="text-info text-s font-weight-bold">粉絲</div>
+          <div class="text-info text-s font-weight-bold">{{ item.text }}</div>
         </div>
       </div>
       <div class="d-flex justify-content-center">
@@ -292,6 +279,10 @@ export default {
   },
   props: {
     sportCate: {
+      type: Object,
+      default: () => {},
+    },
+    roleCate: {
       type: Object,
       default: () => {},
     },
@@ -465,8 +456,12 @@ export default {
         console.log(err);
       }
     },
-    handleSelectTeam(TeamID, teamMemberLevelID) {
-      if (teamMemberLevelID) {
+    handleSelectTeam(TeamID, teamMemberLevelID, teamMemberStatusID) {
+      if (
+        teamMemberLevelID &&
+        teamMemberStatusID !== 4 &&
+        teamMemberStatusID !== 9
+      ) {
         this.$showToast({ content: "已在球隊名單囉！", title: "訊息" });
         return;
       }

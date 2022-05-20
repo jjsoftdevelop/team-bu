@@ -175,3 +175,15 @@ h5,
 .h-320 {
   min-height: 320px;
 }
+.modal-dialog {
+  @include sm {
+    max-height: 100vh;
+    margin: 0;
+  }
+}
+.modal-content {
+  @include sm {
+    width: 100vw;
+    height: 100vh;
+  }
+}

@@ -220,7 +220,7 @@ async function getTeamInfo(teamID) {
 async function getTeamMemberPic(teamID) {
     let sql = `SELECT B.picture FROM team_member AS A
                 LEFT JOIN member AS B ON B.pid = A.memberID
-                WHERE A.teamID = ?`
+                WHERE A.teamID = ? AND A.teamMemberStatusID = 3`
     let values = [teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
