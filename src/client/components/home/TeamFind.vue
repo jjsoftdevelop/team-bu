@@ -1,10 +1,10 @@
 <template>
   <div class="teamFindBlock">
-    <div v-if="step === 'start'">
+    <div v-if="step === STEP_INFO.START">
       <h5 class="text-info text-center">請選擇你要</h5>
       <div class="d-flex justify-content-center py-6">
         <div
-          @click="step = 'createCategory'"
+          @click="step = STEP_INFO.CREATE_CATEGORY"
           class="teamFindBlock--btn px-6 px-md-10 py-2 grey text-center normal-border-radius mr-4"
         >
           <div class="mb-2">
@@ -13,7 +13,7 @@
           <div class="text-info text-s font-weight-bold">創建球隊</div>
         </div>
         <div
-          @click="step = 'findCategory'"
+          @click="step = STEP_INFO.FIND_CATEGORY"
           class="teamFindBlock--btn px-6 px-md-10 py-2 grey text-center normal-border-radius"
         >
           <div class="mb-2">
@@ -22,29 +22,16 @@
           <div class="text-info text-s font-weight-bold">找尋球隊</div>
         </div>
       </div>
-      <div class="d-flex justify-content-center">
-        <b-button
-          @click="
-            () => {
-              $emit('closeModal');
-            }
-          "
-          class="px-6 btn btn-light text-info font-weight-bold"
-          pill
-        >
-          取消
-        </b-button>
-      </div>
     </div>
-    <div v-if="step === 'createCategory'">
+    <div v-if="step === STEP_INFO.CREATE_CATEGORY">
       <h5 class="text-info text-center mb-4">哪種運動類型</h5>
-      <div class="teamFindBlock--wrap p-2 mb-4">
+      <div class="teamFindBlock--wrap p-2 mb-3">
         <div class="row">
           <div
             @click="handleCate(key)"
             v-for="(item, key) in sportCate"
             :key="key"
-            class="col-6 col-md-3 my-4"
+            class="col-6 col-md-3 my-2"
           >
             <div
               class="teamFindBlock--btn white text-center normal-border-radius add-shadow p-4"
@@ -69,15 +56,15 @@
       </div>
       <div class="d-flex justify-content-center">
         <b-button
-          @click="step = 'start'"
-          class="px-6 btn btn-light text-info font-weight-bold"
+          @click="step = STEP_INFO.START"
+          class="px-6 btn-sm btn btn-light text-info font-weight-bold"
           pill
         >
           上一步
         </b-button>
       </div>
     </div>
-    <div v-if="step === 'createForm'">
+    <div v-if="step === STEP_INFO.CREATE_FORM">
       <h5 class="text-center text-info">球隊資料</h5>
       <div>
         <div class="mb-6">
@@ -121,31 +108,38 @@
         </div>
         <div class="d-flex justify-content-center">
           <b-button
-            @click="step = 'createCategory'"
-            class="px-6 btn btn-light text-info font-weight-bold mr-6"
+            @click="step = STEP_INFO.CREATE_CATEGORY"
+            class="px-6 btn-sm btn btn-light text-info font-weight-bold mr-6"
             pill
           >
             上一步
           </b-button>
-          <b-button variant="success" pill @click="teamCreate"
+          <b-button
+            :disabled="!createInfo.name || !createInfo.city"
+            class="btn-sm"
+            variant="success"
+            pill
+            @click="teamCreate"
             >創建球隊</b-button
           >
         </div>
       </div>
     </div>
-    <div v-if="step === 'findCategory'">
+    <div v-if="step === STEP_INFO.FIND_CATEGORY">
       <h5 class="text-info text-center mb-4">哪種運動類型</h5>
-      <div class="teamFindBlock--wrap p-2 mb-4">
+      <div class="teamFindBlock--wrap p-2 mb-3">
         <div class="row">
           <div
             @click="
               () => {
-                (findInfo.categoryID = key), (step = 'findForm');
+                (findInfo.categoryID = key),
+                  (step = STEP_INFO.FIND_FORM),
+                  (teamList.data = []);
               }
             "
             v-for="(item, key) in sportCate"
             :key="key"
-            class="col-6 col-md-3 my-4"
+            class="col-6 col-md-3 my-2"
           >
             <div
               class="teamFindBlock--btn white text-center normal-border-radius add-shadow p-4"
@@ -171,14 +165,14 @@
       <div class="d-flex justify-content-center">
         <b-button
           @click="step = 'start'"
-          class="px-6 btn btn-light text-info font-weight-bold"
+          class="px-6 btn-sm btn btn-light text-info font-weight-bold"
           pill
         >
           上一步
         </b-button>
       </div>
     </div>
-    <div v-if="step === 'findForm'">
+    <div v-if="step === STEP_INFO.FIND_FORM">
       <h5 class="text-info text-center mb-4">找尋球隊</h5>
       <b-input-group class="mb-4">
         <b-form-input
@@ -192,10 +186,10 @@
           >
         </b-input-group-append>
       </b-input-group>
-      <div class="teamFindBlock--wrap p-2 mb-4">
+      <div class="teamFindBlock--wrap p-2 mb-3" style="height: 145px">
         <div
           v-if="teamList.isInitial && !teamList.isLoading"
-          class="text-s text-info mb-4"
+          class="text-s text-info mb-2"
         >
           共 {{ teamList.data.length }} 筆資料
         </div>
@@ -206,56 +200,75 @@
             class="col-12 col-md-6 mb-3"
           >
             <TeamCard
-              @clickAction="
-                (showMemberLevel = true), (teamJoinInfo.teamID = team.pid)
-              "
+              @clickAction="handleSelectTeam(team.pid, team.teamMemberLevelID)"
               :team="team"
             />
           </div>
         </div>
       </div>
-      <div v-if="showMemberLevel">
-        <b-form-group
-          label="請選擇要加入的腳色"
-          class="text-info"
-          v-slot="{ ariaDescribedby }"
-        >
-          <b-form-radio
-            v-model="teamJoinInfo.teamMemberLevelID"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="1"
-            >球員</b-form-radio
-          >
-          <b-form-radio
-            v-model="teamJoinInfo.teamMemberLevelID"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="2"
-            >粉絲</b-form-radio
-          >
-          <b-form-radio
-            v-model="teamJoinInfo.teamMemberLevelID"
-            :aria-describedby="ariaDescribedby"
-            name="some-radios"
-            value="3"
-            >管理員</b-form-radio
-          >
-        </b-form-group>
-        <div class="text-danger text-s"></div>
-      </div>
       <div class="d-flex justify-content-center">
         <b-button
           @click="step = 'findCategory'"
-          class="px-6 btn btn-light text-info font-weight-bold mr-6"
+          class="px-6 btn btn-sm btn-light text-info font-weight-bold"
+          pill
+        >
+          上一步
+        </b-button>
+      </div>
+    </div>
+    <div v-if="step === STEP_INFO.SELECT_ROLE">
+      <h5 class="text-info text-center mb-4">申請成為球隊</h5>
+      <div class="d-flex justify-content-center py-6">
+        <div
+          @click="teamJoinInfo.teamMemberLevelID = 1"
+          :class="[
+            'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
+            { active: teamJoinInfo.teamMemberLevelID === 1 },
+          ]"
+        >
+          <div class="mb-2">
+            <img src="~/assets/img/svg/role_manager.svg" alt="" />
+          </div>
+          <div class="text-info text-s font-weight-bold">管理員</div>
+        </div>
+        <div
+          @click="teamJoinInfo.teamMemberLevelID = 2"
+          :class="[
+            'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
+            { active: teamJoinInfo.teamMemberLevelID === 2 },
+          ]"
+        >
+          <div class="mb-2">
+            <img src="~/assets/img/svg/role_player.svg" alt="" />
+          </div>
+          <div class="text-info text-s font-weight-bold">球員</div>
+        </div>
+        <div
+          @click="teamJoinInfo.teamMemberLevelID = 3"
+          :class="[
+            'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
+            { active: teamJoinInfo.teamMemberLevelID === 3 },
+          ]"
+        >
+          <div class="mb-2">
+            <img src="~/assets/img/svg/role_fans.svg" alt="" />
+          </div>
+          <div class="text-info text-s font-weight-bold">粉絲</div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center">
+        <b-button
+          @click="step = 'findForm'"
+          class="px-6 btn btn-sm btn-light text-info font-weight-bold mr-6"
           pill
         >
           上一步
         </b-button>
         <b-button
+          class="btn-sm"
+          :disabled="!teamJoinInfo.teamMemberLevelID"
           variant="success"
           pill
-          v-if="showMemberLevel"
           @click="handleJoin"
           >送出申請</b-button
         >
@@ -289,6 +302,14 @@ export default {
 
   data() {
     return {
+      STEP_INFO: {
+        START: "start",
+        CREATE_CATEGORY: "createCategory",
+        CREATE_FORM: "createForm",
+        FIND_CATEGORY: "findCategory",
+        FIND_FORM: "findForm",
+        SELECT_ROLE: "selectRole",
+      },
       step: "start",
       showMemberLevel: false,
       teamJoinInfo: {
@@ -363,9 +384,19 @@ export default {
           leagueTag,
           city,
         });
+        this.$showToast({
+          content: "創建成功！",
+          title: "訊息",
+          variant: "success",
+        });
         this.$emit("getMyTeam");
         this.$emit("closeModal");
       } catch (err) {
+        this.$showToast({
+          content: "創建失敗！",
+          title: "訊息",
+          variant: "danger",
+        });
         console.log(err);
         return err;
       }
@@ -418,11 +449,29 @@ export default {
           teamMemberLevelID,
           type,
         });
+        this.$showToast({
+          content: "申請成功！",
+          title: "訊息",
+          variant: "success",
+        });
         this.$emit("getMyTeam");
         this.$emit("closeModal");
       } catch (err) {
+        this.$showToast({
+          content: "申請失敗！",
+          title: "訊息",
+          variant: "danger",
+        });
         console.log(err);
       }
+    },
+    handleSelectTeam(TeamID, teamMemberLevelID) {
+      if (teamMemberLevelID) {
+        this.$showToast({ content: "已在球隊名單囉！", title: "訊息" });
+        return;
+      }
+      this.step = this.STEP_INFO.SELECT_ROLE;
+      this.teamJoinInfo.teamID = TeamID;
     },
   },
 };
@@ -432,7 +481,8 @@ export default {
 .teamFindBlock {
   &--wrap {
     background-color: $Light-100;
-    min-height: 100px;
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
   &--btn {
     cursor: pointer;
@@ -447,6 +497,9 @@ export default {
       &:hover {
         background-color: $Light-100;
       }
+    }
+    &.active {
+      background-color: $Dark-200;
     }
   }
 }

@@ -29,9 +29,7 @@
         />
       </div>
       <div class="text-grey text-xs mb-2">
-        {{ team.categoryText }}/{{ team.city }}/{{ team.typeText }}/{{
-          team.rankText
-        }}
+        {{ team.city }}/{{ team.typeText }}/{{ team.rankText }}
       </div>
       <div
         v-if="team.teamMemberStatusID === 2 || team.teamMemberStatusID === 1"

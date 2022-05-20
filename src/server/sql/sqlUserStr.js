@@ -49,7 +49,7 @@ async function getMyJoinSport(email, provider) {
 async function getMyRoleOnTeams(email, provider) {
     let sql = `SELECT C.teamMemberLevelID FROM member AS A 
     LEFT JOIN team_member AS C ON A.pid = C.memberID
-    WHERE email = ? AND provider = ?`
+    WHERE email = ? AND provider = ?  AND C.teamMemberStatusID = 3`
     let values = [email, provider]
     let dataList = await query(sql, values)
     const data = JSON.parse(JSON.stringify(dataList))

@@ -57,6 +57,9 @@ router.post('/teams/create', authMiddleWare, async function (req, res, next) {
         const creatorID = base64Obj.decodeNumber(req.session.user.pid)
         const picture = req.session.user.picture
         let returnObj = {}
+        if (!name || !creatorID || !typeID || !rankID || !city) {
+            res.status(400).json({ message: '缺少必要參數' })
+        }
         let id = await insertTeamDB({
             name,
             logoUrl,

@@ -1,6 +1,7 @@
 const { Base64 } = require('js-base64');
 import { sportCate } from "~/constants/sportCate";
 import { roleCate } from "~/constants/roleCate";
+import { ToastPlugin } from 'bootstrap-vue'
 
 export default (context, inject) => {
     inject('wait', miliseconds => {
@@ -29,4 +30,13 @@ export default (context, inject) => {
         return src;
     })
 
+    inject('showToast', ({ content, title, variant = 'danger' }) => {
+        $nuxt.$bvToast.toast(content, {
+            title: `${title}`,
+            variant: variant,
+            solid: true,
+            toaster: 'b-toaster-bottom-center',
+            appendToast: false,
+        })
+    })
 }

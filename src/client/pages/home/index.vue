@@ -17,13 +17,12 @@
     </div>
     <div class="d-flex flex-wrap">
       <div
-        v-show="item.list.length !== 0"
         @click="activeSport = key"
         :class="[
           'btn btn-secondary btn-switch btn-switch-sm rounded-pill pointer font-weight-bold text-xs text-success mr-2 mb-2',
           { disabled: activeSport !== key },
         ]"
-        v-for="(item, key) in sportCate"
+        v-for="(item, key) in sportCateForTab"
         :key="key"
       >
         <b-img
@@ -37,7 +36,7 @@
           "
         ></b-img>
         {{ item.text }}
-        {{ item.list.length }}
+        {{ item.list && item.list.length }}
       </div>
     </div>
     <LineBlock class="pt-4 pb-6" />
@@ -58,7 +57,12 @@
         />
       </div>
     </div>
-    <ModalBase :footHidden="true" :headerHidden="true" ref="teamFind">
+    <ModalBase
+      bodyClass="h-320"
+      :footHidden="true"
+      :headerHidden="true"
+      ref="teamFind"
+    >
       <TeamFind
         :sportCate="sportCate"
         @closeModal="
@@ -88,6 +92,7 @@ export default {
   mounted() {
     this.getMyTeam();
     Object.assign(this.sportCate, sportCate);
+    Object.assign(this.sportCateForTab, sportCate);
   },
   data() {
     return {
@@ -96,6 +101,7 @@ export default {
         isLoading: false,
       },
       sportCate: {},
+      sportCateForTab: {},
       activeSport: "1",
     };
   },
@@ -105,13 +111,26 @@ export default {
       deep: true,
       immediate: true,
       handler(nv, ov) {
-        for (let i in this.sportCate) {
-          this.sportCate[i]["list"] = [];
+        let isInitial = false;
+        for (let i in this.sportCateForTab) {
+          this.sportCateForTab[i]["list"] = [];
           nv.forEach((el) => {
             if (el.categoryID === Number(i)) {
               this.sportCate[i].list.push(el);
             }
           });
+          if (
+            this.sportCateForTab[i] &&
+            this.sportCateForTab[i]["list"] &&
+            this.sportCateForTab[i]["list"].length === 0
+          ) {
+            delete this.sportCateForTab[i];
+          } else {
+            if (!isInitial) {
+              this.activeSport = i;
+              isInitial = true;
+            }
+          }
         }
       },
     },
@@ -120,7 +139,14 @@ export default {
     async getMyTeam() {
       try {
         this.myTeamData.isLoading = true;
-        this.myTeamData.list = await this.$api.getMyTeam();
+        const res = await this.$api.getMyTeam();
+        this.myTeamData.list = res.filter((item) => {
+          return (
+            item.teamMemberStatusID === 1 ||
+            item.teamMemberStatusID === 2 ||
+            item.teamMemberStatusID === 3
+          );
+        });
       } catch (err) {
         console.log(err);
       } finally {

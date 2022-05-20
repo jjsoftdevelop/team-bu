@@ -4,6 +4,7 @@
     centered
     :no-close-on-backdrop="noBackdropClose"
     scrollable
+    :body-class="bodyClass"
     :modal-class="modalClass"
     :dialog-class="dialogClass"
     header-class="border-0"
@@ -14,12 +15,14 @@
   >
     <template v-slot:modal-header>
       <h4 :class="['header-text w-100', titleClass]">{{ modalTitle }}</h4>
-      <i
-        class="btn-close jb_icon_delete pointer"
-        @click.prevent="hideModal"
-      ></i>
     </template>
-    <template><slot /></template>
+    <template
+      ><div>
+        <slot />
+        <div class="pointer closeModal" @click.prevent="hideModal">
+          <b-icon scale="2" icon="x"></b-icon>
+        </div></div
+    ></template>
     <template v-slot:modal-footer>
       <button
         v-if="!hideCancelBtn"
@@ -43,6 +46,7 @@
 export default {
   name: "ModalBase",
   props: {
+    bodyClass: { type: String, default: "" },
     modalClass: { type: String, default: "" },
     dialogClass: { type: String, default: "" },
     modalTitle: { type: String, default: "" },
@@ -95,4 +99,14 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.closeModal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  color: $Dark-500;
+  &:hover {
+    color: $Success-500;
+  }
+}
+</style>

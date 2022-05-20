@@ -40,6 +40,13 @@ export default (context, inject) => {
                 return response
             },
             function (error) {
+                $nuxt.$bvToast.toast('發生錯誤，請稍後在試！', {
+                    title: `提示`,
+                    variant: 'danger',
+                    solid: true,
+                    toaster: 'b-toaster-bottom-center',
+                    appendToast: false,
+                })
                 if (!error.response) return Promise.reject(error)
                 return Promise.reject(error)
             },

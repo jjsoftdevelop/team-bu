@@ -94,8 +94,9 @@ export default {
             // 此通知的 type
             // 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
             // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
-            const notificationType = this.item.type;
+            const notificationType = this.item.typeID;
             // 更新teamMember狀態
+            // 4:申請已拒絕 5:邀請已拒絕 9:已移除
             const { type } = await this.$api.updateTeamMemberStatus({
               memberID,
               teamID,
