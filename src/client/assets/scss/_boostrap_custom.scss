@@ -10,8 +10,8 @@ $grid-breakpoints: (
 $container-max-widths: (
   sm: 576px,
   md: 720px,
-  lg: 959.9px,
-  xl: 960px,
+  lg: 960px,
+  xl: 1280px,
 ) !default;
 
 $theme-colors: () !default;
@@ -69,7 +69,7 @@ $spacers: map-merge(
       (
         $spacer * 10,
       )
-      //150px,,,,,,,,,,,,,,,,,,,,,,,,
+      //150px,,,,,,,,,,,,,,,,,,,,,,,,,,
   ),
   $spacers
 );
@@ -94,6 +94,9 @@ $custom-control-indicator-checked-bg: $Success-500;
 $thumbnail-padding: 1px;
 // model
 $modal-md: 600px;
+// avatar
+$b-avatar-size: initial;
+$border-radius: 16px;
 // $primary:       $blue !default;
 // $secondary:     $gray-600 !default;
 // $warning:       $yellow !default;

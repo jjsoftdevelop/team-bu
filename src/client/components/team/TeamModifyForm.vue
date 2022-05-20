@@ -4,10 +4,9 @@
       <div class="position-relative mb-2">
         <b-img
           :src="bannerFile.preview ? bannerFile.preview : modifyInfo.bannerUrl"
-          class="w-100"
+          class="w-100 img-cover"
           height="300"
           alt=""
-          style="object-fit: container"
         ></b-img>
         <label
           class="pointer position-absolute d-flex justify-content-center align-items-center"

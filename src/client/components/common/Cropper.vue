@@ -20,7 +20,7 @@
         <div class="img-cropper">
           <vue-cropper
             ref="cropper"
-            :aspect-ratio="4 / 3"
+            :aspect-ratio="10 / 3"
             dragMode="move"
             :zoomable="false"
             preview=".preview"
