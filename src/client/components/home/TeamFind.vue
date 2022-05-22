@@ -228,10 +228,10 @@
         <div
           v-for="(item, key) in roleCate"
           :key="key"
-          @click="teamJoinInfo.teamMemberLevelID = key"
+          @click="teamJoinInfo.teamMemberLevelID = Number(key)"
           :class="[
             'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-            { active: teamJoinInfo.teamMemberLevelID === key },
+            { active: teamJoinInfo.teamMemberLevelID === Number(key) },
           ]"
         >
           <div class="mb-2">
@@ -471,31 +471,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.teamFindBlock {
-  &--wrap {
-    background-color: $Light-100;
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-  &--btn {
-    cursor: pointer;
-    &.grey {
-      background-color: $Light-100;
-      &:hover {
-        background-color: $Light-300;
-      }
-    }
-    &.white {
-      background-color: $Light;
-      &:hover {
-        background-color: $Light-100;
-      }
-    }
-    &.active {
-      background-color: $Dark-200;
-    }
-  }
-}
-</style>

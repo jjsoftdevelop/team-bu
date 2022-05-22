@@ -466,14 +466,17 @@ router.post('/teamMember/member', async function (req, res, next) {
 router.post('/teamMember/:email', async function (req, res, next) {
     try {
         const email = req.params.email
+        const teamID = req.body.teamID ? base64Obj.decodeNumber(req.body.teamID) : ''
         const result = await getMemberByEmail({ email })
-        const member = result.map(item => {
+        const member = await Promise.all(result.map(async item => {
+            const status = await isExistTeamMember(teamID, item.pid)
             return {
                 ...item,
                 pid: base64Obj.encode(item.pid),
-                teamID: item.teamID ? base64Obj.encode(item.teamID) : ''
+                teamMemberStatusID: status && status.teamMemberStatusID ? status.teamMemberStatusID : ""
             }
-        })
+
+        }))
         if (member) {
             res.status(200).json(member)
         } else {

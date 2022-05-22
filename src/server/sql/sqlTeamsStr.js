@@ -229,8 +229,7 @@ async function getTeamMemberPic(teamID) {
 
 // 找尋球員
 async function getMemberByEmail({ email }) {
-    let sql = `SELECT A.pid, A.nickname, A.picture, A.email, A.provider, B.teamID, B.teamMemberStatusID, B.teamMemberLevelID FROM member AS A
-                LEFT JOIN team_member AS B ON B.memberID = A.pid
+    let sql = `SELECT A.pid, A.nickname, A.picture, A.email, A.provider FROM member AS A
                 WHERE A.email = ?`
     let values = [email]
     const res = await query(sql, values)

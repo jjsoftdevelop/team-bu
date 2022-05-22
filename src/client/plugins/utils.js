@@ -30,6 +30,11 @@ export default (context, inject) => {
         return src;
     })
 
+    inject('transforRoleBigIcon', cateID => {
+        const src = roleCate[cateID].iconBigSrc;
+        return src;
+    })
+
     inject('showToast', ({ content, title, variant = 'danger' }) => {
         $nuxt.$bvToast.toast(content, {
             title: `${title}`,

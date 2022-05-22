@@ -145,11 +145,13 @@ export function getTeamList(api) {
 // 用email取得球員
 export function getMemberByEmail(api) {
     return async function ({
-        email
+        email, teamID
     }) {
         const path = `${API_MODULE}/teamMember/${email}`
         try {
-            const { data, errors } = await api.post(path)
+            const { data, errors } = await api.post(path, {
+                teamID
+            })
             if (errors) {
                 return Promise.reject(errors)
             }

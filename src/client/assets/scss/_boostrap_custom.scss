@@ -69,7 +69,7 @@ $spacers: map-merge(
       (
         $spacer * 10,
       )
-      //150px,,,,,,,,,,,,,,,,,,,,,,,,,,
+      //150px,,,,,,,,,,,,,,,,,,,,,,,,,,,
   ),
   $spacers
 );
@@ -94,9 +94,13 @@ $custom-control-indicator-checked-bg: $Success-500;
 $thumbnail-padding: 1px;
 // model
 $modal-md: 600px;
+$modal-sm: 480px;
+//table
+$table-accent-bg: $Info-200;
+
 // avatar
-$b-avatar-size: initial;
-$border-radius: 16px;
+// $b-avatar-size: initial;
+// $border-radius: 16px;
 // $primary:       $blue !default;
 // $secondary:     $gray-600 !default;
 // $warning:       $yellow !default;

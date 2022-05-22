@@ -1,99 +1,189 @@
 <template>
   <div>
     <div class="d-flex">
-      <label for="">球員帳號</label>
-      <input type="text" v-model="email" />
-      <div @click="getMemberByEmail">找尋球員{{ teamID }}</div>
+      <b-input-group class="mb-4">
+        <b-form-input
+          v-model="email"
+          type="text"
+          placeholder="XXX@gmail.com"
+        ></b-form-input>
+        <b-input-group-append>
+          <b-button
+            style="height: 35px"
+            variant="success"
+            @click="getMemberByEmail"
+            >搜尋</b-button
+          >
+        </b-input-group-append>
+      </b-input-group>
     </div>
-    <div>
-      <div v-for="(item, index) in memberList.data" :key="index">
-        <div class="row">
-          <div class="col-3">頭貼</div>
-          <div class="col-3">姓名</div>
-          <div class="col-3">狀態</div>
-          <div class="col-3">動作</div>
-        </div>
-        <div class="row">
-          <div class="col-3">
-            <b-img width="28" height="28" :src="item.picture" circle></b-img>
+    <div class="text-info">
+      <b-table
+        v-if="memberList.isInitial"
+        emptyText="搜尋無結果"
+        :busy="memberList.isLoading"
+        table-class="text-grey-500 text-s"
+        thead-class="bg-info-800 text-light"
+        tbody-td-class="d-flex align-items-center"
+        :fields="tableField"
+        striped
+        hover
+        :items="memberList.data"
+        show-empty
+      >
+        <template #empty="scope">
+          <div class="text-center">
+            {{ memberList.isLoading ? "" : scope.emptyText }}
           </div>
-          <div class="col-3">{{ item.nickname }}</div>
-          <div class="col-3">
-            {{ formatStatus(item.teamMemberStatusID, item.teamID) }}
+        </template>
+        <template #cell(picture)="data">
+          <b-img
+            width="32"
+            height="32"
+            :src="
+              data.item.picture
+                ? data.item.picture
+                : require('~/assets/img/anonymous-person-icon-18.jpg')
+            "
+            rounded="circle"
+          ></b-img>
+        </template>
+        <template #cell(teamMemberStatusID)="data">
+          <div>
+            {{ formatStatus(data.item.teamMemberStatusID) }}
           </div>
-          <div class="col-3">
-            <div
-              class="btn btn-secondary"
+        </template>
+        <template #cell(action)="data">
+          <div>
+            <b-button
+              v-if="formatStatus(data.item.teamMemberStatusID) === '-'"
+              class="btn-sm"
+              pill
+              variant="outline-success"
               @click="
-                teamJoin({
-                  memberID: item.pid,
-                  picture: item.picture,
-                })
+                () => {
+                  memberID = data.item.pid;
+                  picture = data.item.picture;
+                  $refs.selectRole.openModal();
+                }
               "
+              >加入</b-button
             >
-              送出邀請
+          </div>
+        </template>
+      </b-table>
+
+      <ModalBase
+        bodyClass="h-320"
+        :footHidden="true"
+        :headerHidden="true"
+        ref="selectRole"
+        size="sm"
+      >
+        <h5 class="text-info text-center mb-4">申請成為球隊</h5>
+        <div class="d-flex justify-content-center py-6">
+          <div
+            v-for="(item, key) in roleCate"
+            :key="key"
+            @click="teamMemberLevelID = key"
+            :class="[
+              'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
+              { active: teamMemberLevelID === key },
+            ]"
+          >
+            <div class="mb-2">
+              <img
+                :src="require(`~/assets/img/svg/${item.iconBigSrc}.svg`)"
+                alt=""
+              />
             </div>
+            <div class="text-info text-s font-weight-bold">{{ item.text }}</div>
           </div>
         </div>
-      </div>
-      <div>
-        <div>
-          <label for="player">球員</label>
-          <input
-            id="player"
-            type="radio"
-            v-model="teamMemberLevelID"
-            value="1"
-          />
-          <label for="manager">管理員</label>
-          <input
-            id="manager"
-            type="radio"
-            v-model="teamMemberLevelID"
-            value="2"
-          />
-          <label for="fans">粉絲</label>
-          <input id="fans" type="radio" v-model="teamMemberLevelID" value="3" />
+        <div class="d-flex justify-content-center">
+          <b-button
+            @click="
+              () => {
+                $refs.selectRole.hideModal();
+              }
+            "
+            class="px-6 btn btn-sm btn-light text-info font-weight-bold mr-6"
+            pill
+          >
+            取消
+          </b-button>
+          <b-button
+            class="btn-sm"
+            :disabled="!teamMemberLevelID"
+            variant="success"
+            pill
+            @click="teamJoin"
+            >送出申請</b-button
+          >
         </div>
-      </div>
+      </ModalBase>
     </div>
   </div>
 </template>
 
 <script>
+import { roleCate } from "~/constants/roleCate";
+import ModalBase from "~/components/modal/ModalBase";
+
 export default {
+  components: {
+    ModalBase,
+  },
   props: {
     teamID: {
       type: String,
       default: "",
     },
   },
+  mounted() {
+    Object.assign(this.roleCate, roleCate);
+  },
   data() {
     return {
+      roleCate: {},
       email: "a10010134@gmail.com",
+      memberID: "",
+      picture: "",
+      teamMemberLevelID: "1",
       memberList: {
+        isInitial: false,
         isLoading: false,
         data: [],
       },
-      teamMemberLevelID: "1",
+      tableField: [
+        { key: "picture", label: "頭像" },
+        { key: "nickname", label: "暱稱" },
+        { key: "teamMemberStatusID", label: "狀態" },
+        { key: "action", label: "動作" },
+      ],
     };
   },
   methods: {
-    formatStatus(status, teamID) {
-      if (
-        teamID === this.teamID &&
-        (status === 1 || status === 2 || status === 3)
-      ) {
-        return "已是隊員";
+    formatStatus(status) {
+      if (status === 1) {
+        return "邀請球員中";
+      } else if (status === 2) {
+        return "申請加入中";
+      } else if (status === 3) {
+        return "已加入球隊";
       } else {
-        return "";
+        return "-";
       }
     },
     async getMemberByEmail() {
       try {
+        this.memberList.isInitial = true;
         this.memberList.isLoading = true;
         const email = this.email;
-        const res = await this.$api.getMemberByEmail({ email });
+        const res = await this.$api.getMemberByEmail({
+          email,
+          teamID: this.teamID,
+        });
         this.memberList.data = res;
       } catch (err) {
         console.log(err);
@@ -101,19 +191,29 @@ export default {
         this.memberList.isLoading = false;
       }
     },
-    async teamJoin({ memberID, picture }) {
+    async teamJoin() {
       try {
+        const memberID = this.memberID;
+        const picture = this.picture;
         const teamID = this.teamID;
         const teamMemberLevelID = Number(this.teamMemberLevelID);
-        const res = await this.$api.teamJoin({
+        await this.$api.teamJoin({
           teamID,
           memberID,
           picture,
           teamMemberLevelID,
           type: "invite",
         });
-        console.log(res);
-      } catch (err) {}
+        this.$showToast({
+          content: "邀請成功！",
+          title: "訊息",
+          variant: "success",
+        });
+        await this.getMemberByEmail();
+        this.$refs.selectRole.hideModal();
+      } catch (err) {
+        console.log(err);
+      }
     },
   },
 };

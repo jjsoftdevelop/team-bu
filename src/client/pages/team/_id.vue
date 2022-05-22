@@ -72,7 +72,7 @@
                   </div>
                 </b-avatar>
               </div>
-              <div class="teamInfoBlock--avatar mr-4">
+              <div class="teamInfoBlock--avatar">
                 <b-avatar rounded variant="outline-light">
                   <div
                     class="d-flex flex-column justify-content-center align-items-center"
@@ -147,32 +147,30 @@
         </div>
       </div>
     </div>
-    <div v-if="teamInfo && teamInfo.data" class="container">
+    <div v-if="teamInfo && teamInfo.data" class="container panel no-shadow">
       <div></div>
-      <!-- <div class="d-flex justify-content-between">
-        <div>
-          <div
-            class="btn btn-secondary"
-            @click="
-              () => {
-                $refs.teamfindMember.openModal();
-              }
-            "
-          >
-            新增球員
-          </div>
-        </div>
-      </div> -->
-      <!-- <div>
-        <TeamMember :teamID="teamID" />
-      </div> -->
+
+      <div>
+        <TeamMember
+          @openTeamfindMemberModal="openTeamfindMemberModal"
+          :memberdata="memberdata"
+        />
+      </div>
       <ModalBase :footHidden="true" :headerHidden="true" ref="teamModifyForm">
         <TeamModifyForm
           :form="teamInfo.data"
           @closeTeamModifyModal="closeTeamModifyModal"
         />
       </ModalBase>
-      <ModalBase :footHidden="true" :headerHidden="true" ref="teamfindMember">
+      <ModalBase
+        titleClass="text-info"
+        modalTitle="新增球員"
+        :footHidden="true"
+        :headerHidden="false"
+        :bodyCloseBtn="false"
+        size="sm"
+        ref="teamfindMember"
+      >
         <TeamFindMember
           :teamID="teamID"
           @closeTeamModifyModal="closeTeamModifyModal"
@@ -210,22 +208,25 @@ export default {
         POST: "post",
         ACCOUNTING: "accounting",
       },
+      memberdata: {
+        isLoading: false,
+        list: [],
+      },
     };
   },
   async mounted() {
     const id = this.$route.params.id;
     this.teamID = id;
-    this.getTeamInfo(id);
-    console.log(this.$route.query.tab);
     this.teamInfo.tab = this.$route.query.tab
       ? this.$route.query.tab
       : this.TAB_INFO.MEMBER;
+    Promise.all([this.getTeamInfo(), this.getTeamMemberList()]);
   },
   methods: {
-    async getTeamInfo(id) {
+    async getTeamInfo() {
       try {
         this.teamInfo.isLoading = true;
-        const res = await this.$api.getTeamList({ teamID: id });
+        const res = await this.$api.getTeamList({ teamID: this.teamID });
         this.teamInfo.data = res[0];
       } catch (err) {
       } finally {
@@ -244,6 +245,17 @@ export default {
       this.$router.push({
         query: { ...this.$router.query, tab },
       });
+    },
+    async getTeamMemberList() {
+      try {
+        const res = await this.$api.getTeamMemberList({ teamID: this.teamID });
+        this.memberdata.list = res;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    openTeamfindMemberModal() {
+      this.$refs.teamfindMember.openModal();
     },
   },
 };
@@ -325,6 +337,7 @@ export default {
     ::v-deep .b-avatar {
       width: 88px;
       height: 88px;
+      border-radius: 16px !important;
       @include xl {
         width: 64px;
         height: 64px;

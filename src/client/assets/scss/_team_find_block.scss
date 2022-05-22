@@ -1,0 +1,26 @@
+.teamFindBlock {
+  &--wrap {
+    background-color: $Light-100;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+  &--btn {
+    cursor: pointer;
+    border: 2px solid $Light-100;
+    &.grey {
+      background-color: $Light-100;
+      &:hover {
+        border: 2px solid $Info-400;
+      }
+    }
+    &.white {
+      background-color: $Light;
+      &:hover {
+        background-color: $Light-100;
+      }
+    }
+    &.active {
+      border: 2px solid $Info-900;
+    }
+  }
+}

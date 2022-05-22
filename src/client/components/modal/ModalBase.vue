@@ -1,6 +1,7 @@
 <template>
   <b-modal
     ref="modal"
+    :size="size"
     centered
     :no-close-on-backdrop="noBackdropClose"
     scrollable
@@ -12,14 +13,22 @@
     @hidden="onHidden"
     :hide-footer="footHidden"
     :hide-header="headerHidden"
+    :bodyCloseBtn="bodyCloseBtn"
   >
     <template v-slot:modal-header>
-      <h4 :class="['header-text w-100', titleClass]">{{ modalTitle }}</h4>
+      <h5 :class="['header-text w-100', titleClass]">{{ modalTitle }}</h5>
+      <div class="pointer closeModal" @click.prevent="hideModal">
+        <b-icon scale="2" icon="x"></b-icon>
+      </div>
     </template>
     <template
       ><div>
         <slot />
-        <div class="pointer closeModal" @click.prevent="hideModal">
+        <div
+          v-if="bodyCloseBtn"
+          class="pointer closeModal"
+          @click.prevent="hideModal"
+        >
           <b-icon scale="2" icon="x"></b-icon>
         </div></div
     ></template>
@@ -58,6 +67,8 @@ export default {
     footHidden: { type: Boolean, default: false },
     headerHidden: { type: Boolean, default: false },
     noBackdropClose: { type: Boolean, default: false },
+    bodyCloseBtn: { type: Boolean, default: true },
+    size: { type: String, default: "" },
   },
   data() {
     return {

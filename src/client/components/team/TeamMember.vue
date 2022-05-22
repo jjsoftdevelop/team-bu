@@ -1,60 +1,80 @@
 <template>
-  <div>
-    <b-card-group>
-      <b-card
+  <div class="teamMemberBlock">
+    <div class="d-flex justify-content-between mb-6">
+      <div class="d-flex">
+        <b-button class="btn-sm mr-4" pill variant="outline-success"
+          ><b-icon icon="plus"></b-icon>條件搜尋</b-button
+        >
+        <div class="btn-sm btn-light rounded-pill pointer text-center">
+          清除
+        </div>
+      </div>
+      <b-button
+        @click="
+          () => {
+            $emit('openTeamfindMemberModal');
+          }
+        "
+        class="btn-sm mr-4"
+        pill
+        variant="success"
+        ><b-icon icon="plus"></b-icon>新增球員</b-button
+      >
+    </div>
+    <div class="mb-4">
+      <span class="h5 text-info pr-2">球隊成員列表</span>
+      <span class="text-s text-success"
+        >共 {{ memberdata.list.length }} 位成員</span
+      >
+    </div>
+    <div class="row">
+      <div
+        class="col-3 col-lg-2 pointer"
         v-for="(item, index) in memberdata.list"
         :key="index"
-        :title="item.nickname"
-        :img-src="
-          item.picture ? item.picture : 'https://placekitten.com/g/300/450'
-        "
-        img-alt="Image"
-        img-top
       >
-        <b-card-text>
-          {{item.teamMemberPos}}
-          {{item.teamMemberNo}}
-          {{item.levelText}}
-        </b-card-text>
-        <template #footer>
-          <small class="text-muted">Last updated 3 mins ago</small>
-        </template>
-      </b-card>
-    </b-card-group>
+        <b-img
+          class="mb-1 img-cover teamMemberBlock--headshot"
+          width="120"
+          height="160"
+          :src="
+            item.picture ? item.picture : 'https://placekitten.com/g/300/450'
+          "
+        ></b-img>
+        <div class="text-m text-grey-700">
+          {{ item.nickname }}
+          <img
+            :src="
+              require(`~/assets/img/svg/${$transforRoleIcon(
+                item.teamMemberLevelID
+              )}.svg`)
+            "
+            alt=""
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   props: {
-    teamID: {
-      type: String,
-      default: "",
-    },
-  },
-  data() {
-    return {
-      memberdata: {
-        isLoading: false,
-        list: [],
-      },
-    };
-  },
-  mounted() {
-    this.getTeamMemberList();
-  },
-  methods: {
-    async getTeamMemberList() {
-      try {
-        const teamID = this.teamID;
-        const res = await this.$api.getTeamMemberList({ teamID });
-        this.memberdata.list = res;
-      } catch (err) {
-        console.log(err);
-      }
+    memberdata: {
+      type: Object,
+      default: () => {},
     },
   },
 };
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.teamMemberBlock {
+  &--headshot {
+    @include sm {
+      width: 80px;
+      height: 100px;
+    }
+  }
+}
+</style>

@@ -92,6 +92,9 @@ h5,
 .text-grey-700 {
   color: $Dark-700;
 }
+.bg-info-800 {
+  background: $Info-800;
+}
 .text-success {
   color: $Success-500;
 }
@@ -190,4 +193,16 @@ h5,
 
 .badge-outline-light {
   border: 1px solid $Light;
+}
+
+.no-shadow {
+  box-shadow: none !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: $Light-100;
+}
+.table th,
+.table td {
+  vertical-align: middle;
 }
