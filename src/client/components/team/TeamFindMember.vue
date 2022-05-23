@@ -19,7 +19,6 @@
     </div>
     <div class="text-info">
       <b-table
-        v-if="memberList.isInitial"
         emptyText="搜尋無結果"
         :busy="memberList.isLoading"
         table-class="text-grey-500 text-s"
@@ -33,7 +32,13 @@
       >
         <template #empty="scope">
           <div class="text-center">
-            {{ memberList.isLoading ? "" : scope.emptyText }}
+            {{
+              memberList.isLoading
+                ? ""
+                : !memberList.isInitial && !memberList.isLoading
+                ? "請使用上方搜尋框"
+                : scope.emptyText
+            }}
           </div>
         </template>
         <template #cell(picture)="data">

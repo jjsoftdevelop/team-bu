@@ -17,6 +17,7 @@ const ref = firebase.initializeApp({
 });
 const cookieParser = require('cookie-parser')
 const csrf = require('./src/server/middleware/csrf')
+const helmet = require('helmet')
 
 // 載入所有env環境變數
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
@@ -51,7 +52,12 @@ app.use(session({
         httpOnly: true,
     }
 }))
-
+app.use(helmet({
+    contentSecurityPolicy: false,
+    referrerPolicy: {
+        policy: 'origin'
+    },
+}))
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 

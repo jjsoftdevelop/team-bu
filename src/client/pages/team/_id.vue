@@ -148,7 +148,9 @@
       </div>
     </div>
     <div v-if="teamInfo && teamInfo.data" class="container panel no-shadow">
-      <div></div>
+      <div>
+        <iframe width="300" height="300" src="https://mytalent.104.com.tw/"></iframe>
+      </div>
 
       <div>
         <TeamMember
