@@ -54,7 +54,7 @@ app.use(session({
 }))
 app.use(helmet({
     directives: {
-        frameAncestors: ["'none'"],
+        frameAncestors: ["https://local.mytalent.104-dev.com.tw"],
     },
     contentSecurityPolicy: false,
     referrerPolicy: {
