@@ -53,6 +53,7 @@ app.use(session({
     }
 }))
 app.use(helmet({
+    frameguard: false,
     contentSecurityPolicy: false,
     referrerPolicy: {
         policy: 'origin'
