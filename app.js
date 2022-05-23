@@ -53,7 +53,9 @@ app.use(session({
     }
 }))
 app.use(helmet({
-    frameguard: false,
+    directives: {
+        frameAncestors: ["'none'"],
+    },
     contentSecurityPolicy: false,
     referrerPolicy: {
         policy: 'origin'
