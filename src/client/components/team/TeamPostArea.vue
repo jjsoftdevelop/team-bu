@@ -19,7 +19,14 @@
       text="2022年"
     />
     <div class="mb-4" v-for="(item, index) in postData.list" :key="index">
-      <TeamPostCard :item="item" />
+      <TeamPostCard
+        @addSocial="
+          (postID) => {
+            $emit('addSocial', postID);
+          }
+        "
+        :item="item"
+      />
     </div>
   </div>
 </template>

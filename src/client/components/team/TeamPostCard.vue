@@ -57,16 +57,22 @@
       </div>
       <div class="row">
         <div
+          @click="
+            () => {
+              $refs.teamPostFile.openModal();
+              slide = index;
+            }
+          "
           v-for="(item, index) in item.files.split(',')"
           :key="index"
-          class="col-3"
+          class="col-3 pointer"
         >
-          <b-img
+          <b-img-lazy
             height="132px"
             class="img-cover w-100"
             style="max-height: 132px"
             :src="item"
-          ></b-img>
+          ></b-img-lazy>
         </div>
       </div>
       <div
@@ -95,7 +101,10 @@
     <LineBlock />
     <div class="d-flex">
       <div
-        class="teamPostCard--socialItem col-4 text-s d-flex align-items-center justify-content-center text-grey"
+        :class="[
+          'teamPostCard--socialItem col-4 text-s d-flex align-items-center justify-content-center text-grey',
+          { active: item.socialData && item.socialData.clap },
+        ]"
         @click="addSocial"
       >
         <svg
@@ -153,11 +162,50 @@
         <span>分享</span>
       </div>
     </div>
+    <ModalBase
+      bodyClass="p-10"
+      dialogClass="slideWrap"
+      titleClass="text-info"
+      :footHidden="true"
+      :headerHidden="true"
+      :bodyCloseBtn="true"
+      size="sm"
+      ref="teamPostFile"
+      contentClass="bg-transparent border-0"
+    >
+      <b-carousel
+        id="carousel-1"
+        v-model="slide"
+        :interval="4000"
+        controls
+        indicators
+        background="transparent"
+        contentClass="border-0 bg-transparent p-10"
+        label-indicators="tset"
+        @sliding-start="onSlideStart"
+        @sliding-end="onSlideEnd"
+      >
+        <!-- Slides with image only -->
+        <b-carousel-slide
+          v-for="(item, index) in item.files.split(',')"
+          :key="index"
+          ><template #img>
+            <img
+              class="d-block img-fluid w-100 img-contain"
+              width="800"
+              height="460"
+              :src="item"
+              alt="image slot"
+            /> </template
+        ></b-carousel-slide>
+      </b-carousel>
+    </ModalBase>
   </div>
 </template>
 
 <script>
 import LineBlock from "~/components/common/LineBlock";
+import ModalBase from "~/components/modal/ModalBase";
 
 export default {
   props: {
@@ -168,6 +216,13 @@ export default {
   },
   components: {
     LineBlock,
+    ModalBase,
+  },
+  data() {
+    return {
+      slide: 0,
+      sliding: null,
+    };
   },
   methods: {
     dateFormat(date) {
@@ -178,12 +233,14 @@ export default {
       });
     },
     async addSocial() {
-      try {
-        const postID = this.item.pid;
-        await this.$api.addSocial({ postID });
-      } catch (err) {
-        console.log(err);
-      }
+      const postID = this.item.pid;
+      this.$emit("addSocial", postID);
+    },
+    onSlideStart(slide) {
+      this.sliding = true;
+    },
+    onSlideEnd(slide) {
+      this.sliding = false;
     },
   },
 };

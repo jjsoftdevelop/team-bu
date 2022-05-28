@@ -531,6 +531,17 @@ router.post('/addPost', async function (req, res, next) {
         })
         let postData = await getPost({ id: id })
         if (postData) {
+            postData[0] = {
+                ...postData[0], clapCount: 0, socialData: {
+                    clap: null,
+                    createdate: null,
+                    creatorID: null,
+                    modifydate: null,
+                    pid: null,
+                    postID: null,
+                    remark: null,
+                }
+            }
             res.status(200).json(postData)
         } else {
             res.status(500)
@@ -563,7 +574,15 @@ router.get('/getPost/:teamID', async function (req, res, next) {
                     return {
                         ...item,
                         clapCount: count,
-                        socialData: ""
+                        socialData: {
+                            clap: null,
+                            createdate: null,
+                            creatorID: null,
+                            modifydate: null,
+                            pid: null,
+                            postID: null,
+                            remark: null,
+                        }
                     }
                 }
 

@@ -246,3 +246,20 @@ h5,
 .pre-wrap {
   white-space: pre-wrap;
 }
+.slideWrap {
+  max-width: 800px !important;
+  width: 800px !important;
+  height: 460px !important;
+  img {
+    width: 800px !important;
+    height: 460px !important;
+  }
+}
+.bg-transparent {
+  background-color: transparent;
+}
+.carousel-indicators {
+  li {
+    border-radius: 50% !important;
+  }
+}

@@ -50,7 +50,16 @@
       ></b-form-tags>
     </div>
     <div class="d-flex justify-content-center mt-3">
-      <b-button class="btn-l" variant="success" pill @click="addPost"
+      <b-button
+        :disabled="
+          postInfo.files.length === 0 ||
+          postInfo.content === '' ||
+          postInfo.tags.length === 0
+        "
+        class="btn-l"
+        variant="success"
+        pill
+        @click="addPost"
         >送出</b-button
       >
     </div>

@@ -14,6 +14,7 @@
     :hide-footer="footHidden"
     :hide-header="headerHidden"
     :bodyCloseBtn="bodyCloseBtn"
+    :content-class="contentClass"
   >
     <template v-slot:modal-header>
       <h5 :class="['header-text w-100', titleClass]">{{ modalTitle }}</h5>
@@ -69,6 +70,7 @@ export default {
     noBackdropClose: { type: Boolean, default: false },
     bodyCloseBtn: { type: Boolean, default: true },
     size: { type: String, default: "" },
+    contentClass: { type: String, default: "" },
   },
   data() {
     return {
@@ -116,6 +118,14 @@ export default {
   top: 15px;
   right: 15px;
   color: $Dark-500;
+  z-index: 999;
+  background: $Dark-200;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     color: $Success-500;
   }

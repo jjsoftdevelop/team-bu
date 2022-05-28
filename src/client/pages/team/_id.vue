@@ -163,6 +163,7 @@
       <div v-if="teamInfo.tab === TAB_INFO.POST">
         <TeamPostArea
           @openTeamPostFormModal="openTeamPostFormModal"
+          @addSocial="addSocial"
           :postData="postData"
           :teamID="teamID"
         />
@@ -203,6 +204,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import TeamModifyForm from "~/components/team/TeamModifyForm";
 import TeamFindMember from "~/components/team/TeamFindMember";
 import TeamMember from "~/components/team/TeamMember";
@@ -327,6 +329,28 @@ export default {
         this.$refs.teamPostForm.hideModal();
       } catch (err) {
         console.log(err);
+      }
+    },
+    async addSocial(postID) {
+      try {
+        await this.$api.addSocial({ postID });
+        this.handleEvent("clap", postID);
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    handleEvent(event, postID) {
+      if (event === "clap") {
+        const index = this.postData.list.findIndex(
+          (item) => item.pid === postID
+        );
+        const find = this.postData.list[index];
+        Vue.set(find.socialData, "clap", !find.socialData.clap);
+        Vue.set(
+          find,
+          "clapCount",
+          find.socialData.clap ? find.clapCount + 1 : find.clapCount - 1
+        );
       }
     },
   },
