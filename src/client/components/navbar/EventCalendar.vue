@@ -1,28 +1,47 @@
 <template>
-  <div class="d-flex justify-content-center">
-    <b-calendar hide-header v-model="value" @context="onContext" locale="en-US">
-      <template #nav-next-month>
-        <b-icon icon="chevron-right"></b-icon>
-      </template>
-      <template #nav-next-year>
-        <b-icon icon="chevron-double-right"></b-icon>
-      </template>
-      <template #nav-prev-month>
-        <b-icon icon="chevron-left"></b-icon>
-      </template>
-      <template #nav-prev-year>
-        <b-icon icon="chevron-double-left"></b-icon>
-      </template>
-    </b-calendar>
+  <div>
+    <v-calendar :attributes="attributes"> </v-calendar>
   </div>
 </template>
 
 <script>
+// import PopoverRow from "v-calendar/lib/components/popover-row.umd.min";
 export default {
+  // components: {
+  //   PopoverRow,
+  // },
   data() {
     return {
       value: "",
       context: null,
+      attributes: [
+        // This is a single attribute
+        {
+          // An optional key can be used for retrieving this attribute later,
+          // and will most likely be derived from your data object
+          // key: Any,
+          // Attribute type definitions
+          highlight: {
+            contentStyle: {
+              color: "#21b39a",
+            },
+          }, // Boolean, String, Object
+          dot: true, // Boolean, String, Object
+          // bar: true, // Boolean, String, Object
+          // content: "red", // Boolean, String, Object
+          // popover: { ... }, // Only objects allowed
+          // Your custom data object for later access, if needed
+          // customData: { ... },
+          // We also need some dates to know where to display the attribute
+          // We use a single date here, but it could also be an array of dates,
+          //  a date range or a complex date pattern.
+          dates: new Date(),
+          // You can optionally provide dates to exclude
+          excludeDates: null,
+          // Think of `order` like `z-index`
+          order: 0,
+        },
+      ],
     };
   },
   methods: {
@@ -32,60 +51,6 @@ export default {
   },
 };
 </script>
-
 <style lang="scss" scoped>
-::v-deep {
-  .b-calendar-nav {
-    // display: none !important;
-  }
-  .small {
-    display: none !important;
-  }
-  .font-weight-bold {
-    font-weight: 400 !important;
-  }
-  .b-calendar-grid-weekdays {
-    color: $Info-900;
-  }
-  .b-calendar-grid-caption {
-    color: $Info-900;
-  }
-  .b-calendar-grid {
-    border: 0px;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    &:focus {
-      box-shadow: none;
-    }
-  }
-  button[title="Previous month"] {
-    margin-right: 150px;
-  }
-  button[title="Current month"] {
-    display: none !important;
-  }
-  button {
-    &.btn-sm {
-      min-width: initial !important;
-    }
-    &:focus {
-      box-shadow: none;
-    }
-  }
-  .b-calendar-nav {
-    padding-top: 24px;
-    position: absolute;
-    width: inherit;
-  }
-  .btn-primary:not(:disabled):not(.disabled):active,
-  .btn-primary:not(:disabled):not(.disabled).active,
-  .show > .btn-primary.dropdown-toggle {
-    background-color: $Light-100;
-    color: $Success-500;
-    box-shadow: none;
-  }
-  .b-calendar-grid-weekdays {
-    margin-top: 24px;
-  }
-}
+
 </style>

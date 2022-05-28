@@ -52,16 +52,9 @@ app.use(session({
         httpOnly: true,
     }
 }))
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            frameAncestors: ["https://local.mytalent.104-dev.com.tw"],
-        },
-    },
-    referrerPolicy: {
-        policy: 'origin'
-    },
-}))
+// app.use(helmet({
+//     contentSecurityPolicy: false,
+// }))
 // 加入swagger ui 路由
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 

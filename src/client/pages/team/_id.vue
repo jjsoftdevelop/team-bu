@@ -1,5 +1,5 @@
 <template>
-  <div class="teamInfoBlock">
+  <div :class="['teamInfoBlock']">
     <div class="teamInfoBlock--banner">
       <div class="container p-0 d-flex justify-content-end position-relative">
         <div class="teamInfoBlock--info d-flex">
@@ -147,15 +147,24 @@
         </div>
       </div>
     </div>
-    <div v-if="teamInfo && teamInfo.data" class="container panel no-shadow">
-      <div>
-        <iframe width="300" height="300" src="https://mytalent.104.com.tw/"></iframe>
-      </div>
-
-      <div>
+    <div
+      v-if="teamInfo && teamInfo.data"
+      :class="[
+        'container panel no-shadow',
+        { 'bg-light-300': teamInfo.tab === TAB_INFO.POST },
+      ]"
+    >
+      <div v-if="teamInfo.tab === TAB_INFO.MEMBER">
         <TeamMember
           @openTeamfindMemberModal="openTeamfindMemberModal"
           :memberdata="memberdata"
+        />
+      </div>
+      <div v-if="teamInfo.tab === TAB_INFO.POST">
+        <TeamPostArea
+          @openTeamPostFormModal="openTeamPostFormModal"
+          :postData="postData"
+          :teamID="teamID"
         />
       </div>
       <ModalBase :footHidden="true" :headerHidden="true" ref="teamModifyForm">
@@ -178,6 +187,17 @@
           @closeTeamModifyModal="closeTeamModifyModal"
         />
       </ModalBase>
+      <ModalBase
+        titleClass="text-info"
+        modalTitle="新增貼文"
+        :footHidden="true"
+        :headerHidden="false"
+        :bodyCloseBtn="false"
+        size="sm"
+        ref="teamPostForm"
+      >
+        <TeamPostForm @addPost="addPost" :teamID="teamID" />
+      </ModalBase>
     </div>
   </div>
 </template>
@@ -186,7 +206,9 @@
 import TeamModifyForm from "~/components/team/TeamModifyForm";
 import TeamFindMember from "~/components/team/TeamFindMember";
 import TeamMember from "~/components/team/TeamMember";
+import TeamPostArea from "~/components/team/TeamPostArea";
 import ModalBase from "~/components/modal/ModalBase";
+import TeamPostForm from "~/components/team/TeamPostForm";
 
 export default {
   components: {
@@ -194,6 +216,8 @@ export default {
     ModalBase,
     TeamFindMember,
     TeamMember,
+    TeamPostArea,
+    TeamPostForm,
   },
   data() {
     return {
@@ -214,6 +238,11 @@ export default {
         isLoading: false,
         list: [],
       },
+      postData: {
+        isLoading: false,
+        list: [],
+        isInitial: false,
+      },
     };
   },
   async mounted() {
@@ -222,9 +251,20 @@ export default {
     this.teamInfo.tab = this.$route.query.tab
       ? this.$route.query.tab
       : this.TAB_INFO.MEMBER;
-    Promise.all([this.getTeamInfo(), this.getTeamMemberList()]);
+    Promise.all([this.getTeamInfo(), this.getTeamMemberList(), this.getPost()]);
   },
   methods: {
+    async getPost() {
+      try {
+        this.postData.isLoading = true;
+        const res = await this.$api.getPost({ teamID: this.teamID });
+        this.postData.list = res;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.postData.isLoading = false;
+      }
+    },
     async getTeamInfo() {
       try {
         this.teamInfo.isLoading = true;
@@ -234,6 +274,9 @@ export default {
       } finally {
         this.teamInfo.isLoading = false;
       }
+    },
+    openTeamPostFormModal() {
+      this.$refs.teamPostForm.openModal();
     },
     openTeamModifyModal() {
       this.$refs.teamModifyForm.openModal();
@@ -259,6 +302,33 @@ export default {
     openTeamfindMemberModal() {
       this.$refs.teamfindMember.openModal();
     },
+    async addPost(postInfo) {
+      try {
+        const { content, files, tags } = postInfo;
+        let filesArr = [];
+        filesArr = await Promise.all(
+          files.map(async (file) => {
+            const { url } = await this.$api.uploadFile(file.data);
+            return url;
+          })
+        );
+        const res = await this.$api.addPost({
+          teamID: this.teamID,
+          content,
+          files: filesArr,
+          tags,
+        });
+        this.postData.list = [res[0], ...this.postData.list];
+        this.$showToast({
+          content: "送出成功！",
+          title: "訊息",
+          variant: "success",
+        });
+        this.$refs.teamPostForm.hideModal();
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
 };
 </script>
@@ -273,7 +343,7 @@ export default {
       @include lg {
         position: absolute;
         content: "";
-        width: 100vw;
+        width: 100%;
         height: 200px;
         top: 0;
         left: 0;

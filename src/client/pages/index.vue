@@ -11,7 +11,7 @@ export default {
     NotOpen,
   },
   async mounted() {
-    
+    this.$router.push("/home");
   },
 };
 </script>

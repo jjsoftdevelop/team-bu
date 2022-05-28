@@ -15,6 +15,12 @@ const {
     modifyTeamDB,
     getMemberByEmail,
     getTeamMemberList,
+    insertPost,
+    getPost,
+    getPostSocial,
+    insertPostSocial,
+    updatePostSocial,
+    getPostSocialCount,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -475,7 +481,6 @@ router.post('/teamMember/:email', async function (req, res, next) {
                 pid: base64Obj.encode(item.pid),
                 teamMemberStatusID: status && status.teamMemberStatusID ? status.teamMemberStatusID : ""
             }
-
         }))
         if (member) {
             res.status(200).json(member)
@@ -504,6 +509,102 @@ router.get('/teams', async function (req, res, next) {
     }
 });
 
+// 新增貼文
+router.post('/addPost', async function (req, res, next) {
+    try {
+        const creatorID = base64Obj.decodeNumber(req.session.user.pid)
+        const teamID = base64Obj.decodeNumber(req.body.teamID)
+        const title = req.body.title
+        const content = req.body.content
+        const files = req.body.files.toString()
+        const tags = req.body.tags.toString()
+        const viewRole = req.body.viewRole ? req.body.viewRole : 'all'
+
+        let id = await insertPost({
+            teamID,
+            title,
+            content,
+            files,
+            tags,
+            viewRole,
+            creatorID
+        })
+        let postData = await getPost({ id: id })
+        if (postData) {
+            res.status(200).json(postData)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 取得球隊po文
+router.get('/getPost/:teamID', async function (req, res, next) {
+    try {
+        const teamID = base64Obj.decodeNumber(req.params.teamID)
+
+        let postData = await getPost({ teamID: teamID })
+        if (postData) {
+            postData = await Promise.all(postData.map(async item => {
+                const count = await getPostSocialCount({ postID: item.pid })
+                const socialData = await getPostSocial({
+                    postID: item.pid,
+                    creatorID: base64Obj.decodeNumber(req.session.user.pid)
+                })
+                if (socialData) {
+                    return {
+                        ...item,
+                        clapCount: count,
+                        socialData: { ...socialData, clap: socialData.clap === 1, creatorID: base64Obj.encode(socialData.creatorID) }
+                    }
+                } else {
+                    return {
+                        ...item,
+                        clapCount: count,
+                        socialData: ""
+                    }
+                }
+
+            }))
+            res.status(200).json(postData)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 貼文互動
+router.post('/addSocial', async function (req, res, next) {
+    try {
+        const creatorID = base64Obj.decodeNumber(req.session.user.pid)
+        const postID = req.body.postID
+        let returnObj = {}
+        let socialData = await getPostSocial({
+            creatorID,
+            postID,
+        })
+        if (socialData) {
+            let clap = Number(socialData.clap) === 0 ? 1 : 0
+            await updatePostSocial({ clap, creatorID, postID })
+            returnObj.message = '修改成功'
+            res.status(200).json(returnObj)
+        } else {
+            await insertPostSocial({
+                postID,
+                clap: 1,
+                creatorID
+            })
+            returnObj.message = '新增成功'
+            res.status(200).json(returnObj)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
 
 // export module
 module.exports = router

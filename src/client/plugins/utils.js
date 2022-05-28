@@ -37,7 +37,7 @@ export default (context, inject) => {
 
     inject('showToast', ({ content, title, variant = 'danger' }) => {
         $nuxt.$bvToast.toast(content, {
-            title: `${title}`,
+            title: `${title ? title : '提示'}`,
             variant: variant,
             solid: true,
             toaster: 'b-toaster-bottom-center',

@@ -143,7 +143,9 @@
                     alt=""
                   />
                 </template>
-                <b-dropdown-text><EventCalendar /></b-dropdown-text>
+                <b-dropdown-text>
+                  <EventCalendar />
+                </b-dropdown-text>
               </b-dropdown>
             </div>
             <div

@@ -282,6 +282,7 @@ export default {
     },
     uploadLogoFile(event) {
       this.logoFile.data = event.target.files[0];
+      console.log(event.target.files[0]); 
       this.logoFile.preview = URL.createObjectURL(this.logoFile.data);
     },
     uploadBannerFile(file) {

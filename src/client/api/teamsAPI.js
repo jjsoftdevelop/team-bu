@@ -179,3 +179,67 @@ export function getTeamMemberList(api) {
         }
     }
 }
+
+// 新增貼文
+export function addPost(api) {
+    return async function ({
+        teamID,
+        content,
+        files,
+        tags,
+    }) {
+        const path = `${API_MODULE}/addPost`
+        try {
+            const { data, errors } = await api.post(path, {
+                teamID,
+                content,
+                files,
+                tags,
+            })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 取得貼文
+export function getPost(api) {
+    return async function ({
+        teamID,
+    }) {
+        const path = `${API_MODULE}/getPost/${teamID}`
+        try {
+            const { data, errors } = await api.get(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 對貼文互動
+export function addSocial(api) {
+    return async function ({
+        postID,
+    }) {
+        const path = `${API_MODULE}/addSocial`
+        try {
+            const { data, errors } = await api.post(path, { postID })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+

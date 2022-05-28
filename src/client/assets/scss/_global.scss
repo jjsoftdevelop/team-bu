@@ -6,6 +6,15 @@ body {
   font-size: 16px;
   line-height: 20px;
   font-weight: 400;
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 8px;
+    background-color: $Light-300; /* or add it to the track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $Success-500;
+    border-radius: 4px;
+  }
 }
 
 .img-contain {
@@ -95,6 +104,9 @@ h5,
 .bg-info-800 {
   background: $Info-800;
 }
+.bg-light-300 {
+  background: $Light-300 !important;
+}
 .text-success {
   color: $Success-500;
 }
@@ -103,6 +115,10 @@ h5,
 }
 .form-control {
   padding: 16px 10px;
+}
+.btn-l {
+  min-width: 160px;
+  padding: 12px 24px;
 }
 .btn-m {
   min-width: 92px;
@@ -205,4 +221,28 @@ h5,
 .table th,
 .table td {
   vertical-align: middle;
+}
+.position-Y-center {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.position-X-center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 8px;
+    background-color: #aaa; /* or add it to the track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #000;
+  }
+}
+
+//中文換行
+.pre-wrap {
+  white-space: pre-wrap;
 }

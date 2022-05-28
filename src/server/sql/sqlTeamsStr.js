@@ -249,6 +249,108 @@ async function getTeamMemberList({ teamID }) {
     return data
 }
 
+// 新增球隊寫入DB
+async function insertPost({
+    teamID,
+    title,
+    content,
+    files,
+    tags,
+    viewRole,
+    creatorID,
+}) {
+    let sql = `INSERT INTO team_post(
+            teamID,
+            title,
+            content,
+            files,
+            tags,
+            viewRole,
+            creatorID,
+            createdate
+        ) VALUES(?,?,?,?,?,?,?,?)`
+    let values = [
+        teamID,
+        title,
+        content,
+        files,
+        tags,
+        viewRole,
+        creatorID,
+        new Date(),
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data.insertId
+}
+
+// 找尋 post
+async function getPost({ id, teamID }) {
+    const condition = id ? `A.pid = ${id}` : `teamID = ${teamID}`
+    let sql = `SELECT A.*,M.nickname,M.picture  FROM team_post AS A 
+                LEFT JOIN member AS M ON M.pid = A.creatorID WHERE ${condition}
+                Order BY A.createdate DESC`
+    const res = await query(sql)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
+// 取得拍手數量 
+async function getPostSocialCount({ postID }) {
+    let sql = `SELECT Count(*) AS clapCount FROM team_post_social AS A 
+                WHERE A.postID = ${postID} AND A.clap = 1`
+    const res = await query(sql)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0].clapCount
+}
+
+// 使用者是否與這哲貼文有互動過
+async function getPostSocial({
+    postID,
+    creatorID
+}) {
+    let sql = `Select * FROM team_post_social WHERE postID = ? AND creatorID = ?`
+    let values = [
+        postID,
+        creatorID
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0]
+}
+
+// 新增按讚
+async function insertPostSocial({
+    postID,
+    clap,
+    creatorID
+}) {
+    let sql = `INSERT INTO team_post_social(
+        postID,
+        clap,
+        creatorID,
+        createdate
+        ) VALUES(?,?,?,?)`
+    let values = [
+        postID,
+        clap,
+        creatorID,
+        new Date(),
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data.insertId
+}
+
+// 修改按讚
+async function updatePostSocial({ clap, postID, creatorID }) {
+    let sql = `UPDATE team_post_social set clap = ?, modifydate = ? WHERE postID = ? AND creatorID = ?`
+    let values = [clap, new Date(), postID, creatorID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
@@ -261,5 +363,11 @@ module.exports = {
     getTeamMemberPic,
     modifyTeamDB,
     getMemberByEmail,
-    getTeamMemberList
+    getTeamMemberList,
+    insertPost,
+    getPost,
+    getPostSocial,
+    insertPostSocial,
+    updatePostSocial,
+    getPostSocialCount,
 }
