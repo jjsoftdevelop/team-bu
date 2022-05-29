@@ -37,8 +37,36 @@
           </div>
         </div>
       </div>
-      <div class="pointer">
-        <img src="~/assets/img/svg/more_tool_icon.svg" alt="" />
+      <div class="teamPostCard--tool">
+        <b-dropdown
+          variant="link"
+          toggle-class="text-decoration-none "
+          no-caret
+        >
+          <template #button-content>
+            <img src="~/assets/img/svg/more_tool_icon.svg" alt="" />
+          </template>
+          <b-dropdown-text>
+            <div class="d-flex flex-column">
+              <div
+                class="py-2 teamPostCard--toolItem"
+                @click="
+                  () => {
+                    $emit('openTeamPostFormModal', item);
+                  }
+                "
+              >
+                編輯
+              </div>
+              <div
+                class="py-2 teamPostCard--toolItem"
+                @click="handleEvent('delete')"
+              >
+                刪除
+              </div>
+            </div>
+          </b-dropdown-text>
+        </b-dropdown>
       </div>
     </div>
     <!-- 內容 -->
@@ -88,24 +116,24 @@
             >{{ item && item.clapCount }}人</span
           >
         </div>
-        <div class="d-flex align-items-center">
+        <!-- <div class="d-flex align-items-center">
           <img
             class="pr-2"
             src="~/assets/img/svg/social_comment_icon.svg"
             alt=""
           /><span class="text-grey">3則留言</span>
-        </div>
+        </div> -->
       </div>
     </div>
     <!-- 內容end -->
     <LineBlock />
-    <div class="d-flex">
+    <div class="d-flex mt-1">
       <div
         :class="[
-          'teamPostCard--socialItem col-4 text-s d-flex align-items-center justify-content-center text-grey',
+          'teamPostCard--socialItem col-6 text-s d-flex align-items-center justify-content-center text-grey',
           { active: item.socialData && item.socialData.clap },
         ]"
-        @click="addSocial"
+        @click="handleEvent('clap')"
       >
         <svg
           class="pr-2"
@@ -122,7 +150,7 @@
         </svg>
         <span>讚</span>
       </div>
-      <div
+      <!-- <div
         class="teamPostCard--socialItem col-4 text-s d-flex align-items-center justify-content-center text-grey"
       >
         <svg
@@ -139,9 +167,13 @@
           />
         </svg>
         <span>留言</span>
-      </div>
+      </div> -->
       <div
-        class="teamPostCard--socialItem col-4 text-s d-flex align-items-center justify-content-center text-grey"
+        @click="isShare = !isShare"
+        :class="[
+          'position-relative teamPostCard--socialItem col-6 text-s d-flex align-items-center justify-content-center text-grey',
+          { active: isShare },
+        ]"
       >
         <svg
           class="pr-2"
@@ -160,8 +192,36 @@
           />
         </svg>
         <span>分享</span>
+        <div v-if="isShare" class="shareTo">
+          <div class="shareTo-label">分享到：</div>
+          <div class="shareTo-list">
+            <div class="shareTo-item" @click="shareToSocialMedia('LINE')">
+              <!-- <img src="~/assets/img/icon-share-line.svg" alt="" /> -->
+              <p>Line</p>
+            </div>
+            <div class="shareTo-item" @click="shareToSocialMedia('FB')">
+              <!-- <img src="~/assets/img/icon-share-facebook.svg" alt="" /> -->
+              <p>Facebook</p>
+            </div>
+            <div class="shareTo-item" @click="shareToSocialMedia('TWITTER')">
+              <!-- <img src="~/assets/img/icon-share-twitter.svg" alt="" /> -->
+              <p>Twitter</p>
+            </div>
+            <div class="shareTo-item" @click="copyLink">
+              <!-- <img src="~/assets/img/icon-share-link.svg" alt="" /> -->
+              <p>複製連結</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+    <input
+      ref="copyLink"
+      class="position-absolute"
+      style="top: -9999px"
+      v-model="url"
+      type="text"
+    />
     <ModalBase
       bodyClass="p-10"
       dialogClass="slideWrap"
@@ -192,8 +252,6 @@
           ><template #img>
             <img
               class="d-block img-fluid w-100 img-contain"
-              width="800"
-              height="460"
               :src="item"
               alt="image slot"
             /> </template
@@ -222,7 +280,13 @@ export default {
     return {
       slide: 0,
       sliding: null,
+      url: "",
+      isShare: false,
     };
+  },
+  mounted() {
+    const postID = this.item.pid;
+    this.url = `${process.env.BASE_URL}/post/${postID}`;
   },
   methods: {
     dateFormat(date) {
@@ -232,15 +296,61 @@ export default {
         timeStyle: "short",
       });
     },
-    async addSocial() {
+    async handleEvent(event) {
       const postID = this.item.pid;
-      this.$emit("addSocial", postID);
+      this.$emit("handleEvent", event, postID);
     },
     onSlideStart(slide) {
       this.sliding = true;
     },
     onSlideEnd(slide) {
       this.sliding = false;
+    },
+    copyLink() {
+      /* Get the text field */
+      const copyText = this.$refs.copyLink;
+
+      /* Select the text field */
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+      /* Copy the text inside the text field */
+      document.execCommand("copy");
+      this.$showToast({
+        content: "複製成功！",
+        title: "訊息",
+        variant: "success",
+      });
+    },
+    shareToSocialMedia(media) {
+      const url = this.url;
+
+      // 分享到ＦＢ ＬＩＮＥ TWITTER
+      if (media === "FB") {
+        window.open(
+          `http://www.facebook.com/share.php?u=${encodeURIComponent(
+            url
+          )}&hashtag=${encodeURIComponent("#Team-Bu")}`,
+          "_blank",
+          "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=800,height=600"
+        );
+      } else if (media === "LINE") {
+        window.open(
+          `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(
+            url
+          )}&text=${encodeURIComponent("#Team-Bu")}`,
+          "_blank",
+          "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=800,height=600"
+        );
+      } else if (media === "TWITTER") {
+        window.open(
+          `http://twitter.com/share?url=${encodeURIComponent(
+            url
+          )}&hashtags=${encodeURIComponent("#Team-Bu")}`,
+          "_blank",
+          "toolbar=yes,scrollbars=yes,resizable=yes,left=500,width=800,height=600"
+        );
+      }
     },
   },
 };
@@ -256,10 +366,90 @@ export default {
       color: $Success-500;
       path {
         fill: $Success-500;
+        stroke: $Success-500;
       }
     }
     &:hover {
       background: $Dark-200;
+    }
+  }
+  &--tool {
+    ::v-deep .b-dropdown-text {
+      padding: 8px 0;
+      text-align: center;
+      cursor: pointer;
+    }
+    ::v-deep .dropdown-menu {
+      padding: 0px;
+    }
+  }
+  &--toolItem {
+    &:hover {
+      background: $Dark-200;
+    }
+  }
+}
+.shareTo {
+  display: block;
+  position: absolute;
+  z-index: 99;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  cursor: default;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.4);
+  &::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 5px 5px 5px;
+    border-color: transparent transparent #fff transparent;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .shareTo-label {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.43;
+    color: #292929;
+    margin-bottom: 8px;
+  }
+  .shareTo-list {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  .shareTo-item {
+    flex: 0 0 auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+
+    &:last-of-type {
+      margin-bottom: 0px;
+    }
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin-right: 12px;
+      margin-bottom: 4px;
+    }
+    p {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #292929;
+      font-weight: normal;
+      margin-bottom: 0;
     }
   }
 }

@@ -224,6 +224,24 @@ export function getPost(api) {
     }
 }
 
+// 取得貼文
+export function getPostSingle(api) {
+    return async function ({
+        postID,
+    }) {
+        const path = `${API_MODULE}/getPostSingle/${postID}`
+        try {
+            const { data, errors } = await api.get(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
 // 對貼文互動
 export function addSocial(api) {
     return async function ({
@@ -241,5 +259,48 @@ export function addSocial(api) {
         }
     }
 }
+
+// 刪除貼文
+export function deletePost(api) {
+    return async function ({
+        postID,
+    }) {
+        const path = `${API_MODULE}/deletePost`
+        try {
+            const { data, errors } = await api.put(path, { postID })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 刪除貼文
+export function editPost(api) {
+    return async function ({
+        postID,
+        title,
+        content,
+        files,
+        tags
+    }) {
+        const path = `${API_MODULE}/editPost`
+        try {
+            const { data, errors } = await api.put(path, { postID, title, content, files, tags })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+
+
 
 

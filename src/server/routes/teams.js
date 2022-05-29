@@ -21,6 +21,8 @@ const {
     insertPostSocial,
     updatePostSocial,
     getPostSocialCount,
+    deletePost,
+    editPost,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -532,7 +534,10 @@ router.post('/addPost', async function (req, res, next) {
         let postData = await getPost({ id: id })
         if (postData) {
             postData[0] = {
-                ...postData[0], clapCount: 0, socialData: {
+                ...postData[0],
+                pid: base64Obj.encode(postData[0].pid),
+                clapCount: 0,
+                socialData: {
                     clap: null,
                     createdate: null,
                     creatorID: null,
@@ -567,12 +572,60 @@ router.get('/getPost/:teamID', async function (req, res, next) {
                 if (socialData) {
                     return {
                         ...item,
+                        pid: base64Obj.encode(item.pid),
                         clapCount: count,
                         socialData: { ...socialData, clap: socialData.clap === 1, creatorID: base64Obj.encode(socialData.creatorID) }
                     }
                 } else {
                     return {
                         ...item,
+                        pid: base64Obj.encode(item.pid),
+                        clapCount: count,
+                        socialData: {
+                            clap: null,
+                            createdate: null,
+                            creatorID: null,
+                            modifydate: null,
+                            pid: null,
+                            postID: null,
+                            remark: null,
+                        }
+                    }
+                }
+
+            }))
+            res.status(200).json(postData)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 取得po文
+router.get('/getPostSingle/:postID', async function (req, res, next) {
+    try {
+        const postID = base64Obj.decodeNumber(req.params.postID)
+        let postData = await getPost({ id: postID })
+        if (postData) {
+            postData = await Promise.all(postData.map(async item => {
+                const count = await getPostSocialCount({ postID: item.pid })
+                const socialData = await getPostSocial({
+                    postID: item.pid,
+                    creatorID: base64Obj.decodeNumber(req.session.user.pid)
+                })
+                if (socialData) {
+                    return {
+                        ...item,
+                        pid: base64Obj.encode(item.pid),
+                        clapCount: count,
+                        socialData: { ...socialData, clap: socialData.clap === 1, creatorID: base64Obj.encode(socialData.creatorID) }
+                    }
+                } else {
+                    return {
+                        ...item,
+                        pid: base64Obj.encode(item.pid),
                         clapCount: count,
                         socialData: {
                             clap: null,
@@ -600,7 +653,7 @@ router.get('/getPost/:teamID', async function (req, res, next) {
 router.post('/addSocial', async function (req, res, next) {
     try {
         const creatorID = base64Obj.decodeNumber(req.session.user.pid)
-        const postID = req.body.postID
+        const postID = base64Obj.decodeNumber(req.body.postID)
         let returnObj = {}
         let socialData = await getPostSocial({
             creatorID,
@@ -624,6 +677,80 @@ router.post('/addSocial', async function (req, res, next) {
         next(err)
     }
 });
+
+// 貼文互動
+router.put('/deletePost', async function (req, res, next) {
+    try {
+        const postID = base64Obj.decodeNumber(req.body.postID)
+        let returnObj = {}
+        await deletePost({
+            postID,
+        })
+        returnObj.message = '刪除成功'
+        res.status(200).json(returnObj)
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 修改貼文
+router.put('/editPost', async function (req, res, next) {
+    try {
+        const postID = base64Obj.decodeNumber(req.body.postID)
+        const title = req.body.title
+        const content = req.body.content
+        const files = req.body.files.toString()
+        const tags = req.body.tags.toString()
+        await editPost({
+            postID,
+            title,
+            content,
+            files,
+            tags,
+        })
+        let postData = await getPost({ id: postID })
+        if (postData) {
+            postData = await Promise.all(postData.map(async item => {
+                const count = await getPostSocialCount({ postID: item.pid })
+                const socialData = await getPostSocial({
+                    postID: item.pid,
+                    creatorID: base64Obj.decodeNumber(req.session.user.pid)
+                })
+                if (socialData) {
+                    return {
+                        ...item,
+                        pid: base64Obj.encode(item.pid),
+                        clapCount: count,
+                        socialData: { ...socialData, clap: socialData.clap === 1, creatorID: base64Obj.encode(socialData.creatorID) }
+                    }
+                } else {
+                    return {
+                        ...item,
+                        pid: base64Obj.encode(item.pid),
+                        clapCount: count,
+                        socialData: {
+                            clap: null,
+                            createdate: null,
+                            creatorID: null,
+                            modifydate: null,
+                            pid: null,
+                            postID: null,
+                            remark: null,
+                        }
+                    }
+                }
+
+            }))
+            res.status(200).json(postData)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+
+
+
 
 // export module
 module.exports = router

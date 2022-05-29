@@ -163,8 +163,8 @@
       <div v-if="teamInfo.tab === TAB_INFO.POST">
         <TeamPostArea
           @openTeamPostFormModal="openTeamPostFormModal"
-          @addSocial="addSocial"
-          :postData="postData"
+          @handleEvent="handleEvent"
+          :postData="filterDeletePost"
           :teamID="teamID"
         />
       </div>
@@ -197,7 +197,12 @@
         size="sm"
         ref="teamPostForm"
       >
-        <TeamPostForm @addPost="addPost" :teamID="teamID" />
+        <TeamPostForm
+          @addPost="addPost"
+          @editPostApi="editPostApi"
+          :teamID="teamID"
+          :editPost="editPost"
+        />
       </ModalBase>
     </div>
   </div>
@@ -245,6 +250,9 @@ export default {
         list: [],
         isInitial: false,
       },
+      editPost: {
+        data: "",
+      },
     };
   },
   async mounted() {
@@ -254,6 +262,14 @@ export default {
       ? this.$route.query.tab
       : this.TAB_INFO.MEMBER;
     Promise.all([this.getTeamInfo(), this.getTeamMemberList(), this.getPost()]);
+  },
+  computed: {
+    filterDeletePost() {
+      this.postData.list = this.postData.list.filter(
+        (item) => item.isDelete === 0
+      );
+      return this.postData;
+    },
   },
   methods: {
     async getPost() {
@@ -277,7 +293,8 @@ export default {
         this.teamInfo.isLoading = false;
       }
     },
-    openTeamPostFormModal() {
+    openTeamPostFormModal(item) {
+      this.editPost.data = item;
       this.$refs.teamPostForm.openModal();
     },
     openTeamModifyModal() {
@@ -310,8 +327,12 @@ export default {
         let filesArr = [];
         filesArr = await Promise.all(
           files.map(async (file) => {
-            const { url } = await this.$api.uploadFile(file.data);
-            return url;
+            if (file && file.type && file.type === "new") {
+              const { url } = await this.$api.uploadFile(file.data);
+              return url;
+            } else {
+              return file.preview;
+            }
           })
         );
         const res = await this.$api.addPost({
@@ -331,26 +352,65 @@ export default {
         console.log(err);
       }
     },
-    async addSocial(postID) {
+    async editPostApi(postInfo) {
       try {
-        await this.$api.addSocial({ postID });
-        this.handleEvent("clap", postID);
+        const { content, files, tags, postID } = postInfo;
+        let filesArr = [];
+        filesArr = await Promise.all(
+          files.map(async (file) => {
+            if (file && file.type && file.type === "new") {
+              const { url } = await this.$api.uploadFile(file.data);
+              return url;
+            } else {
+              return file.preview;
+            }
+          })
+        );
+        const res = await this.$api.editPost({
+          postID,
+          content,
+          files: filesArr,
+          tags,
+        });
+        const index = this.postData.list.findIndex(
+          (item) => item.pid === postID
+        );
+        this.postData.list.splice(index, 1, res[0]);
+        this.$showToast({
+          content: "修改成功！",
+          title: "訊息",
+          variant: "success",
+        });
+        this.$refs.teamPostForm.hideModal();
       } catch (err) {
         console.log(err);
       }
     },
-    handleEvent(event, postID) {
-      if (event === "clap") {
-        const index = this.postData.list.findIndex(
-          (item) => item.pid === postID
-        );
-        const find = this.postData.list[index];
-        Vue.set(find.socialData, "clap", !find.socialData.clap);
-        Vue.set(
-          find,
-          "clapCount",
-          find.socialData.clap ? find.clapCount + 1 : find.clapCount - 1
-        );
+    async handleEvent(event, postID) {
+      try {
+        if (event === "clap") {
+          await this.$api.addSocial({ postID });
+          const index = this.postData.list.findIndex(
+            (item) => item.pid === postID
+          );
+          const find = this.postData.list[index];
+          Vue.set(find.socialData, "clap", !find.socialData.clap);
+          Vue.set(
+            find,
+            "clapCount",
+            find.socialData.clap ? find.clapCount + 1 : find.clapCount - 1
+          );
+        }
+        if (event === "delete") {
+          await this.$api.deletePost({ postID });
+          const index = this.postData.list.findIndex(
+            (item) => item.pid === postID
+          );
+          const find = this.postData.list[index];
+          Vue.set(find, "isDelete", 1);
+        }
+      } catch (err) {
+        console.log(err);
       }
     },
   },

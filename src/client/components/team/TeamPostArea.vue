@@ -20,9 +20,14 @@
     />
     <div class="mb-4" v-for="(item, index) in postData.list" :key="index">
       <TeamPostCard
-        @addSocial="
-          (postID) => {
-            $emit('addSocial', postID);
+        @openTeamPostFormModal="
+          (item) => {
+            $emit('openTeamPostFormModal', item);
+          }
+        "
+        @handleEvent="
+          (event, postID) => {
+            $emit('handleEvent', event, postID);
           }
         "
         :item="item"

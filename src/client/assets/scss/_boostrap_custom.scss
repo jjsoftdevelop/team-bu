@@ -69,7 +69,7 @@ $spacers: map-merge(
       (
         $spacer * 10,
       )
-      //150px,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      //150px,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
   ),
   $spacers
 );
@@ -100,6 +100,8 @@ $table-accent-bg: $Info-200;
 // carousel
 $carousel-indicator-width: 8px;
 $carousel-indicator-height: 8px;
+// dropdown
+$dropdown-min-width: 60px;
 // avatar
 // $b-avatar-size: initial;
 // $border-radius: 16px;

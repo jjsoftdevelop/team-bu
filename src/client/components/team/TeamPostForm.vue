@@ -76,8 +76,38 @@ export default {
       type: String,
       default: "",
     },
+    editPost: {
+      type: Object,
+      default: () => {},
+    },
   },
-  mounted() {},
+  destroyed() {
+    this.postInfo = {
+      files: [],
+      content: "",
+      tags: [],
+    };
+    this.isEdit = false;
+  },
+  mounted() {
+    if (!this.editPost.data) return;
+    this.isEdit = true;
+    const { content, tags, files, pid } = this.editPost.data;
+    let filesArr = files.split(",");
+    let tagsArr = tags.split(",");
+    filesArr = filesArr.map((file, index) => {
+      return {
+        key: index,
+        data: "",
+        preview: file,
+        type: "old",
+      };
+    });
+    this.postInfo.files = filesArr;
+    this.postInfo.tags = tagsArr;
+    this.postInfo.content = content;
+    this.postInfo.postID = pid;
+  },
   data() {
     return {
       postInfo: {
@@ -85,25 +115,35 @@ export default {
         content: "",
         tags: [],
       },
+      isEdit: false,
     };
   },
   methods: {
     addPost() {
-      this.$emit("addPost", this.postInfo);
+      if (this.isEdit) {
+        this.$emit("editPostApi", this.postInfo);
+      } else {
+        this.$emit("addPost", this.postInfo);
+      }
     },
     uploadFiles(event) {
-      const files = event.target.files;
+      const files = [...this.postInfo.files, ...event.target.files];
       if (files.length > 4) {
         this.$showToast({ content: "最多上傳四個檔案唷！" });
         return;
       }
       const fileArr = [];
       Array.from(files, async (file, index) => {
-        fileArr.push({
-          key: index,
-          data: file,
-          preview: URL.createObjectURL(file),
-        });
+        if (file && file.type && file.type === "old") {
+          fileArr.push(file);
+        } else {
+          fileArr.push({
+            key: index,
+            data: file,
+            preview: URL.createObjectURL(file),
+            type: "new",
+          });
+        }
       });
       this.postInfo.files = fileArr;
     },

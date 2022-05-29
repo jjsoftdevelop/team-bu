@@ -61,6 +61,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSetting))
 // 可直接存取公開資源
 app.use('/', express.static('public'))
 app.use('/build', express.static('build'))
+
 app.use('/', (req, res, next) => {
     next()
 })
@@ -73,7 +74,9 @@ app.use('/home', checkLoginMiddleWare, (req, res, next) => {
 app.use('/team', checkLoginMiddleWare, (req, res, next) => {
     next()
 })
-
+app.use('/post', checkLoginMiddleWare, (req, res, next) => {
+    next()
+})
 async function start() {
     // Init Nuxt.js
     const nuxt = new Nuxt(nuxtConfig)

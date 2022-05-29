@@ -249,7 +249,7 @@ async function getTeamMemberList({ teamID }) {
     return data
 }
 
-// 新增球隊寫入DB
+// 新增貼文
 async function insertPost({
     teamID,
     title,
@@ -351,6 +351,30 @@ async function updatePostSocial({ clap, postID, creatorID }) {
     return data
 }
 
+// 刪除貼文
+async function deletePost({ postID }) {
+    let sql = `UPDATE team_post set isDelete = 1, modifydate = ? WHERE pid = ?`
+    let values = [new Date(), postID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
+// 修改貼文
+async function editPost({
+    postID,
+    title,
+    content,
+    files,
+    tags,
+}) {
+    let sql = `UPDATE team_post set title = ?, content = ?,files = ?,tags = ?, modifydate = ? WHERE pid = ?`
+    let values = [title, content, files, tags, new Date(), postID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
@@ -370,4 +394,6 @@ module.exports = {
     insertPostSocial,
     updatePostSocial,
     getPostSocialCount,
+    deletePost,
+    editPost,
 }

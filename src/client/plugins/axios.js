@@ -2,7 +2,7 @@ import { getStudents, addStudents } from '../api/CRUDAPI'
 import { sendEmail } from '../api/sendEmailApi'
 import { uploadFile } from '../api/uploadFileApi'
 import { verifyEmail, verifyPasswd, signUp, logout, enterVerifycode, settingPasswd } from '../api/verify'
-import { teamCreate, teamJoin, updateTeamMemberStatus, getTeamList, teamModify, getMemberByEmail, getTeamMemberList, addPost, getPost, addSocial } from '../api/teamsAPI'
+import { teamCreate, teamJoin, updateTeamMemberStatus, getTeamList, teamModify, getMemberByEmail, getTeamMemberList, addPost, getPost, addSocial, deletePost, editPost, getPostSingle } from '../api/teamsAPI'
 import { getNotification, updateNotification } from '../api/notificationApi'
 import { getOwnTeam, sendVerifycode, getMyTeam, getMyJoinSport, getMyRoleOnTeams } from '../api/userApi'
 
@@ -79,7 +79,10 @@ export default (context, inject) => {
         getMyRoleOnTeams: getMyRoleOnTeams(axios),
         addPost: addPost(axios),
         getPost: getPost(axios),
-        addSocial: addSocial(axios)
+        addSocial: addSocial(axios),
+        deletePost: deletePost(axios),
+        editPost: editPost(axios),
+        getPostSingle: getPostSingle(axios)
     }
     inject('api', api)
     inject('axios', axios)
