@@ -120,7 +120,7 @@ export default {
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.5;
-  color: #21b39a;
+  color: #495057;
   background-color: #fff;
   background-clip: padding-box;
   border: 1px solid #ced4da;
@@ -129,7 +129,7 @@ export default {
   &:focus {
     color: #495057;
     background-color: #fff;
-    border-color: #21b39a;
+    border-color: #495057;
     outline: 0;
     box-shadow: 0px 0px 0px 2px #b7ebd2;
   }

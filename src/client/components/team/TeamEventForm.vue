@@ -8,7 +8,6 @@
             v-model="createEvent.title"
             placeholder="輸入事件名稱"
             autocomplete="off"
-            class="text-success"
           ></b-form-input>
         </div>
       </div>
@@ -73,7 +72,6 @@
               v-model="createEvent.season"
               placeholder="輸入賽季名稱"
               autocomplete="off"
-              class="text-success"
             ></b-form-input>
           </div>
         </div>
@@ -84,7 +82,6 @@
               v-model="createEvent.opponent"
               placeholder="輸入對手"
               autocomplete="off"
-              class="text-success"
             ></b-form-input>
           </div>
         </div>
