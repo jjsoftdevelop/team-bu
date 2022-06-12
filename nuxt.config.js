@@ -1,4 +1,5 @@
 console.log('env===>', process.env.NODE_ENV);
+const GOOGLE_MAP_KEY = 'AIzaSyB38f4iC9ugEAXVrPsFxNXIA56pnAP7W1k'
 const port = process.env.PORT || 3000
 
 module.exports = {
@@ -19,7 +20,7 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -27,13 +28,12 @@ module.exports = {
     '~/assets/scss/_main.scss'
   ],
 
-
-
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/axios',
     '~/plugins/utils',
-    { src: '~/plugins/v-calendar.js', ssr: false }
+    { src: '~/plugins/v-calendar.js', ssr: false },
+    { src: "~/plugins/googleMap.js", ssr: true }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -80,5 +80,6 @@ module.exports = {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    transpile: [/^vue2-google-maps($|\/)/]
   },
 }

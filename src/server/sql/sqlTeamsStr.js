@@ -375,6 +375,124 @@ async function editPost({
     return data
 }
 
+// 新增事件
+async function insertEventDB({
+    creatorID,
+    teamID,
+    title,
+    season,
+    date,
+    time,
+    location,
+    position,
+    opponent,
+    isGame,
+    isNotify,
+    remark,
+}) {
+    let sql = `
+    INSERT INTO team_event(
+        creatorID,
+        teamID,
+        title,
+        season,
+        date,
+        time,
+        location,
+        position,
+        opponent,
+        isGame,
+        isNotify,
+        remark,
+        createdate
+        ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    let values = [
+        creatorID,
+        teamID,
+        title,
+        season,
+        date,
+        time,
+        location,
+        position,
+        opponent,
+        isGame,
+        isNotify,
+        remark,
+        new Date(),
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data.insertId
+}
+
+// 修改事件
+async function updateEventDB({
+    pid,
+    modifierID,
+    teamID,
+    title,
+    season,
+    date,
+    time,
+    location,
+    position,
+    opponent,
+    isGame,
+    isNotify,
+    remark,
+}) {
+    let sql = `UPDATE team_event SET 
+            modifierID = ?,
+            teamID = ?,
+            title = ?,
+            season = ?,
+            date = ?,
+            time = ?,
+            location = ?,
+            position = ?,
+            opponent = ?,
+            isGame = ?,
+            isNotify = ?,
+            remark = ?,
+            modifydate = ?
+            WHERE pid = ?`
+    let values = [
+        modifierID,
+        teamID,
+        title,
+        season,
+        date,
+        time,
+        location,
+        position,
+        opponent,
+        isGame,
+        isNotify,
+        remark,
+        new Date(),
+        pid,
+    ]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
+// 取得事件
+async function getTeamEvent({
+    teamID,
+    eventID,
+    startDate,
+    endDate,
+}) {
+    const condition = teamID ? `teamID = ${teamID}` : eventID ? `pid = ${eventID}` : ''
+    const duration = startDate && endDate ? `AND CAST(date AS DATE) BETWEEN '${startDate}' AND '${endDate}'` : ''
+    let sql = `Select * FROM team_event WHERE ${condition} ${duration}`
+    const res = await query(sql)
+    const data = JSON.parse(JSON.stringify(res))
+    return data
+}
+
 module.exports = {
     insertTeamDB,
     insertTeamMemberDB,
@@ -396,4 +514,7 @@ module.exports = {
     getPostSocialCount,
     deletePost,
     editPost,
+    insertEventDB,
+    getTeamEvent,
+    updateEventDB,
 }

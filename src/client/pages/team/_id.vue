@@ -120,9 +120,9 @@
           <div
             :class="[
               'col teamInfoBlock--tab',
-              { active: teamInfo.tab === TAB_INFO.SEASON },
+              { active: teamInfo.tab === TAB_INFO.EVENT },
             ]"
-            @click="handleTab(TAB_INFO.SEASON)"
+            @click="handleTab(TAB_INFO.EVENT)"
           >
             賽季
           </div>
@@ -167,6 +167,9 @@
           :postData="filterDeletePost"
           :teamID="teamID"
         />
+      </div>
+      <div v-if="teamInfo.tab === TAB_INFO.EVENT">
+        <TeamEvent :teamID="teamID" />
       </div>
       <ModalBase :footHidden="true" :headerHidden="true" ref="teamModifyForm">
         <TeamModifyForm
@@ -216,6 +219,7 @@ import TeamMember from "~/components/team/TeamMember";
 import TeamPostArea from "~/components/team/TeamPostArea";
 import ModalBase from "~/components/modal/ModalBase";
 import TeamPostForm from "~/components/team/TeamPostForm";
+import TeamEvent from "~/components/team/TeamEvent";
 
 export default {
   components: {
@@ -225,6 +229,7 @@ export default {
     TeamMember,
     TeamPostArea,
     TeamPostForm,
+    TeamEvent,
   },
   data() {
     return {
@@ -237,7 +242,7 @@ export default {
       TAB_INFO: {
         MEMBER: "member",
         STAT: "stat",
-        SEASON: "season",
+        EVENT: "event",
         POST: "post",
         ACCOUNTING: "accounting",
       },

@@ -23,6 +23,9 @@ const {
     getPostSocialCount,
     deletePost,
     editPost,
+    insertEventDB,
+    getTeamEvent,
+    updateEventDB,
 } = require('../sql/sqlTeamsStr')
 const {
     getMemberName
@@ -748,7 +751,106 @@ router.put('/editPost', async function (req, res, next) {
     }
 });
 
+// 新增事件
+router.post('/addEvent', async function (req, res, next) {
+    try {
+        const creatorID = base64Obj.decodeNumber(req.session.user.pid)
+        const teamID = base64Obj.decodeNumber(req.body.teamID)
+        const title = req.body.title ? req.body.title : '未命名事件'
+        const date = req.body.date ? req.body.date : ''
+        const time = req.body.time ? req.body.time : ''
+        const location = req.body.location ? req.body.location : ''
+        const position = req.body.position ? JSON.stringify(req.body.position) : ''
+        const isGame = req.body.isGame ? 1 : 0
+        const opponent = req.body.opponent && isGame ? req.body.opponent : ''
+        const season = req.body.season && isGame ? req.body.season : ''
+        const isNotify = req.body.isNotify ? 1 : 0
+        const remark = req.body.remark ? req.body.remark : ''
 
+        let eventID = await insertEventDB({
+            creatorID,
+            teamID,
+            title,
+            season,
+            date,
+            time,
+            location,
+            position,
+            opponent,
+            isGame,
+            isNotify,
+            remark,
+        })
+        if (eventID) {
+            const event = await getTeamEvent({ eventID })
+            res.status(200).json(event)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 修改事件
+router.put('/event/:id', async function (req, res, next) {
+    try {
+        const pid = req.params.id
+        const modifierID = base64Obj.decodeNumber(req.session.user.pid)
+        const teamID = base64Obj.decodeNumber(req.body.teamID)
+        const title = req.body.title ? req.body.title : '未命名事件'
+        const date = req.body.date ? req.body.date : ''
+        const time = req.body.time ? req.body.time : ''
+        const location = req.body.location ? req.body.location : ''
+        const position = req.body.position ? JSON.stringify(req.body.position) : ''
+        const isGame = req.body.isGame ? 1 : 0
+        const opponent = req.body.opponent && isGame ? req.body.opponent : ''
+        const season = req.body.season && isGame ? req.body.season : ''
+        const isNotify = req.body.isNotify ? 1 : 0
+        const remark = req.body.remark ? req.body.remark : ''
+
+        await updateEventDB({
+            pid,
+            modifierID,
+            teamID,
+            title,
+            season,
+            date,
+            time,
+            location,
+            position,
+            opponent,
+            isGame,
+            isNotify,
+            remark,
+        })
+        const event = await getTeamEvent({ eventID: pid })
+        if (event) {
+            res.status(200).json(event)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
+
+// 球隊事件列表
+router.get('/getEvent/:teamID', async function (req, res, next) {
+    try {
+        const teamID = base64Obj.decodeNumber(req.params.teamID)
+        const startDate = req.query.startDate ? req.query.startDate.toString() : ''
+        const endDate = req.query.endDate ? req.query.endDate.toString() : ''
+        if (teamID) {
+            const event = await getTeamEvent({ teamID, startDate, endDate })
+            res.status(200).json(event)
+        } else {
+            res.status(500)
+        }
+    } catch (err) {
+        next(err)
+    }
+});
 
 
 

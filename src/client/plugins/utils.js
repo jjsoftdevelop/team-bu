@@ -1,7 +1,6 @@
 const { Base64 } = require('js-base64');
 import { sportCate } from "~/constants/sportCate";
 import { roleCate } from "~/constants/roleCate";
-import { ToastPlugin } from 'bootstrap-vue'
 
 export default (context, inject) => {
     inject('wait', miliseconds => {

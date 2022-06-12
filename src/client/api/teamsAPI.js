@@ -300,6 +300,106 @@ export function editPost(api) {
     }
 }
 
+// 新增事件
+export function addEvent(api) {
+    return async function ({
+        teamID,
+        title,
+        season,
+        date,
+        time,
+        location,
+        position,
+        opponent,
+        isGame,
+        isNotify,
+        remark,
+    }) {
+        const path = `${API_MODULE}/addEvent`
+        try {
+            const { data, errors } = await api.post(path, {
+                teamID,
+                title,
+                season,
+                date,
+                time,
+                location,
+                position,
+                opponent,
+                isGame,
+                isNotify,
+                remark,
+            })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+// 修改事件
+export function updateEvent(api) {
+    return async function ({
+        pid,
+        teamID,
+        title,
+        season,
+        date,
+        time,
+        location,
+        position,
+        opponent,
+        isGame,
+        isNotify,
+        remark,
+    }) {
+        const path = `${API_MODULE}/event/${pid}`
+        try {
+            const { data, errors } = await api.put(path, {
+                teamID,
+                title,
+                season,
+                date,
+                time,
+                location,
+                position,
+                opponent,
+                isGame,
+                isNotify,
+                remark,
+            })
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
+export function getEvent(api) {
+    return async function ({
+        teamID,
+        startDate,
+        endDate,
+    }) {
+        const path = `${API_MODULE}/getEvent/${teamID}${startDate ? `?startDate=${startDate}` : ''}${endDate ? `&endDate=${endDate}` : ''}`
+        try {
+            const { data, errors } = await api.get(path)
+            if (errors) {
+                return Promise.reject(errors)
+            }
+            return data
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+}
+
 
 
 
