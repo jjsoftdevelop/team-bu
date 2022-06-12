@@ -1,5 +1,4 @@
 console.log('env===>', process.env.NODE_ENV);
-const GOOGLE_MAP_KEY = 'AIzaSyB38f4iC9ugEAXVrPsFxNXIA56pnAP7W1k'
 const port = process.env.PORT || 3000
 
 module.exports = {
