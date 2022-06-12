@@ -124,7 +124,7 @@
             ]"
             @click="handleTab(TAB_INFO.EVENT)"
           >
-            賽季
+            行事曆
           </div>
           <div
             :class="[
