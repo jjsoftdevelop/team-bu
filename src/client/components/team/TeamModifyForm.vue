@@ -1,11 +1,11 @@
 <template>
   <div>
     <div v-if="modifyInfo">
-      <div class="position-relative mb-2">
+      <div class="position-relative mb-6">
         <b-img
           :src="bannerFile.preview ? bannerFile.preview : modifyInfo.bannerUrl"
           class="w-100 img-cover"
-          height="300"
+          height="200"
           alt=""
         ></b-img>
         <label
@@ -16,18 +16,25 @@
             bottom: 10px;
             right: 10px;
             border-radius: 50%;
-            background: black;
           "
           @click="openCropperModal"
           ><svg
-            width="14"
-            height="12"
-            viewBox="0 0 14 12"
+            width="24"
+            height="25"
+            viewBox="0 0 24 25"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            <circle cx="12" cy="12.9973" r="12" fill="#21B39A" />
             <path
-              d="M0.75 2.75V11.25H13.25V2.75H10.25L8.75 0.75H5.25L3.75 2.75H0.75Z"
+              d="M5.75 9.74731V18.2473H18.25V9.74731H15.25L13.75 7.74731H10.25L8.75 9.74731H5.75Z"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12 15.7473C13.2426 15.7473 14.25 14.74 14.25 13.4973C14.25 12.2547 13.2426 11.2473 12 11.2473C10.7574 11.2473 9.75 12.2547 9.75 13.4973C9.75 14.74 10.7574 15.7473 12 15.7473Z"
               stroke="white"
               stroke-width="1.5"
               stroke-linecap="round"
@@ -35,15 +42,6 @@
             />
           </svg>
         </label>
-        <!-- <div class="d-none">
-          <input
-            id="uploadBannerFile"
-            type="file"
-            @change="uploadBannerFile"
-            name="uploadBox"
-            accept="image/png, image/jpeg"
-          />
-        </div> -->
         <div
           class="position-absolute"
           style="left: 50%; top: 50%; transform: translate(-50%, -50%)"
@@ -57,18 +55,25 @@
                 bottom: 0px;
                 right: 0px;
                 border-radius: 50%;
-                background: black;
               "
               for="uploadLogoFile"
               ><svg
-                width="14"
-                height="12"
-                viewBox="0 0 14 12"
+                width="24"
+                height="25"
+                viewBox="0 0 24 25"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
+                <circle cx="12" cy="12.9973" r="12" fill="#21B39A" />
                 <path
-                  d="M0.75 2.75V11.25H13.25V2.75H10.25L8.75 0.75H5.25L3.75 2.75H0.75Z"
+                  d="M5.75 9.74731V18.2473H18.25V9.74731H15.25L13.75 7.74731H10.25L8.75 9.74731H5.75Z"
+                  stroke="white"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 15.7473C13.2426 15.7473 14.25 14.74 14.25 13.4973C14.25 12.2547 13.2426 11.2473 12 11.2473C10.7574 11.2473 9.75 12.2547 9.75 13.4973C9.75 14.74 10.7574 15.7473 12 15.7473Z"
                   stroke="white"
                   stroke-width="1.5"
                   stroke-linecap="round"
@@ -76,7 +81,7 @@
                 />
               </svg>
             </label>
-            <div>
+            <div class="rounded-circle bg-light">
               <b-img
                 :src="logoFile.preview ? logoFile.preview : modifyInfo.logoUrl"
                 rounded="circle"
@@ -100,40 +105,67 @@
         </div>
       </div>
       <div>
-        <div class="mb-2">
-          <label for="">隊名</label>
+        <div class="mb-6">
+          <label class="text-info" for="">球隊名稱</label>
           <div>
-            <input type="text" v-model="modifyInfo.name" />
+            <b-form-input
+              v-model="modifyInfo.name"
+              placeholder="輸入球隊名稱"
+              autocomplete="off"
+            ></b-form-input>
           </div>
         </div>
-        <div class="mb-2">
-          <label for="">選擇球隊類型</label>
+        <div class="mb-6">
+          <label class="text-info" for="">選擇球隊類型</label>
           <b-form-select
             v-model="modifyInfo.typeID"
             :options="type"
             @change="handleRank"
           ></b-form-select>
         </div>
-        <div class="mb-2">
-          <label for="">球員平均年齡</label>
+        <div class="mb-6">
+          <label class="text-info" for="">球員平均年齡</label>
           <b-form-select
             v-model="modifyInfo.rankID"
             :options="rank"
           ></b-form-select>
         </div>
-        <div class="mb-2">
-          <label for="">地區</label>
+        <div class="mb-6">
+          <label class="text-info" for="">地區</label>
           <b-form-select
             v-model="modifyInfo.city"
             :options="city"
           ></b-form-select>
         </div>
-        <div>
-          <b-button variant="info" @click="submit" class="mr-2">送出</b-button>
+        <div class="d-flex justify-content-center">
+          <b-button
+            @click="
+              () => {
+                $emit('closeTeamModifyModal');
+              }
+            "
+            class="px-6 btn-l btn btn-light text-info font-weight-bold mr-6"
+            pill
+          >
+            取消
+          </b-button>
+          <b-button
+            :disabled="!modifyInfo.name"
+            class="btn-l"
+            variant="success"
+            pill
+            @click="submit"
+            >儲存</b-button
+          >
         </div>
       </div>
     </div>
-    <ModalBase :footHidden="true" :headerHidden="true" ref="cropperModal">
+    <ModalBase
+      :noBackdropClose="true"
+      :footHidden="true"
+      :headerHidden="true"
+      ref="cropperModal"
+    >
       <Cropper
         :imgSrc="form.bannerUrl"
         @getFileObj="getFileObj"
