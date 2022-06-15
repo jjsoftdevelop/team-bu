@@ -239,7 +239,7 @@ async function getMemberByEmail({ email }) {
 
 // 查詢球隊球員
 async function getTeamMemberList({ teamID }) {
-    let sql = `SELECT A.picture, B.nickname, A.teamMemberLevelID, A.teamMemberStatusID, C.statusText, D.levelText  FROM team_member AS A
+    let sql = `SELECT A.picture, B.nickname, A.teamMemberLevelID, A.teamMemberStatusID, C.statusText, D.levelText,A.memberID  FROM team_member AS A
     LEFT JOIN member AS B ON B.pid = A.memberID
     LEFT JOIN team_member_status AS C ON C.statusID = A.teamMemberStatusID
     LEFT JOIN team_member_level AS D ON D.levelID = A.teamMemberLevelID
@@ -487,7 +487,9 @@ async function getTeamEvent({
 }) {
     const condition = teamID ? `teamID = ${teamID}` : eventID ? `pid = ${eventID}` : ''
     const duration = startDate && endDate ? `AND CAST(date AS DATE) BETWEEN '${startDate}' AND '${endDate}'` : ''
-    let sql = `Select * FROM team_event WHERE ${condition} ${duration}`
+    let sql = `Select A.*,B.name FROM team_event AS A 
+               LEFT JOIN team AS B ON B.pid = A.teamID
+               WHERE ${condition} ${duration}`
     const res = await query(sql)
     const data = JSON.parse(JSON.stringify(res))
     return data
