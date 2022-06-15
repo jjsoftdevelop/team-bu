@@ -783,21 +783,21 @@ router.post('/addEvent', async function (req, res, next) {
         })
         if (eventID) {
             const event = await getTeamEvent({ eventID })
+            console.log(event[0].name)
             // todo 發送通知給成員
-            if(isNotify){
-            const result = await getTeamMemberList({ teamID })
-                result.forEach(item => {
+            if (isNotify) {
+                const result = await getTeamMemberList({ teamID })
+                await Promise.all(result.forEach(async item => {
                     //title, content, receiverID, typeID, extra, playerID, teamID,
                     await sendNotification({
                         title: `球隊 ${event[0].name} 新增事件囉`,
-                        content: `快速前往查看`,
+                        content: `${title}`,
                         receiverID: item.memberID,
                         typeID: 9,
                         extra: `{eventID:${eventID}}`,
                         teamID
                     })
-                    
-                })
+                }))
             }
             res.status(200).json(event)
         } else {

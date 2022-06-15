@@ -7,13 +7,13 @@ const { insertNotificationDB, getNotification, updateNotification } = require('.
 // 發送通知
 router.post('/notification/send', async function (req, res, next) {
     try {
-        const title = req.body.title
-        const content = req.body.content
-        const receiverID = req.body.receiverID
-        const typeID = req.body.typeID
-        const extra = req.body.extra
-        const playerID = req.body.playerID
-        const teamID = req.body.teamID
+        const title = req.body.title || ''
+        const content = req.body.content || ''
+        const receiverID = req.body.receiverID || ''
+        const typeID = req.body.typeID || ''
+        const extra = req.body.extra || ''
+        const playerID = req.body.playerID || ''
+        const teamID = req.body.teamID || ''
         let returnObj = {}
         const data = await insertNotificationDB({ title, content, receiverID, typeID, extra, playerID, teamID })
         if (data) {

@@ -41,7 +41,7 @@
         <div>
           <b-form-checkbox
             switch
-            v-model="createEvent.notify"
+            v-model="createEvent.isNotify"
             size="lg"
           ></b-form-checkbox>
         </div>
@@ -137,7 +137,7 @@ export default {
         time: "",
         location: "",
         position: "",
-        notify: true,
+        isNotify: true,
         remark: "",
         isGame: false,
         opponent: "待定",

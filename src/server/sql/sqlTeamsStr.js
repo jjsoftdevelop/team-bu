@@ -485,7 +485,7 @@ async function getTeamEvent({
     startDate,
     endDate,
 }) {
-    const condition = teamID ? `teamID = ${teamID}` : eventID ? `pid = ${eventID}` : ''
+    const condition = teamID ? `teamID = ${teamID}` : eventID ? `A.pid = ${eventID}` : ''
     const duration = startDate && endDate ? `AND CAST(date AS DATE) BETWEEN '${startDate}' AND '${endDate}'` : ''
     let sql = `Select A.*,B.name FROM team_event AS A 
                LEFT JOIN team AS B ON B.pid = A.teamID
