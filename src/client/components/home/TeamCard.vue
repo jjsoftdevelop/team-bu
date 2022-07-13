@@ -19,10 +19,10 @@
           {{ team.name }}
         </div>
         <img
-          v-if="team.teamMemberLevelID && (team.teamMemberStatusID !== 4 && team.teamMemberStatusID !== 9)"
+          v-if="team.levelID && (team.statusID !== 4 && team.statusID !== 9)"
           :src="
             require(`~/assets/img/svg/${$transforRoleIcon(
-              team.teamMemberLevelID
+              team.levelID
             )}.svg`)
           "
           alt=""
@@ -32,18 +32,18 @@
         {{ team.city }}/{{ team.typeText }}/{{ team.rankText }}
       </div>
       <div
-        v-if="team.teamMemberStatusID === 2 || team.teamMemberStatusID === 1"
+        v-if="team.statusID === 2 || team.statusID === 1"
       >
         <b-badge
           disabled
-          v-if="team.teamMemberStatusID === 2"
+          v-if="team.statusID === 2"
           pill
           variant="secondary"
           >申請加入中</b-badge
         >
         <b-badge
           disabled
-          v-if="team.teamMemberStatusID === 1"
+          v-if="team.statusID === 1"
           pill
           variant="secondary"
           >邀請加入中</b-badge

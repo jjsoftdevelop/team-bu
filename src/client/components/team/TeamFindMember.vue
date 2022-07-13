@@ -53,15 +53,15 @@
             rounded="circle"
           ></b-img>
         </template>
-        <template #cell(teamMemberStatusID)="data">
+        <template #cell(statusID)="data">
           <div>
-            {{ formatStatus(data.item.teamMemberStatusID) }}
+            {{ formatStatus(data.item.statusID) }}
           </div>
         </template>
         <template #cell(action)="data">
           <div>
             <b-button
-              v-if="formatStatus(data.item.teamMemberStatusID) === '-'"
+              v-if="formatStatus(data.item.statusID) === '-'"
               class="btn-sm"
               pill
               variant="outline-success"
@@ -90,10 +90,10 @@
           <div
             v-for="(item, key) in roleCate"
             :key="key"
-            @click="teamMemberLevelID = key"
+            @click="levelID = key"
             :class="[
               'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-              { active: teamMemberLevelID === key },
+              { active: levelID === key },
             ]"
           >
             <div class="mb-2">
@@ -119,7 +119,7 @@
           </b-button>
           <b-button
             class="btn-sm"
-            :disabled="!teamMemberLevelID"
+            :disabled="!levelID"
             variant="success"
             pill
             @click="teamJoin"
@@ -154,7 +154,7 @@ export default {
       email: "a10010134@gmail.com",
       memberID: "",
       picture: "",
-      teamMemberLevelID: "1",
+      levelID: "1",
       memberList: {
         isInitial: false,
         isLoading: false,
@@ -163,7 +163,7 @@ export default {
       tableField: [
         { key: "picture", label: "頭像" },
         { key: "nickname", label: "暱稱" },
-        { key: "teamMemberStatusID", label: "狀態" },
+        { key: "statusID", label: "狀態" },
         { key: "action", label: "動作" },
       ],
     };
@@ -201,12 +201,12 @@ export default {
         const memberID = this.memberID;
         const picture = this.picture;
         const teamID = this.teamID;
-        const teamMemberLevelID = Number(this.teamMemberLevelID);
+        const levelID = Number(this.levelID);
         await this.$api.teamJoin({
           teamID,
           memberID,
           picture,
-          teamMemberLevelID,
+          levelID,
           type: "invite",
         });
         this.$showToast({

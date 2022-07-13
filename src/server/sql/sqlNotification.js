@@ -32,11 +32,18 @@ async function insertNotificationDB(
 // typeID 1:個人通知 2:系統通知 3:要求加入 4:邀請加入 5:球隊同意加入
 // 6:球員同意加入 7:球隊拒絕加入 8:球員拒絕加入
 async function getNotification({ memberID, typeID }) {
-    const typeReplace = typeID && typeID.length > 0 ? typeID.replaceAll(',', ' OR notification.typeID = ') : ''
-    let sql = `SELECT DISTINCT notification.pid, notification.typeID, notification.createdate, notification.teamID, 
-                notification.playerID, member.picture, notification.title, notification.content FROM notification
-                LEFT JOIN member ON member.pid = notification.playerID
-                WHERE notification.receiverID = ${memberID} AND notification.isShow = '1' ${typeReplace ? `AND (${typeReplace})` : ''}
+    const typeReplace = typeID && typeID.length > 0 ? typeID.replaceAll(',', ' OR A.typeID = ') : ''
+    let sql = `SELECT DISTINCT A.pid, 
+                A.typeID, 
+                A.createdate, 
+                A.teamID, 
+                A.playerID, 
+                A.title, 
+                A.content,
+                B.picture
+                FROM notification AS A
+                LEFT JOIN member AS B ON B.pid = A.playerID
+                WHERE A.receiverID = ${memberID} AND A.isShow = '1' ${typeReplace ? `AND (${typeReplace})` : ''}
                 ORDER BY createdate DESC`
     const res = await query(sql)
     const data = JSON.parse(JSON.stringify(res))

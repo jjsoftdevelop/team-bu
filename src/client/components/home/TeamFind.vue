@@ -203,8 +203,8 @@
               @clickAction="
                 handleSelectTeam(
                   team.pid,
-                  team.teamMemberLevelID,
-                  team.teamMemberStatusID
+                  team.levelID,
+                  team.statusID
                 )
               "
               :team="team"
@@ -228,10 +228,10 @@
         <div
           v-for="(item, key) in roleCate"
           :key="key"
-          @click="teamJoinInfo.teamMemberLevelID = Number(key)"
+          @click="teamJoinInfo.levelID = Number(key)"
           :class="[
             'teamFindBlock--btn mr-3 px-6 px-md-10 py-2 grey text-center normal-border-radius',
-            { active: teamJoinInfo.teamMemberLevelID === Number(key) },
+            { active: teamJoinInfo.levelID === Number(key) },
           ]"
         >
           <div class="mb-2">
@@ -253,7 +253,7 @@
         </b-button>
         <b-button
           class="btn-sm"
-          :disabled="!teamJoinInfo.teamMemberLevelID"
+          :disabled="!teamJoinInfo.levelID"
           variant="success"
           pill
           @click="handleJoin"
@@ -307,7 +307,7 @@ export default {
         teamID: null,
         memberID: null,
         picture: "",
-        teamMemberLevelID: 1,
+        levelID: 1,
         type: "join",
       },
       createInfo: {
@@ -448,13 +448,13 @@ export default {
       }
     },
     async handleJoin() {
-      const { teamID, teamMemberLevelID, type } = this.teamJoinInfo;
+      const { teamID, levelID, type } = this.teamJoinInfo;
       try {
         this.$api.teamJoin({
           teamID,
           memberID: this.user.pid,
           picture: this.user.picture,
-          teamMemberLevelID,
+          levelID,
           type,
         });
         this.$showToast({
@@ -473,11 +473,11 @@ export default {
         console.log(err);
       }
     },
-    handleSelectTeam(TeamID, teamMemberLevelID, teamMemberStatusID) {
+    handleSelectTeam(TeamID, levelID, statusID) {
       if (
-        teamMemberLevelID &&
-        teamMemberStatusID !== 4 &&
-        teamMemberStatusID !== 9
+        levelID &&
+        statusID !== 4 &&
+        statusID !== 9
       ) {
         this.$showToast({ content: "已在球隊名單囉！", title: "訊息" });
         return;

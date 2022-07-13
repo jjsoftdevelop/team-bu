@@ -147,9 +147,9 @@ export default {
         const res = await this.$api.getMyTeam();
         this.myTeamData.list = res.filter((item) => {
           return (
-            item.teamMemberStatusID === 1 ||
-            item.teamMemberStatusID === 2 ||
-            item.teamMemberStatusID === 3
+            item.statusID === 1 ||
+            item.statusID === 2 ||
+            item.statusID === 3
           );
         });
       } catch (err) {

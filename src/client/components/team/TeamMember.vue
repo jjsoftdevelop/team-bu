@@ -46,7 +46,7 @@
           <img
             :src="
               require(`~/assets/img/svg/${$transforRoleIcon(
-                item.teamMemberLevelID
+                item.levelID
               )}.svg`)
             "
             alt=""

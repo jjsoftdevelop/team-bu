@@ -74,11 +74,11 @@ router.get('/user/getMyRoleOnTeams', async (req, res, next) => {
             player: []
         }
         data.forEach(item => {
-            if (item.teamMemberLevelID === 1) {
+            if (item.levelID === 1) {
                 role.player.push(item)
-            } else if (item.teamMemberLevelID === 2) {
+            } else if (item.levelID === 2) {
                 role.fans.push(item)
-            } else if (item.teamMemberLevelID === 3) {
+            } else if (item.levelID === 3) {
                 role.manager.push(item)
             }
         })

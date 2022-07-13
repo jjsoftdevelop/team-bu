@@ -78,14 +78,14 @@ export function teamJoin(api) {
         teamID,
         memberID,
         picture,
-        teamMemberLevelID,
+        levelID,
         type,
     }) {
         const path = `${API_MODULE}/teams/join/${teamID}/${memberID}`
         try {
             const { data, errors } = await api.post(path, {
                 picture,
-                teamMemberLevelID,
+                levelID,
                 type
             })
             if (errors) {
@@ -102,15 +102,15 @@ export function teamJoin(api) {
 export function updateTeamMemberStatus(api) {
     return async function ({
         teamID,
-        memberID,
-        teamMemberStatusID,
-        teamMemberLevelID
+        playerID,
+        statusID,
+        levelID
     }) {
-        const path = `${API_MODULE}/teams/status/${teamID}/${memberID}`
+        const path = `${API_MODULE}/teams/status/${teamID}/${playerID}`
         try {
             const { data, errors } = await api.put(path, {
-                teamMemberStatusID,
-                teamMemberLevelID,
+                statusID,
+                levelID,
             })
             if (errors) {
                 return Promise.reject(errors)

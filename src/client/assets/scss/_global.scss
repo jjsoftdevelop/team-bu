@@ -92,6 +92,12 @@ h5,
   font-size: 12px;
   line-height: 16px;
 }
+.text-error {
+  color: $Error-500;
+}
+.text-attention {
+  color: $Attention-500;
+}
 .text-grey {
   color: $Dark-500;
 }
@@ -106,6 +112,9 @@ h5,
 }
 .bg-light-300 {
   background: $Light-300 !important;
+}
+.bg-light-100 {
+  background: $Light-100 !important;
 }
 .bg-light {
   background: $Light !important;

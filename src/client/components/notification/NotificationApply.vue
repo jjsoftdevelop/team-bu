@@ -74,16 +74,16 @@ export default {
     };
   },
   methods: {
-    async updateTeamMemberStatus(memberID, teamID, type) {
+    async updateTeamMemberStatus(playerID, teamID, type) {
       try {
         if (!this.memberStatus.isLoading) {
           this.memberStatus.isLoading = true;
           if (type === "agree") {
             // 更新teamMember狀態
             const { type } = await this.$api.updateTeamMemberStatus({
-              memberID,
+              playerID,
               teamID,
-              teamMemberStatusID: 3,
+              statusID: 3,
             });
             // 成功後 更新通知狀態
             if (type === "1") {
@@ -98,9 +98,9 @@ export default {
             // 更新teamMember狀態
             // 4:申請已拒絕 5:邀請已拒絕 9:已移除
             const { type } = await this.$api.updateTeamMemberStatus({
-              memberID,
+              playerID,
               teamID,
-              teamMemberStatusID: notificationType === 3 ? 4 : 5,
+              statusID: notificationType === 3 ? 4 : 5,
             });
             // 成功後 更新通知狀態
             if (type === "1") {

@@ -1,5 +1,4 @@
 const { query } = require('../../config/async-db')
-const axios = require('axios');
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
 
 // 新增球隊寫入DB
@@ -83,53 +82,80 @@ async function modifyTeamDB({
 }
 
 // 新增球員寫入DB
-async function insertTeamMemberDB(
-    teamID,
+async function insertPlayer({
     memberID,
+    number,
+    nickname,
+    position,
     picture,
-    teamMemberLevelID,
-    teamMemberStatusID,
-) {
-    let sql = "INSERT INTO team_member(memberID, teamID, picture, teamMemberLevelID ,teamMemberStatusID, createdate) VALUES(?,?,?,?,?,?)"
+    creator,
+}) {
+    let sql = "INSERT INTO player(memberID, number, nickname, position, picture, createDate, creator) VALUES(?,?,?,?,?,?,?)"
     let values = [
         memberID,
-        teamID,
+        number,
+        nickname,
+        position,
         picture,
-        teamMemberLevelID,
-        teamMemberStatusID,
-        new Date()
+        new Date(),
+        creator
     ]
     const res = await query(sql, values)
-
     const data = JSON.parse(JSON.stringify(res))
     return data.insertId
 }
 
-// 檢查是否已在球對
-async function isExistTeamMember(teamID, memberID) {
-    let sql = `SELECT B.nickname AS memberName,B.picture AS memberPicture,C.name AS teamName,C.logoUrl AS teamLogo, A.*, D.statusText AS teamMemberStatusText, E.levelText AS teamMemberLevelText  FROM team_member AS A
-                LEFT JOIN member AS B ON B.pid = A.memberID
-                LEFT JOIN team AS C ON C.pid = A.teamID
-                LEFT JOIN team_member_status AS D ON D.statusID = A.teamMemberStatusID
-                LEFT JOIN team_member_level AS E ON E.levelID = A.teamMemberLevelID
-                WHERE memberID = ? AND teamID = ? Limit 1`
-    let values = [memberID, teamID]
+// 新增球員球隊關係
+async function insertRelative({
+    memberID,
+    playerID,
+    teamID,
+    levelID,
+    statusID,
+}) {
+    let sql = "INSERT INTO team_player_relative(memberID, playerID, teamID, levelID, statusID, createDate) VALUES(?,?,?,?,?,?)"
+    let values = [
+        memberID,
+        playerID,
+        teamID,
+        levelID,
+        statusID,
+        new Date()
+    ]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
-
-    return data[0]
+    return data.insertId
 }
 
-// 更新球隊球員加入狀態
-async function updateTeamMemberStatus({ teamMemberLevelID, teamMemberStatusID, memberID, teamID }) {
-    let sql = `UPDATE team_member set 
-    ${teamMemberLevelID ? ` teamMemberLevelID = ${teamMemberLevelID},` : ''}
-    ${teamMemberStatusID ? ` teamMemberStatusID = ${teamMemberStatusID},` : ''}
-    modifydate = ? WHERE memberID = ? AND teamID = ? limit 1`
-    let values = [new Date(), memberID, teamID]
+// 修改球員球隊關係
+async function updateTeamPlayerStatus({ levelID, statusID, playerID, teamID }) {
+    let sql = `UPDATE team_player_relative set 
+    ${levelID ? ` levelID = ${levelID},` : ''}
+    ${statusID ? ` statusID = ${statusID},` : ''}
+    modifydate = ? WHERE playerID = ? AND teamID = ? limit 1`
+    let values = [new Date(), playerID, teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
     return data
+}
+
+async function isExistTeamPlayer({ memberID = '', teamID, playerID = '' }) {
+    let sql = `SELECT A.pid AS playerID,
+                      A.nickname,
+                      A.picture,
+                      C.name AS teamName,
+                      C.logoUrl AS teamLogo,
+                      B.levelID,
+                      B.statusID,
+                      B.memberID
+                FROM team_player_relative AS B
+                LEFT JOIN player AS A ON A.pid = B.playerID
+                LEFT JOIN team AS C ON C.pid = B.teamID
+                WHERE (B.memberID = ? OR B.playerID = ?) AND B.teamID = ? Limit 1`
+    let values = [memberID, playerID, teamID]
+    const res = await query(sql, values)
+    const data = JSON.parse(JSON.stringify(res))
+    return data[0]
 }
 
 // 搜尋球隊列表
@@ -191,7 +217,9 @@ async function selectTeamDB({ teamID, categoryID, name }) {
 
 // 取得要求加入球隊的人
 async function getTeamJoinList(teamID) {
-    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberstatusID = 2"
+    let sql = `SELECT A.*,B.nickname FROM team_player_relative AS A
+               LEFT JOIN player AS B ON B.pid = A.playerID
+               WHERE teamID = ? AND statusID = 2`
     let values = [teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
@@ -200,7 +228,8 @@ async function getTeamJoinList(teamID) {
 
 // 取得球隊管理員
 async function getTeamManagerList(teamID) {
-    let sql = "SELECT * FROM team_member WHERE teamID = ? AND teamMemberstatusID = 3 AND teamMemberLevelID = 3"
+    let sql = `SELECT * FROM team_player_relative
+               WHERE teamID = ? AND statusID = 3 AND levelID = 3`
     let values = [teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
@@ -218,9 +247,9 @@ async function getTeamInfo(teamID) {
 
 // 取得球隊成員的頭貼
 async function getTeamMemberPic(teamID) {
-    let sql = `SELECT B.picture FROM team_member AS A
-                LEFT JOIN member AS B ON B.pid = A.memberID
-                WHERE A.teamID = ? AND A.teamMemberStatusID = 3`
+    let sql = `SELECT B.picture FROM team_player_relative AS A
+                LEFT JOIN player AS B ON B.pid = A.playerID
+                WHERE A.teamID = ? AND A.statusID = 3`
     let values = [teamID]
     const res = await query(sql, values)
     const data = JSON.parse(JSON.stringify(res))
@@ -239,11 +268,12 @@ async function getMemberByEmail({ email }) {
 
 // 查詢球隊球員
 async function getTeamMemberList({ teamID }) {
-    let sql = `SELECT A.picture, B.nickname, A.teamMemberLevelID, A.teamMemberStatusID, C.statusText, D.levelText,A.memberID  FROM team_member AS A
-    LEFT JOIN member AS B ON B.pid = A.memberID
-    LEFT JOIN team_member_status AS C ON C.statusID = A.teamMemberStatusID
-    LEFT JOIN team_member_level AS D ON D.levelID = A.teamMemberLevelID
-    WHERE A.teamID = ${teamID}`
+    let sql = `SELECT A.picture, B.nickname, E.levelID, E.statusID, C.statusText, D.levelText,E.memberID  FROM team_player_relative AS E
+    LEFT JOIN player AS A ON A.pid = E.playerID
+    LEFT JOIN member AS B ON B.pid = E.memberID
+    LEFT JOIN team_member_status AS C ON C.statusID = E.statusID
+    LEFT JOIN team_member_level AS D ON D.levelID = E.levelID
+    WHERE E.teamID = ${teamID}`
     const res = await query(sql)
     const data = JSON.parse(JSON.stringify(res))
     return data
@@ -497,9 +527,7 @@ async function getTeamEvent({
 
 module.exports = {
     insertTeamDB,
-    insertTeamMemberDB,
-    isExistTeamMember,
-    updateTeamMemberStatus,
+    updateTeamPlayerStatus,
     selectTeamDB,
     getTeamJoinList,
     getTeamManagerList,
@@ -519,4 +547,7 @@ module.exports = {
     insertEventDB,
     getTeamEvent,
     updateEventDB,
+    insertRelative,
+    insertPlayer,
+    isExistTeamPlayer,
 }
